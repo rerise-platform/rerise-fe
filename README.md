@@ -1,70 +1,118 @@
-# Getting Started with Create React App
+# ReriSe Frontend
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## 프로젝트 구조
 
-## Available Scripts
+```
+src/
+├── features/               # 기능별 모듈화
+│   ├── login/             # 로그인 기능
+│   ├── signup/            # 회원가입 기능
+│   ├── test/              # 성향 테스트
+│   ├── main/              # 메인 페이지
+│   ├── emotion/           # 감정 기록
+│   ├── mission/           # 미션
+│   └── place/             # 장소 추천
+│
+├── shared/                # 공통 리소스
+│   ├── components/        # 공통 컴포넌트
+│   ├── utils/            # 유틸리티 함수
+│   └── assets/           # 정적 리소스
+│
+└── store/                # 상태 관리
+```
 
-In the project directory, you can run:
+## 주요 기능별 구조
+
+각 기능은 다음과 같은 구조로 구성되어 있습니다:
+
+```
+feature/
+├── api/          # API 통신
+├── components/   # 컴포넌트
+├── pages/        # 페이지
+└── slice.js      # 상태 관리
+```
+
+## 기술 스택
+
+- React
+- Redux Toolkit (상태 관리)
+- React Router (라우팅)
+- Styled Components (스타일링)
+- Axios (HTTP 클라이언트)
+
+## 주요 기능
+
+### 1. 인증
+- 로그인/로그아웃
+- 회원가입
+- JWT 기반 인증
+
+### 2. 성향 테스트
+- 단계별 테스트 진행
+- 결과 분석 및 표시
+- 진행률 표시
+
+### 3. 감정 기록
+- 일일 감정 기록
+- 감정 변화 추적
+- 통계 시각화
+
+### 4. 미션
+- 맞춤형 미션 제공
+- 미션 진행 상황 관리
+- 완료 체크
+
+### 5. 장소 추천
+- 성향 기반 장소 추천
+- 필터링 및 검색
+- 상세 정보 제공
+
+## 공통 컴포넌트
+
+- `Button`: 버튼 컴포넌트
+- `Input`: 입력 필드 컴포넌트
+- `Modal`: 모달 컴포넌트
+- `Navbar`: 네비게이션 바
+
+## 상태 관리
+
+- Redux Toolkit을 사용한 중앙 집중식 상태 관리
+- 각 기능별 독립적인 slice 구성
+- 비동기 작업은 createAsyncThunk 사용
+
+## API 통신
+
+- Axios 기반 HTTP 클라이언트
+- 중앙 집중식 에러 처리
+- JWT 토큰 관리
+- 요청/응답 인터셉터
+
+## 스타일 가이드
+
+- Styled Components 사용
+- 글로벌 테마 변수 관리
+- 반응형 디자인 지원
+
+## 시작하기
+
+프로젝트 실행을 위한 명령어들입니다:
+
+### `npm install`
+
+프로젝트 의존성 패키지들을 설치합니다.
 
 ### `npm start`
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+개발 모드로 앱을 실행합니다.\
+[http://localhost:3000](http://localhost:3000)에서 확인할 수 있습니다.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
-
-### `npm test`
-
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+코드 변경 시 자동으로 페이지가 새로고침됩니다.\
+콘솔에서 린트 에러를 확인할 수 있습니다.
 
 ### `npm run build`
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+프로덕션용 빌드를 생성합니다.\
+빌드된 파일은 `build` 폴더에 생성됩니다.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+최적화된 프로덕션 빌드가 생성되며, 파일명에 해시가 포함됩니다.
