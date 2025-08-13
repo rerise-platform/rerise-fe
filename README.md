@@ -1,4 +1,4 @@
-# ReriSe Frontend
+# Rerise Frontend
 
 ## 프로젝트 구조
 
