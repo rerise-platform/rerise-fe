@@ -59,26 +59,6 @@ const LoginButton = styled.button`
   }
 `;
 
-// 유틸리티 링크들 (아이디/비밀번호 찾기)
-const UtilityLinks = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 5px;
-  font-size: 13px;
-  color: #5A605B;
-  margin: 20px 0;
-  
-  span {
-    color: #5A605B;
-  }
-  
-  a {
-    color: #5A605B;
-    text-decoration: none;
-  }
-`;
-
 // 회원가입 안내 섹션
 const SignupPrompt = styled.div`
   display: flex;
@@ -188,13 +168,6 @@ const LoginForm = () => {
       <LoginButton type="submit" disabled={loading}>
         {loading ? '로그인 중...' : '로그인'}
       </LoginButton>
-
-      {/* 유틸리티 링크들 */}
-      <UtilityLinks>
-        <Link to="/find-id">아이디 찾기</Link>
-        <span>ㅣ</span>
-        <Link to="/find-password">비밀번호 찾기</Link>
-      </UtilityLinks>
 
       {/* 회원가입 안내 */}
       <SignupPrompt>
