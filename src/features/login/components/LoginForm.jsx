@@ -4,160 +4,109 @@ import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { loginThunk } from '../loginSlice';
 
-const Group3 = styled.div`
-  position: relative;
-  width: 296px;
-  height: 165px;
-  margin: 0 auto;
-`;
-
-const InputContainer = styled.div`
-  position: relative;
+// ===== Styled Components =====
+// 입력 박스 스타일
+const InputBox = styled.div`
   width: 296px;
   height: 58px;
-  margin-bottom: 19px;
-`;
-
-const InputWrapper = styled.div`
-  position: relative;
-  width: 296px;
-  height: 58px;
-  background-color: rgba(255, 255, 255, 0.2);
-  border-radius: 28px;
   border: 1px solid #40EA87;
-  backdrop-filter: blur(12.5px);
+  background-color: rgba(255,255,255,0.2);
+  border-radius: 28px;
+  margin-bottom: 20px;
+  position: relative;
+  backdrop-filter: ${props => props.isPassword ? 'blur(7.5px)' : 'blur(12px)'};
+  -webkit-backdrop-filter: ${props => props.isPassword ? 'blur(7.5px)' : 'blur(12px)'};
 `;
 
+// 입력 필드 스타일
 const Input = styled.input`
   width: 100%;
   height: 100%;
-  padding: 19px 20px;
-  font-family: "Pretendard-Regular", Helvetica;
-  font-weight: 400;
-  color: #3F3F3F;
-  font-size: 15px;
-  letter-spacing: -0.5px;
-  line-height: 20px;
   border: none;
   background: transparent;
+  padding: 19px 20px;
+  font-size: 15px;
+  color: #3F3F3F;
+  outline: none;
+  box-sizing: border-box;
+  font-family: "Pretendard-Regular", Helvetica;
+  font-weight: 400;
+  letter-spacing: -0.5px;
+  line-height: 20px;
+
   &::placeholder {
     color: #3F3F3F;
   }
-  &:focus {
-    outline: none;
-  }
 `;
 
-const CheckboxContainer = styled.div`
-  position: relative;
-  width: 157px;
-  height: 17px;
-  margin-top: 12px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-`;
-
-const Checkbox = styled.input`
-  appearance: none;
-  width: 15px;
-  height: 15px;
-  background-color: #FEFFF5;
-  border-radius: 7.46px;
-  border: 1px solid #31B066;
-  position: relative;
-  cursor: pointer;
-
-  &:checked {
-    &::after {
-      content: '';
-      position: absolute;
-      width: 7px;
-      height: 6px;
-      top: 4px;
-      left: 3px;
-      background-color: #31B066;
-      clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%);
-    }
-  }
-`;
-
-const CheckboxLabel = styled.label`
-  font-family: "Pretendard-Regular", Helvetica;
-  font-weight: 400;
-  color: #31B066;
-  font-size: 12px;
-  letter-spacing: -0.5px;
-  line-height: 20px;
-  cursor: pointer;
-`;
-
+// 로그인 버튼
 const LoginButton = styled.button`
   width: 304px;
   height: 68px;
-  margin: 20px auto;
-  display: block;
   background: #40EA87;
   border: none;
   border-radius: 28px;
   font-family: "Pretendard-SemiBold", Helvetica;
   font-size: 16px;
   color: #41604C;
+  font-weight: 600;
   cursor: pointer;
+  margin: 20px 0;
 
   &:disabled {
-    opacity: 0.7;
+    background: #cccccc;
     cursor: not-allowed;
   }
 `;
 
+// 유틸리티 링크들 (아이디/비밀번호 찾기)
 const UtilityLinks = styled.div`
   display: flex;
   justify-content: center;
-  gap: 17px;
-  margin-bottom: 42px;
-  
-  a {
-    font-family: "Pretendard-Regular", Helvetica;
-    font-weight: 400;
-    color: #5A605B;
-    font-size: 13px;
-    letter-spacing: -0.5px;
-    line-height: 20px;
-    text-decoration: none;
-  }
+  align-items: center;
+  gap: 5px;
+  font-size: 13px;
+  color: #5A605B;
+  margin: 20px 0;
   
   span {
     color: #5A605B;
   }
+  
+  a {
+    color: #5A605B;
+    text-decoration: none;
+  }
 `;
 
+// 회원가입 안내 섹션
 const SignupPrompt = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 25px;
+  gap: 6px;
+  margin-top: 20px;
   
   span {
-    font-family: "Pretendard-Regular", Helvetica;
-    font-weight: 400;
-    color: #9EA3B2;
     font-size: 14px;
-    letter-spacing: 0.07px;
     line-height: 22px;
+    letter-spacing: 0.07px;
+    white-space: nowrap;
+  }
+  
+  .ask {
+    color: #9EA3B2;
+    font-weight: 400;
   }
   
   a {
-    font-family: "Pretendard-SemiBold", Helvetica;
-    font-weight: 600;
     color: #31B066;
-    font-size: 14px;
-    letter-spacing: 0.07px;
-    line-height: 22px;
+    font-weight: 600;
     text-decoration: none;
   }
 `;
 
+// 에러 메시지 스타일
 const ErrorMessage = styled.div`
   color: #ff4444;
   font-size: 14px;
@@ -166,86 +115,90 @@ const ErrorMessage = styled.div`
   margin: 10px 0;
 `;
 
+/**
+ * 로그인 폼 컴포넌트
+ * 사용자 인증 정보를 입력받고 Redux를 통해 로그인 처리를 담당
+ */
 const LoginForm = () => {
-  const dispatch = useDispatch();
-  const { loading, error } = useSelector(state => state.auth);
+  // Redux hooks
+  const dispatch = useDispatch(); // 액션을 dispatch하기 위한 함수
+  const { loading, error } = useSelector(state => state.auth); // Redux store에서 상태 가져오기
+  
+  // 폼 데이터 상태 관리
   const [formData, setFormData] = useState({
-    username: '',
-    password: '',
-    rememberMe: false
+    email: '',         // 사용자 이메일
+    password: ''       // 사용자 비밀번호
   });
 
+  /**
+   * 입력 필드 값 변경 핸들러
+   * @param {Event} e - 이벤트 객체
+   */
   const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
+    const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value
+      [name]: value
     }));
   };
 
+  /**
+   * 폼 제출 핸들러
+   * @param {Event} e - 이벤트 객체
+   */
   const handleSubmit = (e) => {
-    e.preventDefault();
+    e.preventDefault(); // 기본 폼 제출 동작 방지
+    
+    // Redux thunk를 통해 로그인 액션 dispatch
     dispatch(loginThunk({
-      username: formData.username,
+      email: formData.email,
       password: formData.password
     }));
   };
 
   return (
     <form onSubmit={handleSubmit}>
-      <Group3>
-        <InputContainer>
-          <InputWrapper>
-            <Input
-              type="text"
-              name="username"
-              placeholder="아이디"
-              value={formData.username}
-              onChange={handleChange}
-              required
-            />
-          </InputWrapper>
-        </InputContainer>
-        
-        <InputContainer>
-          <InputWrapper>
-            <Input
-              type="password"
-              name="password"
-              placeholder="비밀번호"
-              value={formData.password}
-              onChange={handleChange}
-              required
-            />
-          </InputWrapper>
-        </InputContainer>
+      {/* 입력 필드들 */}
+      <InputBox>
+        <Input
+          type="email"
+          name="email"
+          placeholder="이메일"
+          value={formData.email}
+          onChange={handleChange}
+          required
+        />
+      </InputBox>
+      
+      <InputBox isPassword>
+        <Input
+          type="password"
+          name="password"
+          placeholder="비밀번호"
+          value={formData.password}
+          onChange={handleChange}
+          required
+        />
+      </InputBox>
 
-        <CheckboxContainer>
-          <Checkbox
-            type="checkbox"
-            id="rememberMe"
-            name="rememberMe"
-            checked={formData.rememberMe}
-            onChange={handleChange}
-          />
-          <CheckboxLabel htmlFor="rememberMe">자동로그인</CheckboxLabel>
-        </CheckboxContainer>
-      </Group3>
-
+      {/* 에러 메시지 표시 */}
       {error && <ErrorMessage>{error}</ErrorMessage>}
 
+      {/* 로그인 버튼 */}
       <LoginButton type="submit" disabled={loading}>
         {loading ? '로그인 중...' : '로그인'}
       </LoginButton>
 
+      {/* 유틸리티 링크들 */}
       <UtilityLinks>
         <Link to="/find-id">아이디 찾기</Link>
         <span>ㅣ</span>
         <Link to="/find-password">비밀번호 찾기</Link>
       </UtilityLinks>
 
+      {/* 회원가입 안내 */}
       <SignupPrompt>
-        <span>아직 회원이 아니신가요?</span>
+        <span className="ask">아직 회원이 아니신가요?</span>
         <Link to="/signup">회원가입</Link>
       </SignupPrompt>
     </form>
