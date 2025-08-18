@@ -185,8 +185,8 @@ export default function SignupForm({ onSubmit }) {
 
       <div className="sg-checkbox-area">
         <label
-          className="sg-checkbox-item"
-          style={{ fontWeight: "bold", fontSize: "15px" }}
+          className="sg-checkbox-item sg-checkbox-all"
+          style={{ fontWeight: "bold" }}
         >
           <input
             className="sg-checkbox"
