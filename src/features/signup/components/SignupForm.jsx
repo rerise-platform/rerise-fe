@@ -1,1 +1,270 @@
-// 회원가입 컴포넌트
+// ✅ SignupForm.js
+import React, { useState, useRef } from "react";
+import "./SignupForm.css";
+
+export default function SignupForm({ onSubmit }) {
+  const [email, setEmail] = useState("");
+  const [emailError, setEmailError] = useState("");
+
+  const [password, setPassword] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+
+  const [confirmPassword, setConfirmPassword] = useState("");
+
+  const [nickname, setNickname] = useState("");
+
+  const [birth, setBirth] = useState("");
+  const [birthError, setBirthError] = useState("");
+
+  const [showDialog, setShowDialog] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isShowPwChecked, setShowPwChecked] = useState(false);
+  const passwordRef = useRef(null);
+
+  const [allChecked, setAllChecked] = useState(false);
+  const [terms, setTerms] = useState({
+    terms1: false,
+    terms2: false,
+    marketing: false,
+  });
+
+  const isFormValid =
+    email &&
+    password &&
+    confirmPassword &&
+    nickname &&
+    birth &&
+    !emailError &&
+    !passwordError &&
+    password === confirmPassword &&
+    !birthError &&
+    terms.terms1 &&
+    terms.terms2;
+
+  const handleAllCheck = () => {
+    const newChecked = !allChecked;
+    setAllChecked(newChecked);
+    setTerms({ terms1: newChecked, terms2: newChecked, marketing: newChecked });
+  };
+
+  const handleTermChange = (name) => {
+    const updated = { ...terms, [name]: !terms[name] };
+    setTerms(updated);
+    setAllChecked(Object.values(updated).every(Boolean));
+  };
+
+  const handleShowPwChecked = async () => {
+    const password = passwordRef.current;
+    if (!password) return;
+
+    await setShowPwChecked(!isShowPwChecked);
+    password.type = isShowPwChecked ? "password" : "text";
+  };
+
+  const handleSubmitClick = async () => {
+    if (!isFormValid) return;
+
+    const exists = await fakeCheckEmail(email);
+    if (exists) {
+      setShowDialog(true);
+      return;
+    }
+
+    setIsSubmitted(true); // 성공 다이얼로그 띄우기
+  };
+
+  const handleBirthChange = (value) => {
+    setBirth(value);
+    const isValid = /^\d{8}$/.test(value);
+    setBirthError(isValid ? "" : "형식이 맞지 않습니다. 8자리 입력(YYYYMMDD)");
+  };
+
+  const handleEmailChange = (value) => {
+    setEmail(value);
+    const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+    setEmailError(isValidEmail || value === "" ? "" : "형식이 맞지 않습니다.");
+  };
+
+  const handlePasswordChange = (value) => {
+    setPassword(value);
+    const isValidPassword =
+      /^(?=.*[A-Za-z])(?=.*\d)(?=.*[!@#$%^&*()_\-+=])[A-Za-z\d!@#$%^&*()_\-+=]{8,16}$/.test(
+        value
+      );
+    setPasswordError(
+      isValidPassword || value === ""
+        ? ""
+        : "비밀번호는 8~16자의 영문, 숫자, 특수 문자를 이용하세요."
+    );
+  };
+
+  return (
+    <div className="sg-form">
+      <h2 className="sg-title">회원가입</h2>
+
+      <label className="sg-label">아이디(이메일)</label>
+      <input
+        className="sg-input"
+        type="email"
+        placeholder="이메일 주소"
+        value={email}
+        onChange={(e) => handleEmailChange(e.target.value)}
+      />
+      {emailError && <p style={{ color: "#e54848" }}>{emailError}</p>}
+
+      <label className="sg-label">비밀번호</label>
+      <div style={{ position: "relative" }}>
+        <input
+          ref={passwordRef}
+          className="sg-input"
+          type="password"
+          placeholder="비밀번호"
+          value={password}
+          onChange={(e) => handlePasswordChange(e.target.value)}
+          style={{ width: "100%" }}
+        />
+        <label
+          style={{
+            position: "absolute",
+            right: 0,
+            top: "50%",
+            transform: "translateY(-50%)",
+            fontSize: "12px",
+            display: "flex",
+            alignItems: "center",
+          }}
+        >
+          <input
+            type="checkbox"
+            onChange={handleShowPwChecked}
+            style={{ marginRight: 4 }}
+          />
+          비밀번호 보기
+        </label>
+      </div>
+      {passwordError && <p style={{ color: "#e54848" }}>{passwordError}</p>}
+
+      <label className="sg-label">비밀번호 확인</label>
+      <input
+        className="sg-input"
+        type="password"
+        placeholder="비밀번호 확인"
+        value={confirmPassword}
+        onChange={(e) => setConfirmPassword(e.target.value)}
+      />
+      {confirmPassword.length > 0 && (
+        <p
+          style={{
+            color: password === confirmPassword ? "#28d742" : "#e54848",
+          }}
+        >
+          {password === confirmPassword
+            ? "비밀번호가 동일합니다."
+            : "비밀번호가 동일하지 않습니다."}
+        </p>
+      )}
+
+      <label className="sg-label">닉네임</label>
+      <input
+        className="sg-input"
+        type="text"
+        placeholder="닉네임을 입력해주세요"
+        value={nickname}
+        onChange={(e) => setNickname(e.target.value)}
+      />
+
+      <label className="sg-label">생년월일</label>
+      <input
+        className="sg-input"
+        type="text"
+        placeholder="8자리 입력 (YYYYMMDD)"
+        value={birth}
+        onChange={(e) => handleBirthChange(e.target.value)}
+      />
+      {birthError && <p style={{ color: "#e54848" }}>{birthError}</p>}
+
+      <div className="sg-checkbox-area">
+        <label
+          className="sg-checkbox-item"
+          style={{ fontWeight: "bold", fontSize: "15px" }}
+        >
+          <input
+            className="sg-checkbox"
+            type="checkbox"
+            checked={allChecked}
+            onChange={handleAllCheck}
+            style={{ width: "21.5px", height: "21.5px" }}
+          />
+          모두 동의합니다.
+        </label>
+        <label className="sg-checkbox-item">
+          <input
+            className="sg-checkbox"
+            type="checkbox"
+            checked={terms.terms1}
+            onChange={() => handleTermChange("terms1")}
+          />
+          이용약관 동의 (필수)
+        </label>
+        <label className="sg-checkbox-item">
+          <input
+            className="sg-checkbox"
+            type="checkbox"
+            checked={terms.terms2}
+            onChange={() => handleTermChange("terms2")}
+          />
+          개인정보 처리방침 동의 (필수)
+        </label>
+        <label className="sg-checkbox-item">
+          <input
+            className="sg-checkbox"
+            type="checkbox"
+            checked={terms.marketing}
+            onChange={() => handleTermChange("marketing")}
+          />
+          마케팅 정보 수신 동의 (선택)
+        </label>
+      </div>
+
+      <button
+        className="sg-submit"
+        onClick={handleSubmitClick}
+        disabled={!isFormValid}
+        style={{
+          opacity: isFormValid ? 1 : 0.5,
+          cursor: isFormValid ? "pointer" : "not-allowed",
+        }}
+      >
+        Rerise 시작하기
+      </button>
+
+      {isSubmitted && (
+        <div className="sg-dialog-overlay">
+          <div className="dialog">
+            <p>회원가입 성공!</p>
+            <button onClick={() => (window.location.href = "/login")}>
+              로그인 하러 가기
+            </button>
+          </div>
+        </div>
+      )}
+
+      {showDialog && (
+        <div className="dialog">
+          <p>이미 아이디가 존재합니다.</p>
+          <button onClick={() => (window.location.href = "/login")}>
+            로그인 하러 가기
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// TODO: 이 함수는 실제 API 호출로 대체 필요
+const fakeCheckEmail = async (email) => {
+  const existing = ["test@example.com", "user@rerise.com"];
+  return new Promise((resolve) =>
+    setTimeout(() => resolve(existing.includes(email)), 500)
+  );
+};
