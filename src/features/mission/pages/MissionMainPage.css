@@ -1,0 +1,235 @@
+.mission-page {
+  text-align: center;
+  padding: 20px;
+  background-color: #f9fbf8;
+  min-height: 100vh;
+  font-family: "Noto Sans KR", sans-serif;
+}
+
+.mission-title {
+  font-size: 20px;
+  font-weight: bold;
+  margin: 19px 0px;
+}
+
+.mission-category {
+  display: inline-block;
+  margin-top: 15px;
+  padding: 8px 14px;
+  color: rgba(65, 96, 76, 1);
+  border-radius: 13px;
+  border: 1px solid rgba(64, 234, 135, 1);
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 0px;
+}
+
+.mission-desc {
+  font-size: 30px;
+  margin-bottom: 10px;
+  margin-top: 15px;
+  font-weight: 400;
+  color: rgba(110, 116, 111, 1);
+}
+
+.mission-desc .highlight {
+  font-weight: 800;
+  color: rgba(65, 96, 76, 1);
+}
+
+.mission-main-icon img {
+  width: 250px;
+  margin: 0px auto;
+}
+
+.mission-rewards {
+  display: flex;
+  justify-content: center;
+  gap: 25px;
+  margin: 15px 0;
+}
+
+.reward {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 14px;
+  color: #3c8163;
+}
+
+.reward img {
+  width: 60px;
+  margin-bottom: 5px;
+  margin-top: 0px;
+}
+
+.rewardinactive img {
+  width: 40px;
+  margin-bottom: 5px;
+}
+
+.rewardinactive p {
+  opacity: 0.8;
+  font-size: 14px;
+  color: #999;
+  flex-direction: column;
+  align-items: center;
+}
+
+.mission-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.mission-card {
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  padding: 15px;
+  text-align: left;
+}
+
+.mission-card p {
+  margin-bottom: 10px;
+  font-size: 14px;
+  color: #333;
+}
+
+.mission-card button {
+  width: 100%;
+  padding: 10px;
+  background: rgba(64, 234, 135, 1);
+  border: none;
+  border-radius: 8px;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.mission-card button.disabled {
+  background: #e0e0e0;
+  color: #999;
+  cursor: not-allowed;
+}
+
+/* ============ 로드맵 미션 ============ */
+.roadmap-section {
+  margin-top: 36px;
+}
+
+.roadmap-badge {
+  display: inline-block;
+  margin-top: 15px;
+  padding: 8px 14px;
+  color: white;
+  background-color: rgba(64, 234, 135, 1);
+  border-radius: 13px;
+  border: 1px solid rgba(64, 234, 135, 1);
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 5px;
+}
+
+.text-wrapper {
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent;
+  background: linear-gradient(
+    90deg,
+    rgba(32, 230, 137, 1) 0%,
+    rgb(1, 170, 74) 49%,
+    rgb(6, 105, 54) 80%,
+    rgb(9, 81, 48) 100%
+  );
+  background-clip: text;
+  color: transparent;
+  font-size: 30px;
+  font-weight: 800;
+  height: 78px;
+  left: 0;
+  letter-spacing: -0.7px;
+  line-height: 39.2px;
+  text-align: center;
+  margin-bottom: 30px;
+  margin-top: 15px;
+}
+
+.roadmap-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin: 0;
+  padding: 0 5px;
+}
+
+.roadmap-item {
+  list-style: none;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  text-align: left;
+  padding: 10px 25px;
+  border-radius: 20px;
+  border: 1px solid #40ea87;
+  margin-bottom: 5px;
+  box-shadow: 0 2px 0 rgba(64, 234, 135, 0.25);
+}
+
+.roadmap-item span {
+  color: #2f3a34;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.roadmap-item img {
+  width: 35px;
+  height: 35px;
+}
+
+.roadmap-item.done {
+  /* 완료된 카드에 살짝 진한 느낌 */
+  background: rgba(218, 247, 230, 1);
+}
+
+.roadmap-item.pending {
+  opacity: 0.95;
+}
+
+/* 피드백 카드 */
+.roadmap-feedback {
+  margin-top: 20px;
+  padding: 10px 10px;
+  border-radius: 20px;
+  border: 2px solid rgba(64, 234, 135, 1);
+  background: #f9fffb;
+  box-shadow: 0 3px 0 rgba(64, 234, 135, 0.35);
+  text-align: left;
+  display: flex;
+  justify-content: center;
+  margin: 15px 2px;
+}
+
+.roadmap-feedback textarea {
+  width: 80%; /* 전체보다는 좁게 */
+  padding: 5px 15px;
+  border: 1px solid #f9fffb;
+  background: #f9fffb;
+  font-size: 14px;
+  color: #333;
+  font-family: inherit;
+  resize: none;
+  outline: none;
+}
+
+.feedback-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #2f3a34;
+  font-weight: 700;
+}
+
+.feedback-head img {
+  width: 35px;
+  height: 35px;
+}

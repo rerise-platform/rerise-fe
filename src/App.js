@@ -2,6 +2,7 @@ import React from "react";
 import { Routes, Route, BrowserRouter } from "react-router-dom";
 import LoginPage from "./features/login/pages/LoginPage.jsx";
 import SignupPage from "./features/signup/pages/SignupPage.jsx";
+import MissionMainPage from "./features/mission/pages/MissionMainPage.jsx";
 import "./App.css";
 
 function App() {
@@ -18,6 +19,9 @@ function App() {
 
           {/* 회원가입 페이지 경로 */}
           <Route path="/signup" element={<SignupPage />} />
+
+          {/* 회원가입 페이지 경로 */}
+          <Route path="/mission" element={<MissionMainPage />} />
         </Routes>
       </BrowserRouter>
     </div>

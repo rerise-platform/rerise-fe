@@ -1,0 +1,11 @@
+/* MissionCard.css */
+
+.mission-card {
+  border: 1px solid #ccc;
+  padding: 16px;
+  border-radius: 12px;
+  margin-bottom: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
