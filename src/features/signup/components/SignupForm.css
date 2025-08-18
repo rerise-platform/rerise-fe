@@ -132,7 +132,8 @@ p {
 
   .sg-input,
   .sg-label,
-  .sg-checkbox-item {
+  .sg-checkbox-item,
+  .sg-checkbox-all {
     font-size: clamp(16px, 3.5vw, 26px);
     padding: clamp(5px, 2vw, 26px);
   }
