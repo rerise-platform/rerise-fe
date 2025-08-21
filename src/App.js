@@ -2,11 +2,8 @@ import React from "react";
 import { Routes, Route, BrowserRouter } from "react-router-dom";
 import LoginPage from "./features/login/pages/LoginPage.jsx";
 import SignupPage from "./features/signup/pages/SignupPage.jsx";
-<<<<<<< Updated upstream
-=======
 import MissionMainPage from "./features/mission/pages/MissionMainPage.jsx";
 import AdminPage from "./features/admin/pages/AdminPage.jsx";
->>>>>>> Stashed changes
 import "./App.css";
 
 function App() {
@@ -23,15 +20,12 @@ function App() {
 
           {/* 회원가입 페이지 경로 */}
           <Route path="/signup" element={<SignupPage />} />
-<<<<<<< Updated upstream
-=======
-
+            
           {/* 미션 페이지 경로 */}
           <Route path="/mission" element={<MissionMainPage />} />
 
           {/* 관리자 페이지 경로 */}
           <Route path="/admin" element={<AdminPage />} />
->>>>>>> Stashed changes
         </Routes>
       </BrowserRouter>
     </div>
