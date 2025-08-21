@@ -5,8 +5,6 @@ import SignupPage from "./features/signup/pages/SignupPage.jsx";
 import MissionMainPage from "./features/mission/pages/MissionMainPage.jsx";
 import AdminPage from "./features/admin/pages/AdminPage.jsx";
 
-import "./App.css";
-
 function App() {
   return (
     <div className="app">

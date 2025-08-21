@@ -231,7 +231,7 @@ export default function SignupForm({ onSubmit }) {
         onClick={handleSubmitClick}
         disabled={!isFormValid}
         style={{
-          opacity: isFormValid ? 1 : 0.5,
+          opacity: isFormValid ? 1 : 0.9,
           cursor: isFormValid ? "pointer" : "not-allowed",
         }}
       >
