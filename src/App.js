@@ -3,47 +3,38 @@ import { Routes, Route, useLocation } from 'react-router-dom';
 import LoginPage from './features/login/pages/LoginPage';
 import SignupPage from './features/signup/pages/SignupPage';
 import MainPage from './features/main/pages/MainPage';
+// ↓ 은서님 작업 컴포넌트들 추가
+import MissionMainPage from './features/mission/pages/MissionMainPage.jsx';
+import AdminPage from './features/admin/pages/AdminPage.jsx';
+import TutorialPage from './features/mission/pages/TutorialPage.jsx';
 import Navbar from './shared/components/Navbar';
 import './App.css';
 
-/**
- * 메인 App 컴포넌트
- * React Router를 사용하여 페이지 간 라우팅을 담당
- */
 function App() {
   const location = useLocation();
   
-  // 네비게이션을 표시하지 않을 페이지들
-  const hideNavbarPages = ['/login', '/signup'];
+  // ↓ 네비게이션 숨길 페이지 확장
+  const hideNavbarPages = ['/login', '/signup', '/admin', '/tutorial'];
   const shouldShowNavbar = !hideNavbarPages.includes(location.pathname);
 
   return (
     <div className="app">
-      {/* 라우팅 설정 */}
       <Routes>
-        {/* 기본 경로 - MainPage로 변경 */}
         <Route path="/" element={<MainPage />} />
-        
-        {/* 메인 페이지 경로 */}
         <Route path="/main" element={<MainPage />} />
-        
-        {/* 미션 페이지 경로 (나중에 구현) */}
-        <Route path="/mission" element={<div>미션 페이지 (준비중)</div>} />
-        
-        {/* 추천 페이지 경로 (나중에 구현) */}
-        <Route path="/recommendation" element={<div>추천 페이지 (준비중)</div>} />
-        
-        {/* 마이 페이지 경로 (나중에 구현) */}
-        <Route path="/mypage" element={<div>마이 페이지 (준비중)</div>} />
-        
-        {/* 로그인 페이지 경로 */}
         <Route path="/login" element={<LoginPage />} />
-        
-        {/* 회원가입 페이지 경로 */}
         <Route path="/signup" element={<SignupPage />} />
+        
+        {/* ↓ 은서님 작업 페이지들 추가 */}
+        <Route path="/tutorial" element={<TutorialPage />} />
+        <Route path="/mission" element={<MissionMainPage />} /> {/* 실제 컴포넌트로 교체 */}
+        <Route path="/admin" element={<AdminPage />} />
+        
+        {/* ↓ 박신형 준비중 페이지들 유지 */}
+        <Route path="/recommendation" element={<div>추천 페이지 (준비중)</div>} />
+        <Route path="/mypage" element={<div>마이 페이지 (준비중)</div>} />
       </Routes>
       
-      {/* 조건부 네비게이션 바 표시 */}
       {shouldShowNavbar && <Navbar />}
     </div>
   );
