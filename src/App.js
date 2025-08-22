@@ -6,6 +6,7 @@ import MissionMainPage from "./features/mission/pages/MissionMainPage.jsx";
 import AdminPage from "./features/admin/pages/AdminPage.jsx";
 import TutorialPage from "./features/mission/pages/TutorialPage.jsx";
 
+
 function App() {
   return (
     <div className="app">
@@ -27,7 +28,7 @@ function App() {
           {/* 미션 페이지 경로 */}
           <Route path="/mission" element={<MissionMainPage />} />
 
-          {/* 미션 페이지 경로 */}
+          {/* 관리자 페이지 경로 */}
           <Route path="/admin" element={<AdminPage />} />
         </Routes>
       </BrowserRouter>
