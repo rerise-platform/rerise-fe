@@ -27,6 +27,15 @@ function App() {
         {/* 메인 페이지 경로 */}
         <Route path="/main" element={<MainPage />} />
         
+        {/* 미션 페이지 경로 (나중에 구현) */}
+        <Route path="/mission" element={<div>미션 페이지 (준비중)</div>} />
+        
+        {/* 추천 페이지 경로 (나중에 구현) */}
+        <Route path="/recommendation" element={<div>추천 페이지 (준비중)</div>} />
+        
+        {/* 마이 페이지 경로 (나중에 구현) */}
+        <Route path="/mypage" element={<div>마이 페이지 (준비중)</div>} />
+        
         {/* 로그인 페이지 경로 */}
         <Route path="/login" element={<LoginPage />} />
         
@@ -35,7 +44,7 @@ function App() {
       </Routes>
       
       {/* 조건부 네비게이션 바 표시 */}
-      {shouldShowNavbar && <Navbar activeTab="home" />}
+      {shouldShowNavbar && <Navbar />}
     </div>
   );
 }

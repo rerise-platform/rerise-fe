@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 // 아이콘 import
 import HomeIcon from '../assets/images/uil_home-alt.svg';
@@ -47,19 +48,20 @@ const NavItem = styled.div`
 `;
 
 const NavIcon = styled.img`
-  width: 24px;
-  height: 24px;
+  width: 32px;
+  height: 32px;
   opacity: 0.6;
   transition: all 0.2s ease;
+  object-fit: contain;
 
   .nav-item.active & {
     opacity: 1;
-    filter: brightness(0) saturate(100%) invert(64%) sepia(85%) saturate(2427%) hue-rotate(102deg) brightness(94%) contrast(89%);
+    filter: brightness(0) saturate(100%) invert(47%) sepia(69%) saturate(582%) hue-rotate(95deg) brightness(96%) contrast(89%);
   }
 
   ${NavItem}.active & {
     opacity: 1;
-    filter: brightness(0) saturate(100%) invert(64%) sepia(85%) saturate(2427%) hue-rotate(102deg) brightness(94%) contrast(89%);
+    filter: brightness(0) saturate(100%) invert(47%) sepia(69%) saturate(582%) hue-rotate(95deg) brightness(96%) contrast(89%);
   }
 `;
 
@@ -68,18 +70,41 @@ const NavIcon = styled.img`
  * combined.html의 .bottom-nav 구조를 기반으로 구현
  * 🏠💬👍👤 아이콘들과 활성화 상태 관리
  */
-const Navbar = ({ activeTab = 'home' }) => {
+const Navbar = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+
   const navItems = [
-    { id: 'home', icon: HomeIcon },
-    { id: 'chat', icon: CommentIcon },
-    { id: 'like', icon: ThumbsUpIcon },
-    { id: 'profile', icon: UserIcon }
+    { id: 'home', icon: HomeIcon, path: '/main' },
+    { id: 'mission', icon: CommentIcon, path: '/mission' },
+    { id: 'recommendation', icon: ThumbsUpIcon, path: '/recommendation' },
+    { id: 'mypage', icon: UserIcon, path: '/mypage' }
   ];
+
+  // 현재 경로에 따라 활성 탭 결정
+  const getActiveTab = () => {
+    const currentPath = location.pathname;
+    if (currentPath === '/' || currentPath === '/main') return 'home';
+    if (currentPath === '/mission') return 'mission';
+    if (currentPath === '/recommendation') return 'recommendation';
+    if (currentPath === '/mypage') return 'mypage';
+    return 'home'; // 기본값
+  };
+
+  const handleNavClick = (path) => {
+    navigate(path);
+  };
+
+  const activeTab = getActiveTab();
 
   return (
     <BottomNav>
       {navItems.map((item) => (
-        <NavItem key={item.id} className={activeTab === item.id ? 'active' : ''}>
+        <NavItem 
+          key={item.id} 
+          className={activeTab === item.id ? 'active' : ''} 
+          onClick={() => handleNavClick(item.path)}
+        >
           <NavIcon src={item.icon} alt={item.id} />
         </NavItem>
       ))}
