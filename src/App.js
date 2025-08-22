@@ -4,6 +4,8 @@ import LoginPage from "./features/login/pages/LoginPage.jsx";
 import SignupPage from "./features/signup/pages/SignupPage.jsx";
 import MissionMainPage from "./features/mission/pages/MissionMainPage.jsx";
 import AdminPage from "./features/admin/pages/AdminPage.jsx";
+import TutorialPage from "./features/mission/pages/TutorialPage.jsx";
+
 
 function App() {
   return (
@@ -19,6 +21,9 @@ function App() {
 
           {/* 회원가입 페이지 경로 */}
           <Route path="/signup" element={<SignupPage />} />
+
+          {/* 튜토리얼 페이지 경로 */}
+          <Route path="/tutorial" element={<TutorialPage />} />
 
           {/* 미션 페이지 경로 */}
           <Route path="/mission" element={<MissionMainPage />} />

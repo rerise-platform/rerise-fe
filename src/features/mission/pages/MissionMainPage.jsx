@@ -65,22 +65,33 @@ const MissionMainPage = () => {
     setPhotoPreviewById((prev) => ({ ...prev, [id]: nextUrls }));
   };
 
+  // ===== 로드맵 다이얼로그 상태 (NEW) =====
+  const [confirmRoadmapId, setConfirmRoadmapId] = useState(null);
+  const roadmapToConfirm =
+    roadmapMissions.find((m) => m.id === confirmRoadmapId) || null;
+
+  // "전송" 클릭 시: 바로 pending으로 바꾸지 않고, 다이얼로그만 엶 (NEW)
   const handleSendFeedback = (id) => {
     const text = (feedbackById[id] || "").trim();
     const photos = photoById[id] || [];
-    if (text.length < 5 || photos.length < 1) return;
-
-    setRoadmapMissions((prev) =>
-      prev.map((m) => (m.id === id ? { ...m, status: "pending" } : m))
-    );
-    setActiveFeedbackId(-1);
+    if (text.length < 5 || photos.length < 1) return; // 가드
+    setConfirmRoadmapId(id); // 확인 다이얼로그 오픈
   };
 
-  const handleAdminApprove = (id) => {
+  // 로드맵: 다이얼로그 확인 → pending 변환 (NEW)
+  const handleConfirmRoadmap = () => {
+    if (!confirmRoadmapId) return;
     setRoadmapMissions((prev) =>
-      prev.map((m) => (m.id === id ? { ...m, status: "approved" } : m))
+      prev.map((m) =>
+        m.id === confirmRoadmapId ? { ...m, status: "pending" } : m
+      )
     );
+    setActiveFeedbackId(-1); // 접기
+    setConfirmRoadmapId(null); // 다이얼로그 닫기
   };
+
+  // 로드맵: 다이얼로그 닫기 (NEW)
+  const handleCloseRoadmapDialog = () => setConfirmRoadmapId(null);
 
   // ===== 데일리 미션 =====
   const [dailyMissions, setDailyMissions] = useState([
@@ -113,7 +124,7 @@ const MissionMainPage = () => {
     setConfirmId(id);
   };
 
-  // 다이얼로그: 확인
+  // 데일리: 다이얼로그 확인
   const handleConfirmComplete = () => {
     if (!confirmId) return;
     setDailyMissions((prev) =>
@@ -122,13 +133,16 @@ const MissionMainPage = () => {
     setConfirmId(null);
   };
 
-  // 다이얼로그: 닫기(취소 또는 X)
+  // 데일리: 다이얼로그 닫기
   const handleCloseDialog = () => setConfirmId(null);
 
-  // ESC로 닫기
+  // ESC로 두 종류 다이얼로그 닫기
   useEffect(() => {
     const onKey = (e) => {
-      if (e.key === "Escape") setConfirmId(null);
+      if (e.key === "Escape") {
+        setConfirmId(null);
+        setConfirmRoadmapId(null);
+      }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
@@ -184,7 +198,7 @@ const MissionMainPage = () => {
         })}
       </div>
 
-      {/* ===== 완료 확인 다이얼로그 ===== */}
+      {/* ===== 데일리 완료 확인 다이얼로그 ===== */}
       {missionToConfirm && (
         <div className="modal-overlay" role="dialog" aria-modal="true">
           <div className="modal">
@@ -192,7 +206,7 @@ const MissionMainPage = () => {
             <div className="modal-body">
               <div>
                 <span className="modal-title">“{missionToConfirm.title}”</span>
-                <br></br> 미션을 완료하셨나요?
+                <br /> 미션을 완료하셨나요?
               </div>
             </div>
             <div className="modal-actions">
@@ -210,7 +224,7 @@ const MissionMainPage = () => {
         </div>
       )}
 
-      {/* ===== 로드맵 섹션 (기존) ===== */}
+      {/* ===== 로드맵 섹션 ===== */}
       <div className="roadmap-section">
         <div className="roadmap-badge">로드맵 미션</div>
         <h3>
@@ -340,6 +354,35 @@ const MissionMainPage = () => {
           })}
         </ul>
       </div>
+
+      {/* ===== 로드맵 전송 확인 다이얼로그 (NEW) ===== */}
+      {roadmapToConfirm && (
+        <div className="modal-overlay" role="dialog" aria-modal="true">
+          <div className="modal">
+            <div className="modal-header">후기 전송 확인</div>
+            <div className="modal-body">
+              <div>
+                <span className="modal-title">“{roadmapToConfirm.title}”</span>
+                <br /> 후기 작성을 완료하셨나요?
+              </div>
+            </div>
+            <div className="modal-actions">
+              <button
+                className="modal-btn-cancel"
+                onClick={handleCloseRoadmapDialog}
+              >
+                취소
+              </button>
+              <button
+                className="modal-btn-confirm"
+                onClick={handleConfirmRoadmap}
+              >
+                네, 완료했습니다
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
