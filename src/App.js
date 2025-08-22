@@ -21,7 +21,7 @@ function App() {
     <div className="app">
       {/* 라우팅 설정 */}
       <Routes>
-        {/* 기본 경로 - 메인 페이지로 변경 */}
+        {/* 기본 경로 - MainPage로 변경 */}
         <Route path="/" element={<MainPage />} />
         
         {/* 메인 페이지 경로 */}
