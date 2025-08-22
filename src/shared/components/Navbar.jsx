@@ -1,6 +1,12 @@
 import React from 'react';
 import styled from 'styled-components';
 
+// 아이콘 import
+import HomeIcon from '../assets/images/uil_home-alt.svg';
+import CommentIcon from '../assets/images/uil_comment-heart.svg';
+import ThumbsUpIcon from '../assets/images/uil_thumbs-up.svg';
+import UserIcon from '../assets/images/uil_user.svg';
+
 // 하단 네비게이션
 const BottomNav = styled.nav`
   position: fixed;
@@ -40,19 +46,20 @@ const NavItem = styled.div`
   }
 `;
 
-const NavIcon = styled.div`
-  font-size: 24px;
+const NavIcon = styled.img`
+  width: 24px;
+  height: 24px;
   opacity: 0.6;
-  color: #666666;
+  transition: all 0.2s ease;
 
   .nav-item.active & {
     opacity: 1;
-    color: #40ea87;
+    filter: brightness(0) saturate(100%) invert(64%) sepia(85%) saturate(2427%) hue-rotate(102deg) brightness(94%) contrast(89%);
   }
 
   ${NavItem}.active & {
     opacity: 1;
-    color: #40ea87;
+    filter: brightness(0) saturate(100%) invert(64%) sepia(85%) saturate(2427%) hue-rotate(102deg) brightness(94%) contrast(89%);
   }
 `;
 
@@ -63,17 +70,17 @@ const NavIcon = styled.div`
  */
 const Navbar = ({ activeTab = 'home' }) => {
   const navItems = [
-    { id: 'home', icon: '🏠' },
-    { id: 'chat', icon: '💬' },
-    { id: 'like', icon: '👍' },
-    { id: 'profile', icon: '👤' }
+    { id: 'home', icon: HomeIcon },
+    { id: 'chat', icon: CommentIcon },
+    { id: 'like', icon: ThumbsUpIcon },
+    { id: 'profile', icon: UserIcon }
   ];
 
   return (
     <BottomNav>
       {navItems.map((item) => (
         <NavItem key={item.id} className={activeTab === item.id ? 'active' : ''}>
-          <NavIcon>{item.icon}</NavIcon>
+          <NavIcon src={item.icon} alt={item.id} />
         </NavItem>
       ))}
     </BottomNav>

@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import CharacterImage from '../../../shared/assets/images/찐따.png';
 
 // 상단 헤더
 const HeaderContainer = styled.header`
@@ -38,49 +39,35 @@ const Message = styled.span`
 // 녹색 캐릭터
 const Character = styled.div`
   position: absolute;
-  top: 80px;
-  right: 20px;
+  top: 70px;
+  right: 15px;
   z-index: 1;
 `;
 
 const CharacterCircle = styled.div`
-  width: 120px;
-  height: 120px;
-  background: radial-gradient(circle at 30% 30%, #7ef7a8, #4ae882, #2ad948);
-  border-radius: 50%;
+  width: 140px;
+  height: 140px;
   position: relative;
-  box-shadow: 0 10px 30px rgba(42, 217, 72, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
 
-  &::before {
-    content: "👋";
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 40px;
-  }
-
-  &::after {
-    content: "";
-    position: absolute;
-    top: -10px;
-    right: -5px;
-    width: 30px;
-    height: 20px;
-    background: #4ae882;
-    border-radius: 50px 10px 50px 50px;
-    transform: rotate(25deg);
-  }
+const CharacterImg = styled.img`
+  width: 100px;
+  height: 100px;
+  object-fit: contain;
+  z-index: 2;
 `;
 
 // 상태 정보
 const StatsContainer = styled.div`
   position: absolute;
-  top: 80px;
-  left: 20px;
+  top: 75px;
+  left: 18px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 6px;
   z-index: 2;
 `;
 
@@ -171,7 +158,9 @@ const Header = () => {
       </Greeting>
       
       <Character>
-        <CharacterCircle />
+        <CharacterCircle>
+          <CharacterImg src={CharacterImage} alt="Character" />
+        </CharacterCircle>
       </Character>
       
       <StatsContainer>

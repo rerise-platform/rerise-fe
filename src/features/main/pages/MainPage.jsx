@@ -2,6 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import Header from '../components/Header';
 import MissionSection from '../components/MissionSection';
+import ChartImage from '../../../shared/assets/images/Fluctuation 3D Model.png';
 
 // 전체 앱 컨테이너
 const AppContainer = styled.div`
@@ -68,9 +69,11 @@ const EmotionChart = styled.div`
   justify-content: center;
 `;
 
-const ChartPlaceholder = styled.div`
-  font-size: 30px;
+const ChartPlaceholder = styled.img`
+  width: 50px;
+  height: 50px;
   opacity: 0.8;
+  object-fit: contain;
 `;
 
 // 반응형 디자인
@@ -78,16 +81,16 @@ const ResponsiveStyles = styled.div`
   @media (max-width: 375px) {
     .header {
       padding: 15px;
-      height: 180px;
+      height: 200px;
     }
     
     .character-circle {
-      width: 100px;
-      height: 100px;
+      width: 120px;
+      height: 120px;
     }
     
     .character-circle::before {
-      font-size: 35px;
+      font-size: 40px;
     }
     
     .stats-container {
@@ -134,7 +137,7 @@ const MainPage = () => {
               <EmotionAction>감정을 기록해보세요 ›</EmotionAction>
             </EmotionText>
             <EmotionChart>
-              <ChartPlaceholder>📊</ChartPlaceholder>
+              <ChartPlaceholder src={ChartImage} alt="Chart" />
             </EmotionChart>
           </EmotionContent>
         </EmotionSection>
