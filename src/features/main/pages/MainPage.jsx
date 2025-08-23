@@ -68,31 +68,6 @@ const renderMissionList = (missions, handleMissionComplete) => {
       </MissionItem>
     ));
   }
-  
-  return (
-    <>
-      <MissionItem $delay={0.1}>
-        <MissionEmoji>✓</MissionEmoji>
-        <MissionText>가족이나 친구에게 간단한 안부 메시지 보내기</MissionText>
-        <MissionCheck $completed>✓</MissionCheck>
-      </MissionItem>
-      <MissionItem $delay={0.2}>
-        <MissionEmoji>✓</MissionEmoji>
-        <MissionText>방/책상/책 정리 10분</MissionText>
-        <MissionCheck $completed>✓</MissionCheck>
-      </MissionItem>
-      <MissionItem $delay={0.3}>
-        <MissionEmoji>✓</MissionEmoji>
-        <MissionText>잠들기 5분 전 스트레칭 또는 명상하기</MissionText>
-        <MissionCheck />
-      </MissionItem>
-      <MissionItem $delay={0.4}>
-        <MissionEmoji>✓</MissionEmoji>
-        <MissionText>오늘 한 가지 새로운 행동 시도하기</MissionText>
-        <MissionCheck />
-      </MissionItem>
-    </>
-  );
 };
 
 /**
@@ -102,6 +77,7 @@ const MainPage = () => {
   const navigate = useNavigate();
   const [speechBubbleVisible, setSpeechBubbleVisible] = useState(false);
   const [characterPromptVisible, setCharacterPromptVisible] = useState(true);
+  const [statsVisible, setStatsVisible] = useState(true);
   
   // API 데이터 상태
   const [mainData, setMainData] = useState(null);
@@ -157,12 +133,16 @@ const MainPage = () => {
     }
 
     setCharacterPromptVisible(false);
+    setStatsVisible(false);
     setSpeechBubbleVisible(true);
 
     // 6초 후 말풍선 제거
     setTimeout(() => {
       setSpeechBubbleVisible(false);
-      setTimeout(() => setCharacterPromptVisible(true), 100);
+      setTimeout(() => {
+        setCharacterPromptVisible(true);
+        setStatsVisible(true);
+      }, 100);
     }, 6000);
   };
 
@@ -221,7 +201,7 @@ const MainPage = () => {
                 <BubbleText>{getRandomEncouragementMessage()}</BubbleText>
               </SpeechBubble>
             )}
-            <StatItem className="growth">
+            <StatItem className="growth" $visible={statsVisible}>
               <StatLabel>성장률</StatLabel>
               <ProgressBar>
                 <ProgressFill $progress={
@@ -232,11 +212,11 @@ const MainPage = () => {
                 } />
               </ProgressBar>
             </StatItem>
-            <StatItem className="points">
+            <StatItem className="points" $visible={statsVisible}>
               <StatIcon>P</StatIcon>
               <StatValue>{mainData?.character_status?.exp || 0}P</StatValue>
             </StatItem>
-            <StatItem className="level">
+            <StatItem className="level" $visible={statsVisible}>
               <StatIcon className="level">LV</StatIcon>
               <StatValue className="level">{String(mainData?.character_status?.level || 1).padStart(2, '0')}</StatValue>
             </StatItem>
@@ -431,7 +411,7 @@ const StatsContainer = styled.div`
   right: 4.65vw; /* 20px / 430px * 100 */
   display: flex;
   flex-direction: column;
-  gap: 6.25vh; /* 50px / 800px * 100 */
+  gap: 4vh; /* 32px / 800px * 100 */
   z-index: 2;
 
   /* 431px 이상에서는 중앙 정렬 */
@@ -440,12 +420,12 @@ const StatsContainer = styled.div`
     right: auto;
     transform: translateX(-50%);
     width: 107vw; /* 460px / 430px * 100 */
-    gap: 7.5vh; /* 60px / 800px * 100 */
+    gap: 5vh; /* 40px / 800px * 100 */
   }
 
   @media (min-width: 768px) {
     width: 72.9vw; /* 560px / 768px * 100 */
-    gap: 8.75vh; /* 70px / 800px * 100 */
+    gap: 5.5vh; /* 44px / 800px * 100 */
   }
 
   @media (min-width: 1024px) {
@@ -534,6 +514,10 @@ const StatItem = styled.div`
   gap: 1.4vw; /* 6px / 430px * 100 */
   backdrop-filter: blur(10px);
   box-shadow: 0 2px 10px rgba(64, 234, 135, 0.1);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+  opacity: ${props => props.$visible ? 1 : 0};
+  transform: translateY(${props => props.$visible ? 0 : 20}px);
+  pointer-events: ${props => props.$visible ? 'auto' : 'none'};
 
   &.growth {
     width: 25.58vw; /* 110px / 430px * 100 */
@@ -756,6 +740,7 @@ const CharacterPrompt = styled.div`
   border: 1px solid #40ea87;
   border-radius: 4.19vw; /* 18px / 430px * 100 */
   padding: 1.86vw 2.79vw; /* 상하 패딩을 레벨박스와 동일하게 설정 */
+  height: 8.84vw; /* 38px / 430px * 100 - 레벨박스와 동일한 높이 */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -771,11 +756,13 @@ const CharacterPrompt = styled.div`
   @media (min-width: 768px) {
     border-radius: 2.34vw; /* 18px / 768px * 100 */
     padding: 1.04vw 1.56vw; /* 상하 패딩을 레벨박스와 동일하게 설정 */
+    height: 4.95vw; /* 38px / 768px * 100 - 레벨박스와 동일한 높이 */
   }
 
   @media (min-width: 1024px) {
     border-radius: 1.5vw; /* 18px / 1200px * 100 */
     padding: 0.67vw 1vw; /* 상하 패딩을 레벨박스와 동일하게 설정 */
+    height: 3.17vw; /* 38px / 1200px * 100 - 레벨박스와 동일한 높이 */
   }
 `;
 
@@ -913,44 +900,45 @@ const MissionCheck = styled.div`
 `;
 
 const EmotionSection = styled.section`
-  padding: 20px;
-  margin-top: -30px;
+  padding: 0;
+  margin-top: 2.5vh; /* 20px / 800px * 100 */
   margin-bottom: 100px;
-
-  @media (max-width: 375px) {
-    padding: 15px;
-  }
+  position: relative;
+  z-index: 1;
+  max-width: 100%;
+  margin-left: auto;
+  margin-right: auto;
 
   /* 431px 이상에서는 중앙 정렬하고 최대 너비 제한 */
   @media (min-width: 431px) {
-    padding: 20px;
-    max-width: 500px;
-    margin-left: auto;
-    margin-right: auto;
+    margin-top: 3.125vh; /* 25px / 800px * 100 */
+    max-width: 116.3vw; /* 500px / 430px * 100 */
   }
 
   @media (min-width: 768px) {
-    margin-bottom: 120px;
-    max-width: 600px;
+    margin-top: 3.75vh; /* 30px / 800px * 100 */
+    max-width: 78.1vw; /* 600px / 768px * 100 */
+  }
+
+  @media (min-width: 1024px) {
+    max-width: 50vw; /* 600px / 1200px * 100 */
   }
 `;
 
 const EmotionContent = styled.div`
-  background: rgba(255, 255, 255, 0.7);
-  backdrop-filter: blur(10px);
-  border-radius: 20px;
-  padding: 20px;
+  background: white;
+  border: 0.5px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 16px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border: 1px solid rgba(109, 194, 255, 0.2);
-  box-shadow: 0 4px 20px rgba(0, 149, 255, 0.1);
+  min-height: 60px;
   cursor: pointer;
   transition: all 0.2s ease;
 
   &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 25px rgba(0, 149, 255, 0.15);
+    background: #f8f9fa;
   }
 `;
 

@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { mockMainData, updateMockMissionStatus, mockEmotionRecord } from './mockData.js';
+import { mockMainData, updateMockMissionStatus, mockEmotionRecords, mockEmptyEmotionRecord } from './mockData.js';
 import { getCharacterImage } from '../../../shared/utils/characterImageMapper.js';
 
 // 개발 모드 설정 (true: Mock 데이터 사용, false: 실제 API 사용)
@@ -182,13 +182,14 @@ export const getEmotionRecord = async (date) => {
       // 실제 API 호출처럼 약간의 지연 시간 추가
       await new Promise(resolve => setTimeout(resolve, 300));
       
-      return mockEmotionRecord;
+      // 해당 날짜의 감정 기록이 있으면 반환, 없으면 빈 데이터 반환
+      return mockEmotionRecords[date] || mockEmptyEmotionRecord;
     }
 
     // 실제 API 호출 모드
     const token = localStorage.getItem('authToken');
     
-    const response = await axios.get(`/api/records/${date}`, {
+    const response = await axios.get(`/api/v1/records/date/${date}`, {
       headers: {
         'Authorization': `Bearer ${token}`
       }

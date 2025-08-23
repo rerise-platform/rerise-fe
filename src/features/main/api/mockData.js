@@ -69,21 +69,54 @@ export const mockTodayEmotion = {
 };
 
 /**
- * 감정 기록 Mock 데이터 - GET /api/records/{date}
+ * 감정 기록 Mock 데이터 - GET /api/v1/records/date/{date}
+ * 날짜별로 다른 감정 기록 데이터를 제공
  */
-export const mockEmotionRecord = {
-  diary_id: 123456789,
-  emotion_level: null, // 1~5 레벨 (null이면 기록 없음)
-  keywords: ["행복", "성취감", "만족"],
-  memo: "오늘은 정말 좋은 하루였다. 미션도 완료하고 기분이 상쾌하다.",
-  recordedAt: "2025-01-23"
+export const mockEmotionRecords = {
+  "2025-01-23": {
+    record_id: 123,
+    emotion_level: 1,
+    keywords: "행복, 성취감, 만족",
+    memo: "오늘은 정말 좋은 하루였다. 목표했던 일을 모두 완료했고 기분이 상쾌하다.",
+    recordedAt: "2025-01-23"
+  },
+  "2025-01-22": {
+    record_id: 122,
+    emotion_level: 3,
+    keywords: "평온, 안정감, 여유",
+    memo: "차분하고 평온한 하루를 보냈다. 스트레스 없이 일상을 즐겼다.",
+    recordedAt: "2025-01-22"
+  },
+  "2025-01-21": {
+    record_id: 121,
+    emotion_level: 2,
+    keywords: "피곤, 무기력, 조금 우울",
+    memo: "오늘은 좀 힘들었다. 에너지가 부족하고 무언가 해내기 어려웠다.",
+    recordedAt: "2025-01-21"
+  },
+  "2025-01-20": {
+    record_id: 120,
+    emotion_level: 5,
+    keywords: "기쁨, 흥미진진, 에너지 충만",
+    memo: "완벽한 하루였다! 모든 일이 계획대로 진행되고 새로운 도전도 성공했다.",
+    recordedAt: "2025-01-20"
+  }
+};
+
+// 오늘의 기본 감정 기록 (현재 날짜 기준)
+export const mockEmotionRecord = mockEmotionRecords[new Date().toISOString().split('T')[0]] || {
+  record_id: null,
+  emotion_level: null,
+  keywords: "",
+  memo: "",
+  recordedAt: null
 };
 
 // 감정 기록이 없는 경우의 더미 데이터
 export const mockEmptyEmotionRecord = {
-  diary_id: null,
-  emotion_level: null,
-  keywords: [],
+  record_id: null,
+  emotion_level: 2,
+  keywords: "",
   memo: "",
   recordedAt: null
 };
