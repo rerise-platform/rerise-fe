@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled, { keyframes } from 'styled-components';
 
 // 이미지 import
@@ -7,12 +7,49 @@ import questionMark from '../../../shared/assets/images/메인물음표.svg';
 import graph from '../../../shared/assets/images/graph.svg';
 import Rectangle from '../../../shared/assets/images/Rectangle.svg';
 
+// API import
+import { getMainScreenData, completeMission } from '../api/mainAPI';
+
 /**
  * 메인 페이지 컴포넌트 - combined.html 완전 재현
  */
 const MainPage = () => {
   const [speechBubbleVisible, setSpeechBubbleVisible] = useState(false);
   const [characterPromptVisible, setCharacterPromptVisible] = useState(true);
+  
+  // API 데이터 상태
+  const [mainData, setMainData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // 컴포넌트 마운트 시 메인 데이터 로드
+  useEffect(() => {
+    loadMainData();
+  }, []);
+
+  const loadMainData = async () => {
+    try {
+      setLoading(true);
+      const data = await getMainScreenData();
+      setMainData(data);
+      setError(null);
+    } catch (err) {
+      console.error('메인 데이터 로드 실패:', err);
+      setError(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleMissionComplete = async (missionId) => {
+    try {
+      await completeMission(missionId);
+      // 미션 완료 후 데이터 새로고침
+      loadMainData();
+    } catch (err) {
+      console.error('미션 완료 실패:', err);
+    }
+  };
 
   const greetCharacter = () => {
     if (speechBubbleVisible) {
@@ -29,6 +66,7 @@ const MainPage = () => {
     }, 6000);
   };
 
+  // 캐릭터 격려 메시지 (프론트에서 관리)
   const messages = [
     '괜찮아, 너의 속도대로 천천히 가도 돼. 가장 중요한 건 멈추지 않는 용기야.',
     '세상의 모든 씨앗이 한 번에 싹을 틔우진 않아. 너만의 계절이 곧 올 거야.',
@@ -44,13 +82,42 @@ const MainPage = () => {
 
   const randomMessage = messages[Math.floor(Math.random() * messages.length)];
 
+  // 로딩 중일 때
+  if (loading) {
+    return (
+      <ElementEXP>
+        <MainContent>
+          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+            로딩 중...
+          </div>
+        </MainContent>
+      </ElementEXP>
+    );
+  }
+
+  // 에러 발생 시
+  if (error) {
+    return (
+      <ElementEXP>
+        <MainContent>
+          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+            데이터를 불러오는데 실패했습니다.
+          </div>
+        </MainContent>
+      </ElementEXP>
+    );
+  }
+
+  // 데이터가 없을 때
+  if (!mainData) return null;
+
   return (
     <ElementEXP>
       <MainContent>
         <Header>
           <Greeting>
             <GreetingText>
-              <Name>김멋사</Name>
+              <Name>{mainData?.character_status?.type || '사용자'}</Name>
               <Message>님, 안녕하세요!</Message>
             </GreetingText>
           </Greeting>
@@ -72,16 +139,17 @@ const MainPage = () => {
             <StatItem className="growth">
               <StatLabel>성장률</StatLabel>
               <ProgressBar>
-                <ProgressFill />
+                <ProgressFill $progress={mainData?.character_status ? 
+                  (mainData.character_status.exp / mainData.character_status.exp_to_next_level) * 100 : 75} />
               </ProgressBar>
             </StatItem>
             <StatItem className="points">
               <StatIcon>P</StatIcon>
-              <StatValue>28P</StatValue>
+              <StatValue>{mainData?.character_status?.exp || 0}P</StatValue>
             </StatItem>
             <StatItem className="level">
               <StatIcon className="level">LV</StatIcon>
-              <StatValue className="level">01</StatValue>
+              <StatValue className="level">{String(mainData?.character_status?.level || 1).padStart(2, '0')}</StatValue>
             </StatItem>
           </StatsRow>
           
@@ -100,26 +168,42 @@ const MainPage = () => {
         <MissionSection>
           <SectionTitle>오늘의 미션 목록</SectionTitle>
           <MissionList>
-            <MissionItem $delay={0.1}>
-              <MissionEmoji>✓</MissionEmoji>
-              <MissionText>가족이나 친구에게 간단한 안부 메시지 보내기</MissionText>
-              <MissionCheck $completed>✓</MissionCheck>
-            </MissionItem>
-            <MissionItem $delay={0.2}>
-              <MissionEmoji>✓</MissionEmoji>
-              <MissionText>방/책상/책 정리 10분</MissionText>
-              <MissionCheck $completed>✓</MissionCheck>
-            </MissionItem>
-            <MissionItem $delay={0.3}>
-              <MissionEmoji>✓</MissionEmoji>
-              <MissionText>잠들기 5분 전 스트레칭 또는 명상하기</MissionText>
-              <MissionCheck />
-            </MissionItem>
-            <MissionItem $delay={0.4}>
-              <MissionEmoji>✓</MissionEmoji>
-              <MissionText>오늘 한 가지 새로운 행동 시도하기</MissionText>
-              <MissionCheck />
-            </MissionItem>
+            {mainData?.daily_missions?.map((mission, index) => (
+              <MissionItem key={mission.mission_id} $delay={0.1 * (index + 1)}>
+                <MissionEmoji>✓</MissionEmoji>
+                <MissionText>{mission.title}</MissionText>
+                <MissionCheck 
+                  $completed={mission.is_completed}
+                  onClick={() => !mission.is_completed && handleMissionComplete(mission.mission_id)}
+                >
+                  {mission.is_completed && '✓'}
+                </MissionCheck>
+              </MissionItem>
+            )) || (
+              // 기본 미션들 (API 데이터가 없을 때)
+              <>
+                <MissionItem $delay={0.1}>
+                  <MissionEmoji>✓</MissionEmoji>
+                  <MissionText>가족이나 친구에게 간단한 안부 메시지 보내기</MissionText>
+                  <MissionCheck $completed>✓</MissionCheck>
+                </MissionItem>
+                <MissionItem $delay={0.2}>
+                  <MissionEmoji>✓</MissionEmoji>
+                  <MissionText>방/책상/책 정리 10분</MissionText>
+                  <MissionCheck $completed>✓</MissionCheck>
+                </MissionItem>
+                <MissionItem $delay={0.3}>
+                  <MissionEmoji>✓</MissionEmoji>
+                  <MissionText>잠들기 5분 전 스트레칭 또는 명상하기</MissionText>
+                  <MissionCheck />
+                </MissionItem>
+                <MissionItem $delay={0.4}>
+                  <MissionEmoji>✓</MissionEmoji>
+                  <MissionText>오늘 한 가지 새로운 행동 시도하기</MissionText>
+                  <MissionCheck />
+                </MissionItem>
+              </>
+            )}
           </MissionList>
         </MissionSection>
 
@@ -336,10 +420,10 @@ const StatItem = styled.div`
   border: 1px solid #40ea87;
   border-radius: 18px;
   padding: 8px 12px;
-  height: 35px;
+  height: 38px;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   backdrop-filter: blur(10px);
   box-shadow: 0 2px 10px rgba(64, 234, 135, 0.1);
 
@@ -348,33 +432,35 @@ const StatItem = styled.div`
   }
 
   &.points {
-    width: 80px;
+    width: 85px;
   }
 
   &.level {
-    width: 70px;
+    width: 75px;
   }
 `;
 
 const StatIcon = styled.div`
-  width: 22px;
-  height: 22px;
+  width: 28px;
+  height: 28px;
   background: #40ea87;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 900;
+  box-shadow: 0 2px 8px rgba(64, 234, 135, 0.3);
 
   &.level {
     background: #ffcd6a;
+    box-shadow: 0 2px 8px rgba(255, 205, 106, 0.3);
   }
 `;
 
 const StatValue = styled.span`
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 900;
   color: #40ea87;
 
@@ -398,7 +484,7 @@ const ProgressBar = styled.div`
 `;
 
 const ProgressFill = styled.div`
-  width: 75%;
+  width: ${props => props.$progress || 75}%;
   height: 100%;
   background: #2ad948;
   border-radius: 2px;
@@ -557,6 +643,14 @@ const MissionCheck = styled.div`
   transition: all 0.2s ease;
   background: ${props => props.$completed ? '#40ea87' : 'transparent'};
   border-color: ${props => props.$completed ? '#40ea87' : '#e0e0e0'};
+  cursor: ${props => props.$completed ? 'default' : 'pointer'};
+
+  &:hover {
+    ${props => !props.$completed && `
+      border-color: #40ea87;
+      background: rgba(64, 234, 135, 0.1);
+    `}
+  }
 `;
 
 const EmotionSection = styled.section`
