@@ -3,7 +3,7 @@ import { mockMainData, updateMockMissionStatus, mockEmotionRecord } from './mock
 import { getCharacterImage } from '../../../shared/utils/characterImageMapper.js';
 
 // 개발 모드 설정 (true: Mock 데이터 사용, false: 실제 API 사용)
-const USE_MOCK_DATA = false;
+const USE_MOCK_DATA = true;
 
 /**
  * 메인 화면 데이터 조회 API 호출 함수
