@@ -5,12 +5,12 @@ import SignupPage from "./features/signup/pages/SignupPage.jsx";
 import MissionMainPage from "./features/mission/pages/MissionMainPage.jsx";
 import AdminPage from "./features/admin/pages/AdminPage.jsx";
 import TutorialPage from "./features/mission/pages/TutorialPage.jsx";
-
-
 import TestIntroPage from "./features/test/pages/TestIntroPage.jsx";
 import TestPage from "./features/test/pages/TestPage.jsx";
 import TestLoadingPage from "./features/test/pages/TestLoadingPage.jsx";
 import TestResultPage from "./features/test/pages/TestResultPage.jsx";
+import "./App.css";
+
 function App() {
   return (
     <div className="app">
@@ -38,6 +38,7 @@ function App() {
           <Route path="/test/q" element={<TestPage />} />
           <Route path="/test/loading" element={<TestLoadingPage />} />
           <Route path="/test/result" element={<TestResultPage />} />
+          {/* <Route path="/" element={<Navigate to="/test" replace />} /> */}
         </Routes>
       </BrowserRouter>
     </div>
