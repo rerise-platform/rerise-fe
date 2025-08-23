@@ -530,15 +530,15 @@ const ProgressFill = styled.div`
 `;
 
 const DayCard = styled.div`
-  width: 100px;
-  height: 100px;
+  width: 120px;
+  height: 120px;
   background: white;
   border-radius: 15px;
   display: flex;
   flex-direction: column;
   justify-content: ${props => props.$hasEmotion ? 'center' : 'space-between'};
   align-items: center;
-  padding: 10px 8px;
+  padding: 15px 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   cursor: pointer;
   transition: transform 0.2s ease;
@@ -549,26 +549,26 @@ const DayCard = styled.div`
 `;
 
 const DayEmoji = styled.div`
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 600;
   color: #333;
-  margin-bottom: 4px;
+  margin-bottom: 6px;
   text-align: center;
-  line-height: 1.1;
+  line-height: 1.2;
 `;
 
 const DayText = styled.img`
-  width: 32px;
-  height: 32px;
+  width: 40px;
+  height: 40px;
   flex-shrink: 0;
 `;
 
 const DayDescription = styled.p`
-  font-size: 6px;
+  font-size: 8px;
   font-weight: 500;
   color: #666666;
   margin: 0;
-  line-height: 1.0;
+  line-height: 1.2;
   text-align: center;
 `;
 
@@ -605,13 +605,13 @@ const PromptText = styled.span`
 
 const MissionSection = styled.section`
   padding: 20px;
-  margin-top: -25px;
+  margin-top: 20px;
   position: relative;
   z-index: 1;
 
   @media (max-width: 375px) {
     padding: 15px;
-    margin-top: 0px;
+    margin-top: 15px;
   }
 `;
 
@@ -698,7 +698,7 @@ const MissionCheck = styled.div`
 
 const EmotionSection = styled.section`
   padding: 20px;
-  margin-top: 10px;
+  margin-top: -30px;
   margin-bottom: 100px;
 
   @media (max-width: 375px) {
