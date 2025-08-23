@@ -7,6 +7,10 @@ import AdminPage from "./features/admin/pages/AdminPage.jsx";
 import TutorialPage from "./features/mission/pages/TutorialPage.jsx";
 
 
+import TestIntroPage from "./features/test/pages/TestIntroPage.jsx";
+import TestPage from "./features/test/pages/TestPage.jsx";
+import TestLoadingPage from "./features/test/pages/TestLoadingPage.jsx";
+import TestResultPage from "./features/test/pages/TestResultPage.jsx";
 function App() {
   return (
     <div className="app">
@@ -30,6 +34,10 @@ function App() {
 
           {/* 관리자 페이지 경로 */}
           <Route path="/admin" element={<AdminPage />} />
+          <Route path="/test" element={<TestIntroPage />} />
+          <Route path="/test/q" element={<TestPage />} />
+          <Route path="/test/loading" element={<TestLoadingPage />} />
+          <Route path="/test/result" element={<TestResultPage />} />
         </Routes>
       </BrowserRouter>
     </div>
