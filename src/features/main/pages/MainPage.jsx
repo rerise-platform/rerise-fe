@@ -5,6 +5,7 @@ import styled, { keyframes } from 'styled-components';
 import mony1 from '../../../shared/assets/images/mony1.svg';
 import questionMark from '../../../shared/assets/images/메인물음표.svg';
 import graph from '../../../shared/assets/images/graph.svg';
+import Rectangle from '../../../shared/assets/images/Rectangle.svg';
 
 /**
  * 메인 페이지 컴포넌트 - combined.html 완전 재현
@@ -15,27 +16,30 @@ const MainPage = () => {
 
   const greetCharacter = () => {
     if (speechBubbleVisible) {
-      setSpeechBubbleVisible(false);
-      setTimeout(() => setCharacterPromptVisible(true), 100);
-      return;
+      return; // 말풍선이 보이는 동안 클릭 무시
     }
 
     setCharacterPromptVisible(false);
     setSpeechBubbleVisible(true);
 
-    // 3초 후 말풍선 제거
+    // 6초 후 말풍선 제거
     setTimeout(() => {
       setSpeechBubbleVisible(false);
       setTimeout(() => setCharacterPromptVisible(true), 100);
-    }, 3000);
+    }, 6000);
   };
 
   const messages = [
-    '안녕하세요! 😊',
-    '오늘도 화이팅! 💪', 
-    '미션을 완료해보세요! ⭐',
-    '당신은 최고예요! 🎉',
-    '계속 성장하고 있어요! 🌱'
+    '괜찮아, 너의 속도대로 천천히 가도 돼. 가장 중요한 건 멈추지 않는 용기야.',
+    '세상의 모든 씨앗이 한 번에 싹을 틔우진 않아. 너만의 계절이 곧 올 거야.',
+    '큰 변화가 아니어도 괜찮아. 어제보다 딱 한 걸음만 나아갔다면, 그건 정말 대단한 일이야.',
+    '오늘도 무사히 하루를 보낸 것만으로도, 너는 충분히 너의 몫을 다한 거야. 정말 고생 많았어.',
+    '가끔은 익숙하고 안전한 곳에 머무는 용기도 필요해. 이곳에서 충분히 힘을 얻고 다시 나아가자.',
+    '충전 없이 계속 달릴 수 있는 배터리는 없어. 오늘은 잠시 쉬어가도 괜찮아, 아니, 쉬어야만 해.',
+    '번아웃은 네가 게으르다는 증거가 아니야. 그만큼 최선을 다해 달려왔다는 증거일 뿐이야.',
+    '무리하지 말자. 세상은 우리가 없어도 잘 돌아가. 잠시 나를 위한 시간을 갖는다고 큰일 나지 않아.',
+    '너의 모든 감정은 소중해. 어떤 색깔의 감정이든, 그 자체로 아름다운 너의 일부야.',
+    '방향을 잃은 것 같을 땐, 잠시 멈춰서 네 안의 나침반이 어디를 가리키는지 귀 기울여 봐.'
   ];
 
   const randomMessage = messages[Math.floor(Math.random() * messages.length)];
@@ -61,12 +65,8 @@ const MainPage = () => {
           <StatsRow>
             {speechBubbleVisible && (
               <SpeechBubble>
-                <svg width="220" height="70" viewBox="0 0 220 70" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M12 0.5H195.978C201.225 0.5 205.478 4.74875 205.478 9.99512V49.9824C205.478 55.2122 206.532 58.1756 208.219 60.0459C209.884 61.8914 212.119 62.5969 214.165 63.4336C214.378 63.5208 214.56 63.603 214.711 63.6787C214.607 63.6837 214.492 63.6876 214.364 63.6875C194.706 63.6688 53.6036 63.5762 11.89844 63.5488C6.66079 63.5448 2.500087 59.2988 2.5 54.0488V12C2.500001 6.7533 6.7533 2.5 12 2.5Z" fill="#DBFFE8" fillOpacity="0.8" stroke="#43FF92"/>
-                  <foreignObject x="18" y="18" width="180" height="32">
-                    <BubbleText>{randomMessage}</BubbleText>
-                  </foreignObject>
-                </svg>
+                <img src={Rectangle} alt="말풍선" />
+                <BubbleText>{randomMessage}</BubbleText>
               </SpeechBubble>
             )}
             <StatItem className="growth">
@@ -217,25 +217,25 @@ const Message = styled.span`
 
 const Character = styled.div`
   position: absolute;
-  top: 120px;
+  top: 130px;
   right: 20px;
   z-index: 100;
   cursor: pointer;
-  width: 150px;
-  height: 135.5px;
+  width: 189px;
+  height: 170.7px;
   display: flex;
   align-items: center;
   justify-content: center;
 
   @media (max-width: 375px) {
-    width: 125px;
-    height: 112.9px;
+    width: 150px;
+    height: 135.5px;
   }
 `;
 
 const CharacterCircle = styled.div`
-  width: 150px;
-  height: 135.5px;
+  width: 189px;
+  height: 170.7px;
   position: relative;
   transition: transform 0.2s ease;
   display: flex;
@@ -249,8 +249,8 @@ const CharacterCircle = styled.div`
   }
 
   @media (max-width: 375px) {
-    width: 125px;
-    height: 112.9px;
+    width: 150px;
+    height: 135.5px;
   }
 `;
 
@@ -294,24 +294,41 @@ const SecondRow = styled.div`
 
 const SpeechBubble = styled.div`
   position: absolute;
-  top: -2px;
-  left: -5px;
+  top: -4px;
+  left: -2px;
   width: 220px;
   height: 70px;
   pointer-events: none;
   z-index: 10;
+  
+  img {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    z-index: 1;
+  }
 `;
 
 const BubbleText = styled.div`
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 100%;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 600;
-  color: #2d4a3a;
+  color: #1a2e1f;
   text-align: center;
+  z-index: 2;
+  padding: 10px 15px;
+  overflow: hidden;
+  word-wrap: break-word;
+  word-break: keep-all;
+  line-height: 1.3;
 `;
 
 const StatItem = styled.div`
