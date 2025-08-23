@@ -2,13 +2,13 @@ import axios from 'axios';
 import { mockMainData, updateMockMissionStatus, mockEmotionRecord } from './mockData.js';
 
 // 개발 모드 설정 (true: Mock 데이터 사용, false: 실제 API 사용)
-const USE_MOCK_DATA = true;
+const USE_MOCK_DATA = false;
 
 /**
- * 메인 화면 대시보드 데이터 조회 API 호출 함수
- * 캐릭터 상태, 오늘의 미션, 감정 기록 캘린더 데이터를 한 번에 조회
+ * 메인 화면 데이터 조회 API 호출 함수
+ * 백엔드 API와 통신하여 사용자의 캐릭터 정보를 조회
  * 
- * @returns {Promise<Object>} 메인 화면 데이터 (캐릭터 상태, 일일 미션, 감정 기록 날짜)
+ * @returns {Promise<Object>} 메인 화면 데이터 (nickname, characterType, characterStage, level, growthRate)
  * @throws {Error} API 호출 실패 시 에러 객체
  */
 export const getMainScreenData = async () => {
@@ -32,7 +32,21 @@ export const getMainScreenData = async () => {
       }
     });
     
-    return response.data;
+    // 백엔드 API 응답을 프론트엔드에서 사용하는 구조로 변환
+    const data = response.data;
+    
+    return {
+      character_status: {
+        type: data.nickname,
+        level: data.level || 1,
+        exp: Math.floor((data.growthRate || 0) * 10), // growthRate를 exp로 변환
+        exp_to_next_level: 1000,
+        character_type: data.characterType,
+        character_stage: data.characterStage
+      },
+      daily_missions: [], // 미션 데이터는 별도 API에서 가져올 예정
+      emotion_records: [] // 감정 기록도 별도 API에서 가져올 예정
+    };
   } catch (error) {
     console.error('메인 화면 데이터 조회 실패:', error);
     throw error.response?.data || error.message;

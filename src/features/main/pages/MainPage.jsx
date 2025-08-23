@@ -45,7 +45,7 @@ const MainPage = () => {
       console.error('감정 기록 로드 실패:', err);
       setEmotionRecord(null);
     }
-  };
+  }
 
   // 감정 레벨에 따른 이미지 선택
   const getEmotionImage = () => {
@@ -260,7 +260,7 @@ const MainPage = () => {
       </MainContent>
     </ElementEXP>
   );
-};
+}
 
 // 애니메이션 정의
 const fadeInUp = keyframes`
@@ -292,10 +292,11 @@ const MainContent = styled.div`
   background-color: #fefff5;
   position: relative;
   overflow-x: hidden;
+  margin-top: 58px;
 
   @media (min-width: 431px) {
     border-radius: 20px;
-    margin: 20px 0;
+    margin: 58px 0 0 0;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
   }
 `;
