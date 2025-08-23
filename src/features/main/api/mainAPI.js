@@ -65,20 +65,65 @@ export const getMainScreenData = async () => {
 };
 
 /**
- * 일일 미션 완료 상태 업데이트 API (추가로 필요할 수 있는 API)
+ * 오늘의 일일 미션 조회 API
  * 
- * @param {number} missionId - 미션 ID
- * @returns {Promise<Object>} 미션 완료 처리 결과
+ * @returns {Promise<Array>} 오늘의 미션 목록
  * @throws {Error} API 호출 실패 시 에러 객체
  */
-export const completeMission = async (missionId) => {
+export const getTodayMissions = async () => {
   try {
     // Mock 데이터 사용 모드
     if (USE_MOCK_DATA) {
-      console.log(`🧪 Mock: 미션 ${missionId} 완료 상태 토글 중...`);
+      console.log('🧪 Mock: 오늘의 미션 조회 중...');
+      
+      // 실제 API 호출처럼 약간의 지연 시간 추가
+      await new Promise(resolve => setTimeout(resolve, 300));
+      
+      // Mock 데이터에서 미션 목록 반환
+      return mockMainData.daily_missions || [];
+    }
+
+    // 실제 API 호출 모드
+    const token = localStorage.getItem('authToken');
+    
+    const response = await axios.get('/api/missions/today', {
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+    
+    // API 응답을 프론트엔드 형식으로 변환
+    return response.data.map(mission => ({
+      mission_id: mission.userDailyMissionId,
+      title: mission.content,
+      theme: mission.theme,
+      theory: mission.theory,
+      reward_exp: mission.rewardExp,
+      is_completed: mission.status === 'COMPLETED',
+      assigned_date: mission.assignedDate,
+      completed_date: mission.completedDate
+    }));
+  } catch (error) {
+    console.error('오늘의 미션 조회 실패:', error);
+    throw error.response?.data || error.message;
+  }
+};
+
+/**
+ * 일일 미션 완료 상태 업데이트 API
+ * 
+ * @param {number} userDailyMissionId - 사용자 일일 미션 ID
+ * @returns {Promise<Object>} 미션 완료 처리 결과
+ * @throws {Error} API 호출 실패 시 에러 객체
+ */
+export const completeMission = async (userDailyMissionId) => {
+  try {
+    // Mock 데이터 사용 모드
+    if (USE_MOCK_DATA) {
+      console.log(`🧪 Mock: 미션 ${userDailyMissionId} 완료 상태 토글 중...`);
       
       // Mock 데이터에서 미션 상태 업데이트
-      const mission = updateMockMissionStatus(missionId, true);
+      const mission = updateMockMissionStatus(userDailyMissionId, true);
       
       // 실제 API 호출처럼 약간의 지연 시간 추가
       await new Promise(resolve => setTimeout(resolve, 300));
@@ -87,7 +132,7 @@ export const completeMission = async (missionId) => {
         return { 
           success: true, 
           message: `미션 "${mission.title}" 완료!`,
-          reward_point: mission.reward_point,
+          reward_exp: mission.reward_exp,
           new_exp: mockMainData.character_status.exp,
           new_level: mockMainData.character_status.level
         };
@@ -97,13 +142,24 @@ export const completeMission = async (missionId) => {
     // 실제 API 호출 모드
     const token = localStorage.getItem('authToken');
     
-    const response = await axios.patch(`/api/v1/missions/${missionId}/complete`, {}, {
+    const response = await axios.post('/api/missions/complete', {
+      userDailyMissionId: userDailyMissionId
+    }, {
       headers: {
         'Authorization': `Bearer ${token}`
       }
     });
     
-    return response.data;
+    // API 응답을 프론트엔드 형식으로 변환
+    const mission = response.data;
+    return {
+      success: true,
+      mission_id: mission.userDailyMissionId,
+      title: mission.content,
+      reward_exp: mission.rewardExp,
+      status: mission.status,
+      completed_date: mission.completedDate
+    };
   } catch (error) {
     console.error('미션 완료 처리 실패:', error);
     throw error.response?.data || error.message;
