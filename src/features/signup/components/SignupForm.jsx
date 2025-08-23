@@ -1,5 +1,6 @@
 // ✅ SignupForm.js
 import React, { useState, useRef } from "react";
+import { signupAPI, checkEmailAPI } from "../api/signupAPI";
 import "./SignupForm.css";
 
 export default function SignupForm({ onSubmit }) {
@@ -64,13 +65,31 @@ export default function SignupForm({ onSubmit }) {
   const handleSubmitClick = async () => {
     if (!isFormValid) return;
 
-    const exists = await fakeCheckEmail(email);
-    if (exists) {
-      setShowDialog(true);
-      return;
-    }
+    try {
+      // 실제 API를 통한 이메일 중복 검사
+      const emailCheckResult = await checkEmailAPI(email);
+      if (emailCheckResult.exists) {
+        setShowDialog(true);
+        return;
+      }
 
-    setIsSubmitted(true); // 성공 다이얼로그 띄우기
+      // 생년월일 형식 변환 (YYYYMMDD → YYYY-MM-DD)
+      const formattedBirth = birth.replace(/(\d{4})(\d{2})(\d{2})/, '$1-$2-$3');
+      
+      // 회원가입 API 호출
+      await signupAPI({
+        email,
+        password,
+        passwordCheck: confirmPassword,
+        nickname,
+        birth: formattedBirth
+      });
+
+      setIsSubmitted(true); // 성공 다이얼로그 띄우기
+    } catch (error) {
+      console.error('회원가입 실패:', error);
+      // 에러 처리 - 추후 에러 상태를 추가하여 사용자에게 표시
+    }
   };
 
   const handleBirthChange = (value) => {

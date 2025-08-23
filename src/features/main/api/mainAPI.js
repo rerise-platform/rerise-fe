@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { mockMainData, updateMockMissionStatus, mockEmotionRecord } from './mockData.js';
+import { getCharacterImage } from '../../../shared/utils/characterImageMapper.js';
 
 // 개발 모드 설정 (true: Mock 데이터 사용, false: 실제 API 사용)
 const USE_MOCK_DATA = false;
@@ -35,15 +36,25 @@ export const getMainScreenData = async () => {
     // 백엔드 API 응답을 프론트엔드에서 사용하는 구조로 변환
     const data = response.data;
     
+    // 온보딩 완료 여부 확인
+    const isOnboardingComplete = data.characterType !== null && 
+                                data.characterStage !== null && 
+                                data.level !== null && 
+                                data.growthRate !== null;
+    
     return {
-      character_status: {
-        type: data.nickname,
-        level: data.level || 1,
-        exp: Math.floor((data.growthRate || 0) * 10), // growthRate를 exp로 변환
+      nickname: data.nickname,
+      isOnboardingComplete,
+      character_status: isOnboardingComplete ? {
+        nickname: data.nickname,
+        level: data.level,
+        exp: Math.floor(data.growthRate * 10), // growthRate를 exp로 변환 (65.5 → 655)
         exp_to_next_level: 1000,
         character_type: data.characterType,
-        character_stage: data.characterStage
-      },
+        character_stage: data.characterStage,
+        character_image: getCharacterImage(data.characterType, data.characterStage), // 이미지 매핑 추가
+        growth_rate: data.growthRate
+      } : null,
       daily_missions: [], // 미션 데이터는 별도 API에서 가져올 예정
       emotion_records: [] // 감정 기록도 별도 API에서 가져올 예정
     };

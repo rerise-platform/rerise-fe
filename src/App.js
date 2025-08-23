@@ -15,13 +15,13 @@ function App() {
   const location = useLocation();
   
   // ↓ 네비게이션 숨길 페이지 확장
-  const hideNavbarPages = ['/login', '/signup', '/admin', '/tutorial', '/emotion'];
+  const hideNavbarPages = ['/login', '/signup', '/admin', '/tutorial', '/emotion', '/'];
   const shouldShowNavbar = !hideNavbarPages.includes(location.pathname);
 
   return (
     <div className="app">
       <Routes>
-        <Route path="/" element={<MainPage />} />
+        <Route path="/" element={<SignupPage />} />
         <Route path="/main" element={<MainPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
