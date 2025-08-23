@@ -3,6 +3,7 @@ import { Routes, Route, useLocation } from 'react-router-dom';
 import LoginPage from './features/login/pages/LoginPage';
 import SignupPage from './features/signup/pages/SignupPage';
 import MainPage from './features/main/pages/MainPage';
+import EmotionPage from './features/emotion/pages/EmotionPage';
 // ↓ 은서님 작업 컴포넌트들 추가
 import MissionMainPage from './features/mission/pages/MissionMainPage.jsx';
 import AdminPage from './features/admin/pages/AdminPage.jsx';
@@ -14,7 +15,7 @@ function App() {
   const location = useLocation();
   
   // ↓ 네비게이션 숨길 페이지 확장
-  const hideNavbarPages = ['/login', '/signup', '/admin', '/tutorial'];
+  const hideNavbarPages = ['/login', '/signup', '/admin', '/tutorial', '/emotion'];
   const shouldShowNavbar = !hideNavbarPages.includes(location.pathname);
 
   return (
@@ -24,6 +25,7 @@ function App() {
         <Route path="/main" element={<MainPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
+        <Route path="/emotion" element={<EmotionPage />} />
         
         {/* ↓ 은서님 작업 페이지들 추가 */}
         <Route path="/tutorial" element={<TutorialPage />} />

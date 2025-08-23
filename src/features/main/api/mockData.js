@@ -69,6 +69,26 @@ export const mockTodayEmotion = {
 };
 
 /**
+ * 감정 기록 Mock 데이터 - GET /api/records/{date}
+ */
+export const mockEmotionRecord = {
+  diary_id: 123456789,
+  emotion_level: null, // 1~5 레벨 (null이면 기록 없음)
+  keywords: ["행복", "성취감", "만족"],
+  memo: "오늘은 정말 좋은 하루였다. 미션도 완료하고 기분이 상쾌하다.",
+  recordedAt: "2025-01-23"
+};
+
+// 감정 기록이 없는 경우의 더미 데이터
+export const mockEmptyEmotionRecord = {
+  diary_id: null,
+  emotion_level: null,
+  keywords: [],
+  memo: "",
+  recordedAt: null
+};
+
+/**
  * Mock 데이터 업데이트 헬퍼 함수들
  */
 export const updateMockMissionStatus = (missionId, isCompleted) => {

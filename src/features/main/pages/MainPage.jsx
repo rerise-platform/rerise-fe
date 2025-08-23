@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import styled, { keyframes } from 'styled-components';
 
 // 이미지 import
@@ -6,14 +7,20 @@ import mony1 from '../../../shared/assets/images/mony1.svg';
 import questionMark from '../../../shared/assets/images/메인물음표.svg';
 import graph from '../../../shared/assets/images/graph.svg';
 import Rectangle from '../../../shared/assets/images/Rectangle.svg';
+import emotion1 from '../../../shared/assets/images/emotion1.svg';
+import emotion2 from '../../../shared/assets/images/emotion2.svg';
+import emotion3 from '../../../shared/assets/images/emotion3.svg';
+import emotion4 from '../../../shared/assets/images/emotion4.svg';
+import emotion5 from '../../../shared/assets/images/emotion5.svg';
 
 // API import
-import { getMainScreenData, completeMission } from '../api/mainAPI';
+import { getMainScreenData, completeMission, getEmotionRecord } from '../api/mainAPI';
 
 /**
  * 메인 페이지 컴포넌트 - combined.html 완전 재현
  */
 const MainPage = () => {
+  const navigate = useNavigate();
   const [speechBubbleVisible, setSpeechBubbleVisible] = useState(false);
   const [characterPromptVisible, setCharacterPromptVisible] = useState(true);
   
@@ -21,11 +28,41 @@ const MainPage = () => {
   const [mainData, setMainData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [emotionRecord, setEmotionRecord] = useState(null);
 
   // 컴포넌트 마운트 시 메인 데이터 로드
   useEffect(() => {
     loadMainData();
+    loadTodayEmotion();
   }, []);
+
+  const loadTodayEmotion = async () => {
+    try {
+      const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD 형식
+      const emotionData = await getEmotionRecord(today);
+      setEmotionRecord(emotionData);
+    } catch (err) {
+      console.error('감정 기록 로드 실패:', err);
+      setEmotionRecord(null);
+    }
+  };
+
+  // 감정 레벨에 따른 이미지 선택
+  const getEmotionImage = () => {
+    if (!emotionRecord?.emotion_level) {
+      return questionMark; // 감정 기록이 없으면 물음표
+    }
+    
+    const emotionImages = {
+      1: emotion1,
+      2: emotion2,
+      3: emotion3,
+      4: emotion4,
+      5: emotion5
+    };
+    
+    return emotionImages[emotionRecord.emotion_level] || questionMark;
+  };
 
   const loadMainData = async () => {
     try {
@@ -154,10 +191,12 @@ const MainPage = () => {
           </StatsRow>
           
           <SecondRow>
-            <DayCard>
+            <DayCard $hasEmotion={!!emotionRecord?.emotion_level}>
               <DayEmoji>오늘의 감정 상태</DayEmoji>
-              <DayText src={questionMark} alt="물음표" />
-              <DayDescription>오늘의 감정을<br />기록해 주세요!</DayDescription>
+              <DayText src={getEmotionImage()} alt="감정상태" />
+              {!emotionRecord?.emotion_level && (
+                <DayDescription>오늘의 감정을<br />기록해 주세요!</DayDescription>
+              )}
             </DayCard>
             <CharacterPrompt $visible={characterPromptVisible}>
               <PromptText>캐릭터를<br />눌러보세요</PromptText>
@@ -208,7 +247,7 @@ const MainPage = () => {
         </MissionSection>
 
         <EmotionSection>
-          <EmotionContent>
+          <EmotionContent onClick={() => navigate('/emotion')}>
             <EmotionText>
               <EmotionQuestion>오늘 하루 어떠셨나요?</EmotionQuestion>
               <EmotionAction>감정을 기록해보세요 ›</EmotionAction>
@@ -351,7 +390,7 @@ const StatsContainer = styled.div`
   right: 20px;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 50px;
   z-index: 2;
 
   @media (max-width: 375px) {
@@ -419,7 +458,7 @@ const StatItem = styled.div`
   background: rgba(255, 255, 255, 0.9);
   border: 1px solid #40ea87;
   border-radius: 18px;
-  padding: 8px 12px;
+  padding: 8px 5px;
   height: 38px;
   display: flex;
   align-items: center;
@@ -491,42 +530,46 @@ const ProgressFill = styled.div`
 `;
 
 const DayCard = styled.div`
-  width: 70px;
-  height: 85px;
-  background: rgba(255, 255, 255, 0.9);
-  border: 1px solid #40ea87;
-  border-radius: 8px;
-  padding: 4px;
+  width: 100px;
+  height: 100px;
+  background: white;
+  border-radius: 15px;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: ${props => props.$hasEmotion ? 'center' : 'space-between'};
   align-items: center;
-  backdrop-filter: blur(10px);
-  box-shadow: 0 2px 8px rgba(64, 234, 135, 0.1);
-  text-align: center;
-  margin-top: 20px;
+  padding: 10px 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+  transition: transform 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+  }
 `;
 
 const DayEmoji = styled.div`
-  font-size: 8px;
+  font-size: 10px;
   font-weight: 600;
-  color: #2d4a3a;
-  margin: 0;
-  line-height: 1;
+  color: #333;
+  margin-bottom: 4px;
+  text-align: center;
+  line-height: 1.1;
 `;
 
 const DayText = styled.img`
-  width: 42px;
-  height: 42px;
+  width: 32px;
+  height: 32px;
   flex-shrink: 0;
 `;
 
 const DayDescription = styled.p`
-  font-size: 7px;
+  font-size: 6px;
   font-weight: 500;
   color: #666666;
   margin: 0;
-  line-height: 1.1;
+  line-height: 1.0;
+  text-align: center;
 `;
 
 const CharacterPrompt = styled.div`
@@ -544,7 +587,7 @@ const CharacterPrompt = styled.div`
   z-index: 10;
   position: absolute;
   left: 148px;
-  top: 19px;
+  top: 0px;
   transition: opacity 0.6s ease, transform 0.6s ease;
   opacity: ${props => props.$visible ? 1 : 0};
   transform: translateY(${props => props.$visible ? 0 : 20}px);
@@ -673,6 +716,13 @@ const EmotionContent = styled.div`
   align-items: center;
   border: 1px solid rgba(109, 194, 255, 0.2);
   box-shadow: 0 4px 20px rgba(0, 149, 255, 0.1);
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 25px rgba(0, 149, 255, 0.15);
+  }
 `;
 
 const EmotionText = styled.div`
