@@ -1,25 +1,20 @@
-// ✅ SignupForm.js
 import React, { useState, useRef } from "react";
 import "./SignupForm.css";
 
-export default function SignupForm({ onSubmit }) {
+export default function SignupForm() {
   const [email, setEmail] = useState("");
   const [emailError, setEmailError] = useState("");
 
   const [password, setPassword] = useState("");
   const [passwordError, setPasswordError] = useState("");
-
   const [confirmPassword, setConfirmPassword] = useState("");
+  const passwordRef = useRef(null);
+  const [isShowPwChecked, setShowPwChecked] = useState(false);
 
   const [nickname, setNickname] = useState("");
 
   const [birth, setBirth] = useState("");
   const [birthError, setBirthError] = useState("");
-
-  const [showDialog, setShowDialog] = useState(false);
-  const [isSubmitted, setIsSubmitted] = useState(false);
-  const [isShowPwChecked, setShowPwChecked] = useState(false);
-  const passwordRef = useRef(null);
 
   const [allChecked, setAllChecked] = useState(false);
   const [terms, setTerms] = useState({
@@ -53,21 +48,46 @@ export default function SignupForm({ onSubmit }) {
     setAllChecked(Object.values(updated).every(Boolean));
   };
 
-  const handleShowPwChecked = async () => {
+  const handleShowPwChecked = () => {
     const password = passwordRef.current;
     if (!password) return;
-
-    await setShowPwChecked(!isShowPwChecked);
+    setShowPwChecked(!isShowPwChecked);
     password.type = isShowPwChecked ? "password" : "text";
   };
 
   const handleSubmitClick = async () => {
     if (!isFormValid) return;
 
+<<<<<<< Updated upstream
     const exists = await fakeCheckEmail(email);
     if (exists) {
       setShowDialog(true);
       return;
+=======
+    try {
+      // 생년월일 YYYYMMDD → YYYY-MM-DD 변환
+      const formattedBirth = birth.replace(/(\d{4})(\d{2})(\d{2})/, "$1-$2-$3");
+
+      // 회원가입 API 호출
+      const res = await signupAPI({
+        email,
+        password,
+        passwordCheck: confirmPassword,
+        nickname,
+        birth: formattedBirth,
+      });
+
+      if (res === "회원가입 성공") {
+        alert("회원가입 성공!\n로그인 페이지로 이동합니다.");
+      } else {
+        alert("회원가입 실패!\n로그인 페이지로 이동합니다.");
+      }
+      window.location.href = "/login";
+    } catch (error) {
+      console.error("회원가입 실패:", error);
+      alert("회원가입 실패!\n로그인 페이지로 이동합니다.");
+      window.location.href = "/login";
+>>>>>>> Stashed changes
     }
 
     setIsSubmitted(true); // 성공 다이얼로그 띄우기
@@ -237,34 +257,6 @@ export default function SignupForm({ onSubmit }) {
       >
         Rerise 시작하기
       </button>
-
-      {isSubmitted && (
-        <div className="sg-dialog-overlay">
-          <div className="dialog">
-            <p>회원가입 성공!</p>
-            <button onClick={() => (window.location.href = "/login")}>
-              로그인 하러 가기
-            </button>
-          </div>
-        </div>
-      )}
-
-      {showDialog && (
-        <div className="dialog">
-          <p>이미 아이디가 존재합니다.</p>
-          <button onClick={() => (window.location.href = "/login")}>
-            로그인 하러 가기
-          </button>
-        </div>
-      )}
     </div>
   );
 }
-
-// TODO: 이 함수는 실제 API 호출로 대체 필요
-const fakeCheckEmail = async (email) => {
-  const existing = ["test@example.com", "user@rerise.com"];
-  return new Promise((resolve) =>
-    setTimeout(() => resolve(existing.includes(email)), 500)
-  );
-};
