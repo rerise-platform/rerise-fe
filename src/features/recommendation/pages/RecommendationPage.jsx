@@ -99,11 +99,28 @@ const Container = styled.div`
   overflow-y: auto;
   margin: 0;
   padding-top: 58px;
+  padding-bottom: 90px;
   font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
 
   @media (max-height: 800px) {
     height: auto;
     min-height: 100vh;
+  }
+
+  @media (max-width: 375px) {
+    padding-bottom: 80px;
+  }
+
+  @media (max-width: 320px) {
+    padding-bottom: 75px;
+  }
+
+  @media (min-width: 431px) {
+    padding-bottom: 95px;
+  }
+
+  @media (min-width: 768px) {
+    padding-bottom: 100px;
   }
 `;
 

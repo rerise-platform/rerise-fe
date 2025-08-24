@@ -1,6 +1,62 @@
+import { useState, useEffect } from 'react';
 import styled from 'styled-components';
+import QuestionMarkIcon from '../../../shared/assets/images/메인물음표.svg';
+import Emotion1 from '../../../shared/assets/images/emotion1.svg';
+import Emotion2 from '../../../shared/assets/images/emotion2.svg';
+import Emotion3 from '../../../shared/assets/images/emotion3.svg';
+import Emotion4 from '../../../shared/assets/images/emotion4.svg';
+import Emotion5 from '../../../shared/assets/images/emotion5.svg';
 
 const RecommendationCard = ({ onRefresh }) => {
+  const [emotionLevel, setEmotionLevel] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  // 오늘 날짜의 일기 조회 API 호출
+  const fetchTodayRecord = async () => {
+    try {
+      const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD 형식
+      const token = localStorage.getItem('authToken'); // JWT 토큰 가져오기
+      
+      const response = await fetch(`/api/v1/records/date/${today}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setEmotionLevel(data.emotion_level);
+      } else {
+        // 일기가 없는 경우 기본값 설정
+        setEmotionLevel(3);
+      }
+    } catch (error) {
+      console.error('일기 조회 중 오류 발생:', error);
+      setEmotionLevel(3); // 에러 시 기본값
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 컴포넌트 마운트 시 API 호출
+  useEffect(() => {
+    fetchTodayRecord();
+  }, []);
+
+  // emotion_level에 따른 이모지 SVG 매핑
+  const getEmotionEmoji = (level) => {
+    switch (level) {
+      case 1: return Emotion1; // emotion1 - 매우 나쁨
+      case 2: return Emotion2; // emotion2 - 나쁨
+      case 3: return Emotion3; // emotion3 - 보통
+      case 4: return Emotion4; // emotion4 - 좋음
+      case 5: return Emotion5; // emotion5 - 매우 좋음
+      default: return Emotion3; // 기본값
+    }
+  };
+
   return (
     <CardContainer>
       <CardHeader onClick={onRefresh}>
@@ -14,8 +70,13 @@ const RecommendationCard = ({ onRefresh }) => {
       </CardHeader>
       
       <EmojiSection>
-        <Emoji>😊</Emoji>
-        <EmojiText>그냥 평소 같았어요!</EmojiText>
+        <Emoji>
+          {loading ? (
+            <EmotionImg src={QuestionMarkIcon} alt="로딩 중" />
+          ) : (
+            <EmotionImg src={getEmotionEmoji(emotionLevel)} alt={`감정 레벨 ${emotionLevel}`} />
+          )}
+        </Emoji>
       </EmojiSection>
       
       <MainText>
@@ -71,10 +132,15 @@ const CardHeader = styled.div`
 `;
 
 const RefreshIcon = styled.svg`
-  width: 14px;
-  height: 14px;
+  width: 13px;
+  height: 13px;
   color: #34C759;
-  fill: currentColor;
+`;
+
+const EmotionImg = styled.img`
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
 `;
 
 const HeaderText = styled.span`
@@ -92,21 +158,15 @@ const EmojiSection = styled.div`
 `;
 
 const Emoji = styled.div`
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #FFD93D 0%, #FFB800 100%);
+  width: 80px;
+  height: 80px;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 24px;
   margin-bottom: 8px;
-  box-shadow: 0 2px 8px rgba(255, 184, 0, 0.3);
 `;
 
-const EmojiText = styled.div`
-  display: none;
-`;
 
 const MainText = styled.div`
   font-size: 15px;
