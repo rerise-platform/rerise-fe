@@ -32,21 +32,3 @@ export const signupAPI = async (userData) => {
   }
 };
 
-/**
- * 이메일 중복 검사 API 호출 함수
- * 
- * @param {string} email - 검사할 이메일
- * @returns {Promise<Object>} 중복 검사 결과
- * @throws {Error} API 호출 실패 시 에러 객체
- */
-export const checkEmailAPI = async (email) => {
-  try {
-    const response = await axios.post('/api/v1/users/check-email', {
-      email
-    });
-    
-    return response.data;
-  } catch (error) {
-    throw error.response?.data || error.message;
-  }
-};

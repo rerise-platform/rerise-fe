@@ -9,25 +9,24 @@
 .emotion-container {
     width: 100%;
     min-height: 100vh;
-    background: rgba(255, 255, 255, 0.95);
+    background: #FEFFF5;
     position: relative;
     overflow-y: auto;
 }
 
 /* Header */
 .emotion-header {
-    padding: 20px 24px 16px;
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(248, 255, 248, 0.9));
-    backdrop-filter: blur(20px);
-    border-bottom: 1px solid rgba(64, 234, 135, 0.1);
+    padding: 60px 24px 20px;
+    background: #FEFFF5;
     display: flex;
-    align-items: center;
+    align-items: flex-start;
+    gap: 16px;
 }
 
 .back-button {
     width: 32px;
-    height: 32px;
-    background: rgba(255, 255, 255, 0.8);
+    height: 24px;
+    background: transparent;
     border-radius: 12px;
     display: flex;
     align-items: center;
@@ -35,19 +34,32 @@
     cursor: pointer;
     transition: all 0.2s ease;
     border: none;
+    margin-top: 0px;
 }
 
 .back-button:hover {
-    background: rgba(255, 255, 255, 1);
+    background: transparent;
     transform: translateX(-2px);
 }
 
-.header-title {
-    font-size: 18px;
-    font-weight: 600;
-    color: #1a201c;
-    text-align: center;
+.header-greeting {
     flex: 1;
+    text-align: left;
+}
+
+.greeting-text {
+    font-size: 16px;
+    font-weight: 400;
+    color: #1a201c;
+    line-height: 1.4;
+}
+
+.name-text {
+    font-weight: 600;
+}
+
+.bold-text {
+    font-weight: 700;
 }
 
 /* User Greeting */
@@ -104,11 +116,10 @@
 /* Mood Rating Section */
 .mood-section {
     margin: 16px;
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(248, 255, 248, 0.7));
+    background: #FFFFFF80;
     border-radius: 20px;
     padding: 20px;
-    border: 1px solid rgba(64, 234, 135, 0.15);
-    backdrop-filter: blur(10px);
+    border: 1px solid #9C9C9C;
 }
 
 .section-title {
@@ -127,8 +138,8 @@
 }
 
 .mood-face {
-    width: 40px;
-    height: 40px;
+    width: 50px;
+    height: 50px;
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -139,22 +150,25 @@
     border: 2px solid transparent;
 }
 
+.mood-face img {
+    width: 45px;
+    height: 45px;
+    object-fit: contain;
+}
+
 .mood-face:hover {
     transform: scale(1.1);
-    border-color: rgba(64, 234, 135, 0.3);
 }
 
 .mood-face.selected {
     transform: scale(1.2);
-    border-color: #40ea87;
-    box-shadow: 0 4px 16px rgba(64, 234, 135, 0.3);
 }
 
-.mood-face.terrible { background: linear-gradient(135deg, #ffb3b3, #ff9999); }
-.mood-face.bad { background: linear-gradient(135deg, #d1dfd4, #c4d2c7); }
-.mood-face.okay { background: linear-gradient(135deg, #ffe4b3, #ffd699); }
-.mood-face.good { background: linear-gradient(135deg, #ffc700, #ffb700); }
-.mood-face.great { background: linear-gradient(135deg, #fffcb0, #fff89a); }
+.mood-face.terrible { background: transparent; }
+.mood-face.bad { background: transparent; }
+.mood-face.okay { background: transparent; }
+.mood-face.good { background: transparent; }
+.mood-face.great { background: transparent; }
 
 .mood-labels {
     display: flex;
@@ -175,14 +189,23 @@
     grid-template-columns: repeat(4, 1fr);
     gap: 16px;
     margin-bottom: 24px;
+    justify-items: center;
+    align-items: start;
+}
+
+.emotion-grid .emotion-item:nth-child(8) {
+    grid-column: 4;
 }
 
 .emotion-item {
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: flex-start;
     cursor: pointer;
     transition: all 0.3s ease;
+    width: 60px;
+    height: 76px;
 }
 
 .emotion-item:hover {
@@ -200,16 +223,23 @@
     margin-bottom: 8px;
     transition: all 0.3s ease;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    background: #D1DFD4;
 }
 
-.emotion-item.joy .emotion-icon { background: linear-gradient(135deg, #bfffb6, #a8f5a0); }
-.emotion-item.frustration .emotion-icon { background: linear-gradient(135deg, #d1dfd4, #c4d2c7); }
-.emotion-item.pressure .emotion-icon { background: linear-gradient(135deg, #d1dfd4, #c4d2c7); }
-.emotion-item.curiosity .emotion-icon { background: linear-gradient(135deg, #bca9ee, #a695e8); }
-.emotion-item.anxiety .emotion-icon { background: linear-gradient(135deg, #d1dfd4, #c4d2c7); }
-.emotion-item.achievement .emotion-icon { background: linear-gradient(135deg, #ffc46a, #ffb84d); }
-.emotion-item.isolation .emotion-icon { background: linear-gradient(135deg, #d1dfd4, #c4d2c7); }
-.emotion-item.hope .emotion-icon { background: linear-gradient(135deg, #f9f8a7, #f5f49a); }
+.emotion-icon img {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+}
+
+.emotion-item.selected.joy .emotion-icon { background: #BFFFB6; }
+.emotion-item.selected.frustration .emotion-icon { background: #95AEC0; }
+.emotion-item.selected.pressure .emotion-icon { background: #FBB8B9; }
+.emotion-item.selected.curiosity .emotion-icon { background: #BCA9EE; }
+.emotion-item.selected.hope .emotion-icon { background: #F9F8A7; }
+.emotion-item.selected.anxiety .emotion-icon { background: #85A0FA; }
+.emotion-item.selected.achievement .emotion-icon { background: #FFC46A; }
+.emotion-item.selected.isolation .emotion-icon { background: #C1C1C1; }
 
 .emotion-label {
     font-size: 8px;
@@ -221,16 +251,63 @@
 /* Calendar Section */
 .calendar-section {
     padding: 16px;
-    background: rgba(255, 255, 255, 0.9);
+    background: #FFFFFF80;
     margin: 12px;
     border-radius: 20px;
-    border: 1px solid rgba(64, 234, 135, 0.2);
+    border: 1px solid #9C9C9C;
     width: auto;
 }
 
 .calendar-header {
     text-align: center;
     margin-bottom: 16px;
+}
+
+.calendar-navigation {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    margin-bottom: 12px;
+    position: relative;
+}
+
+.nav-btn {
+    background: none;
+    border: none;
+    font-size: 20px;
+    font-weight: bold;
+    color: #40ea87;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.nav-btn:hover {
+    background: rgba(64, 234, 135, 0.1);
+    transform: scale(1.1);
+}
+
+.today-btn {
+    background: #40ea87;
+    border: none;
+    color: white;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 6px 16px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: inherit;
+    position: absolute;
+    right: 0;
+}
+
+.today-btn:hover {
+    background: #2ad948;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(64, 234, 135, 0.3);
 }
 
 .calendar-title {
@@ -302,6 +379,12 @@
     background: white;
 }
 
+.calendar-day.selected {
+    background: rgba(64, 234, 135, 0.2);
+    border: 2px solid #40ea87;
+    font-weight: 600;
+}
+
 .calendar-day.sunday {
     color: #ff6b6b;
 }
@@ -360,6 +443,35 @@
 
 .diary-input::placeholder {
     color: rgba(90, 96, 91, 0.6);
+}
+
+/* Save Button */
+.save-button {
+    width: 100%;
+    background: #40ea87;
+    border: none;
+    border-radius: 16px;
+    padding: 14px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 16px;
+    font-family: inherit;
+}
+
+.save-button:hover:not(:disabled) {
+    background: #2ad948;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(64, 234, 135, 0.3);
+}
+
+.save-button:disabled {
+    background: #cccccc;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
 }
 
 /* Animations */

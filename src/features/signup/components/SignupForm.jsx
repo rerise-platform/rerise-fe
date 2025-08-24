@@ -1,6 +1,6 @@
 // ✅ SignupForm.js
 import React, { useState, useRef } from "react";
-import { signupAPI, checkEmailAPI } from "../api/signupAPI";
+import { signupAPI } from "../api/signupAPI";
 import "./SignupForm.css";
 
 export default function SignupForm({ onSubmit }) {
@@ -66,13 +66,8 @@ export default function SignupForm({ onSubmit }) {
     if (!isFormValid) return;
 
     try {
-      // 실제 API를 통한 이메일 중복 검사
-      const emailCheckResult = await checkEmailAPI(email);
-      if (emailCheckResult.exists) {
-        setShowDialog(true);
-        return;
-      }
-
+      // TODO: 백엔드 API 구현 후 이메일 중복 검사 추가
+      
       // 생년월일 형식 변환 (YYYYMMDD → YYYY-MM-DD)
       const formattedBirth = birth.replace(/(\d{4})(\d{2})(\d{2})/, '$1-$2-$3');
       
