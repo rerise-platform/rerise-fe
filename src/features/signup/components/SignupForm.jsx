@@ -1,4 +1,5 @@
 import React, { useState, useRef } from "react";
+import { signupAPI } from "../api/signupAPI";
 import "./SignupForm.css";
 
 export default function SignupForm() {
@@ -58,22 +59,33 @@ export default function SignupForm() {
   const handleSubmitClick = async () => {
     if (!isFormValid) return;
 
-<<<<<<< Updated upstream
+
     const exists = await fakeCheckEmail(email);
     if (exists) {
       setShowDialog(true);
       return;
-=======
+
     try {
       // 생년월일 YYYYMMDD → YYYY-MM-DD 변환
       const formattedBirth = birth.replace(/(\d{4})(\d{2})(\d{2})/, "$1-$2-$3");
 
       // 회원가입 API 호출
       const res = await signupAPI({
+
+    try {
+      // TODO: 백엔드 API 구현 후 이메일 중복 검사 추가
+      
+      // 생년월일 형식 변환 (YYYYMMDD → YYYY-MM-DD)
+      const formattedBirth = birth.replace(/(\d{4})(\d{2})(\d{2})/, '$1-$2-$3');
+      
+      // 회원가입 API 호출
+      await signupAPI({
+
         email,
         password,
         passwordCheck: confirmPassword,
         nickname,
+
         birth: formattedBirth,
       });
 
@@ -87,10 +99,18 @@ export default function SignupForm() {
       console.error("회원가입 실패:", error);
       alert("회원가입 실패!\n로그인 페이지로 이동합니다.");
       window.location.href = "/login";
->>>>>>> Stashed changes
+
     }
 
-    setIsSubmitted(true); // 성공 다이얼로그 띄우기
+        birth: formattedBirth
+      });
+
+
+      setIsSubmitted(true); // 성공 다이얼로그 띄우기
+    } catch (error) {
+      console.error('회원가입 실패:', error);
+      // 에러 처리 - 추후 에러 상태를 추가하여 사용자에게 표시
+    }
   };
 
   const handleBirthChange = (value) => {
@@ -251,7 +271,7 @@ export default function SignupForm() {
         onClick={handleSubmitClick}
         disabled={!isFormValid}
         style={{
-          opacity: isFormValid ? 1 : 0.5,
+          opacity: isFormValid ? 1 : 0.9,
           cursor: isFormValid ? "pointer" : "not-allowed",
         }}
       >

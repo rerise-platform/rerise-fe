@@ -1,0 +1,643 @@
+/* ===== 중앙 정렬/쏠림 방지 보강 ===== */
+html,
+body {
+  height: 100%;
+}
+.admin-shell {
+  width: 100%;
+  min-height: 100vh; /* svh 미지원 브라우저 대비 */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-sizing: border-box;
+}
+
+/* ===== 큰 태블릿(세로)에서 가득 채우기
+   - iPad Air 820×1180, iPad Pro 1024×1366, Zenbook Fold 853×1280 등
+   - 기존 max-width 한계를 푼 뒤, 화면 너비를 거의 다 쓰도록!
+===== */
+@media (min-width: 820px) and (orientation: portrait) {
+  .admin-page {
+    width: calc(100vw - 32px) !important; /* 좌우 padding(16px) 고려 */
+    max-width: none !important; /* 1000px 상한 해제 */
+    margin: 0 auto; /* 가운데 고정 */
+  }
+  .admin-header,
+  .admin-search,
+  .user-table,
+  .pagination {
+    width: 100% !important;
+    max-width: none !important; /* 820/700 등 개별 상한 해제 */
+  }
+}
+
+/* ===== 853px 폭대(Zenbook Fold 등) 가로/세로 공통 확대 ===== */
+@media (min-width: 840px) and (max-width: 900px) {
+  .admin-page {
+    width: calc(100vw - 32px) !important;
+    max-width: none !important;
+    margin: 0 auto;
+  }
+  .admin-header,
+  .admin-search,
+  .user-table,
+  .pagination {
+    width: 100% !important;
+    max-width: none !important;
+  }
+}
+
+/* ===== iPad Pro 같은 더 큰 화면에서도 "너무 좁아 보임" 방지
+   - 데스크톱에서도 여유 있게 확장 (최대 1200px까지)
+   - 830px 느낌을 유지하고 싶으면 이 블록은 삭제 가능
+===== */
+@media (min-width: 1000px) {
+  .admin-page {
+    width: min(1200px, calc(100vw - 64px)) !important; /* 좌우 여백 약간 늘림 */
+    max-width: none !important;
+    margin: 0 auto;
+  }
+  .admin-header,
+  .admin-search,
+  .user-table,
+  .pagination {
+    width: 100% !important;
+    max-width: none !important;
+  }
+}
+
+/* ===== Action 셀은 언제나 맨 오른쪽 (재보강) ===== */
+.user-head .action,
+.user-row .action {
+  justify-self: end;
+  text-align: right;
+}
+.td.action {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+:root {
+  --bg: rgba(254, 255, 245, 1);
+  --green: rgba(64, 234, 135, 1);
+  --green-weak: rgba(64, 234, 135, 0.15);
+  --ink: #2f3a34;
+  --muted: #a8b1aa;
+  --line: #dfeee7;
+  --head: #e6e7e4;
+}
+
+body {
+  background: var(--bg);
+}
+
+/* ===== 전체 래퍼 ===== */
+.admin-shell {
+  min-height: 100dvh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 16px;
+}
+@supports (height: 100svh) {
+  .admin-shell {
+    min-height: 100svh;
+  }
+}
+
+/* ===== 메인 박스 ===== */
+.admin-page {
+  width: min(92vw, 800px);
+  max-width: 1000px;
+  background: var(--bg);
+  font-family: "Noto Sans KR", sans-serif;
+  padding-bottom: 40px;
+  border-radius: 14px;
+  box-sizing: border-box;
+  margin: 0;
+}
+
+/* header */
+.admin-header {
+  max-width: 820px;
+  margin: 18px auto 10px;
+  padding: 0 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.admin-title {
+  font-size: 28px;
+  font-weight: 800;
+  color: #111;
+  margin: 12px 0;
+}
+.btn-logout {
+  height: 36px;
+  padding: 0 14px;
+  background: var(--green);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+/* search */
+.admin-search {
+  max-width: 820px;
+  margin: 12px auto 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 16px;
+}
+.admin-search input {
+  flex: 1;
+  height: 42px;
+  border: 1.5px solid var(--green);
+  border-radius: 24px;
+  background: #fff;
+  padding: 0 44px 0 16px;
+  font-size: 14px;
+  color: var(--ink);
+}
+.icon-btn {
+  margin-left: -44px;
+  width: 36px;
+  height: 36px;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+/* table */
+.user-table {
+  max-width: 700px;
+  margin: 0 auto;
+  background: #fffef7;
+  overflow: hidden;
+  border: 1px solid #ecefe8;
+  padding-bottom: 10px;
+}
+
+/* 5 columns: name / email / title / date / action */
+.user-head {
+  display: grid;
+  grid-template-columns: 1.6fr 1.6fr 1fr 0.8fr;
+  align-items: center;
+  background: var(--head);
+  padding: 12px 16px;
+  font-weight: 700;
+  border-bottom: 1px solid #ccc;
+}
+.user-head .th {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.user-row {
+  display: grid;
+  grid-template-columns: 1.6fr 1.6fr 1fr 0.8fr;
+  align-items: center;
+  padding: 10px 24px;
+}
+
+.td,
+.th {
+  font-size: clamp(14px 20vw 32px);
+  color: #333;
+}
+.ellipsis {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* action 오른쪽 정렬(해상도 불문) */
+.user-head .action,
+.user-row .action {
+  justify-self: end;
+  text-align: right;
+}
+.td.action {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.btn-detail {
+  height: 30px;
+  padding: 0 10px;
+  border-radius: 50px;
+  border: 1px solid var(--green);
+  background: var(--green-weak);
+  color: #2f7c57;
+  font-weight: 800;
+  cursor: pointer;
+}
+.row-divider {
+  grid-column: 1 / -1;
+  height: 1px;
+  background: #3a3a3a;
+  opacity: 0.25;
+  margin-top: 12px;
+}
+
+/* 모바일(<=390px)도 5열 유지 + 간격만 조정 */
+@media (max-width: 390px) {
+  .user-head,
+  .user-row {
+    grid-template-columns: 1fr 1.2fr 1.3fr 0.9fr 0.8fr;
+    padding: 10px 12px;
+  }
+  .admin-title {
+    font-size: 24px;
+  }
+  .btn-logout {
+    height: 34px;
+  }
+}
+
+/* pagination */
+.pagination {
+  max-width: 600px;
+  margin: 12px auto 0;
+  padding: 10px 16px 0;
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+}
+.page-btn {
+  min-width: 34px;
+  height: 34px;
+  border: 1px solid #e0e6e2;
+  background: #fff;
+  border-radius: 10px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.page-btn.is-active {
+  background: var(--green);
+  border-color: var(--green);
+  color: #fff;
+}
+.page-btn[disabled] {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+.page-ellipsis {
+  padding: 0 4px;
+  color: #8b948e;
+}
+
+/* modal */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.modal {
+  width: min(92vw, 800px);
+  background: #fff;
+  border-radius: 16px;
+  border: 1px solid rgba(64, 234, 135, 0.45);
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.12);
+}
+.modal-header {
+  position: relative;
+  padding: 14px 16px;
+  font-weight: 800;
+  color: var(--ink);
+  border-bottom: 1px solid #f0f2ee;
+}
+.modal-close {
+  position: absolute;
+  right: 8px;
+  top: 6px;
+  width: 34px;
+  height: 34px;
+  border: none;
+  background: transparent;
+  color: #7a8b82;
+  font-size: 20px;
+  cursor: pointer;
+}
+.modal-body {
+  padding: 16px;
+}
+.detail-item {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+.detail-item .label {
+  color: #6a746e;
+}
+.detail-item .value {
+  color: var(--ink);
+  font-weight: 700;
+}
+.detail-sub {
+  margin-top: 10px;
+  font-size: 13px;
+  color: #6a746e;
+}
+.modal-actions {
+  padding: 12px 16px 16px;
+  display: flex;
+  justify-content: flex-end;
+}
+.modal-btn {
+  height: 38px;
+  padding: 0 14px;
+  border-radius: 10px;
+  border: 1px solid #e0e0e0;
+  background: #fff;
+  font-weight: 700;
+  cursor: pointer;
+}
+.modal-btn:hover {
+  background: #f9fffb;
+}
+
+/* ===== Tabs ===== */
+.admin-tabs {
+  max-width: 720px;
+  margin: 8px auto 10px;
+  padding: 0 16px;
+  display: flex;
+  gap: 8px;
+}
+.tab-btn {
+  height: 38px;
+  padding: 0 12px;
+  border: 1px solid #e0e6e2;
+  background: #fff;
+  border-radius: 12px;
+  font-weight: 800;
+  color: #2f3a34;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.tab-btn.is-active {
+  background: var(--green);
+  border-color: var(--green);
+  color: #fff;
+}
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.08);
+  color: inherit;
+  font-size: 12px;
+  font-weight: 800;
+}
+.tab-btn.is-active .badge {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+/* 상세 내 블록 */
+.detail-group {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 12px;
+  margin-bottom: 10px;
+}
+@media (max-width: 480px) {
+  .detail-group {
+    grid-template-columns: 1fr;
+  }
+}
+.detail-block {
+  margin-top: 10px;
+}
+.detail-label {
+  font-size: 13px;
+  color: #6a746e;
+  margin-bottom: 6px;
+}
+.detail-content {
+  background: #fafcf8;
+  border: 1px solid #eef4ef;
+  border-radius: 10px;
+  padding: 10px;
+}
+.prewrap {
+  white-space: pre-wrap;
+}
+
+.photo-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.photo-grid img {
+  width: 100%;
+  height: 90px;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 1px solid #e6eee9;
+}
+
+/* 모달 버튼 상태 */
+.modal.small {
+  width: min(92vw, 420px);
+}
+.modal-btn.primary {
+  background: var(--green);
+  color: #fff;
+  border-color: var(--green);
+}
+.modal-btn.primary:hover {
+  filter: brightness(0.95);
+}
+.modal-btn.danger {
+  border-color: #ffd3d3;
+  background: #fff5f5;
+  color: #b23535;
+}
+.modal-btn.danger:hover {
+  background: #ffeaea;
+}
+
+.detail-hint {
+  margin-top: 10px;
+  font-size: 12px;
+  color: #6a746e;
+}
+
+/* 토스트 */
+.toast {
+  position: fixed;
+  bottom: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.85);
+  color: #fff;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-weight: 700;
+  z-index: 9999;
+}
+
+/* ===== 거절 사유 Textarea ===== */
+.reject-textarea {
+  width: 100%;
+  min-height: 120px;
+  border: 1px solid rgba(156, 156, 156, 1);
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-size: 14px;
+  line-height: 1.6;
+  font-family: "Noto Sans KR", sans-serif;
+  color: var(--ink);
+  background: #ffffff;
+  outline: none;
+  resize: none;
+  box-sizing: border-box;
+}
+.reject-textarea:focus {
+  background: #fffef9;
+}
+.reject-textarea::placeholder {
+  color: #8b948e;
+  font-family: "Noto Sans KR", sans-serif;
+  opacity: 1;
+}
+.reject-textarea::-webkit-input-placeholder {
+  color: #8b948e;
+}
+.reject-textarea:-ms-input-placeholder {
+  color: #8b948e;
+}
+
+/* =========================================================
+   820px 이상 기기에서 최소 크기(타이틀/입력/테이블 텍스트/패딩) 보장
+   - 기존 스타일은 유지, 이 블록이 '최소값'만 강제
+   - 더 넓은 화면에서는 clamp로 적당히 더 커질 수 있음
+   ========================================================= */
+@media (min-width: 820px) {
+  /* 레이아웃 최소 폭 보장 */
+  .admin-page {
+    min-width: 1000px !important;
+  }
+
+  /* 헤더 타이틀 최소 36px (화면 넓으면 살짝 더) */
+  .admin-title {
+    font-size: clamp(60px, 3.2vw, 68px) !important;
+    margin-bottom: clamp(45px, 3.2vw, 60px);
+  }
+
+  /* 검색 인풋 폰트/높이 업, 아이콘 버튼도 맞춰 확장 */
+  .admin-search {
+    padding: 0 30px !important;
+    margin: 18px auto 50px !important;
+    border-radius: 990px;
+    min-width: 1000px !important;
+  }
+  .admin-search input {
+    font-size: 30px !important;
+    height: 56px !important;
+    padding: 10px 50px !important;
+    /* 아이콘 자리 + 좌측 여유 */
+  }
+  .icon-btn {
+    width: 50px !important;
+    height: 50px !important;
+    margin-left: -56px !important; /* 입력 padding과 정렬 */
+  }
+
+  /* 테이블: 본문/헤더 텍스트 최소 24px, 세로 패딩 확대 */
+  .user-head,
+  .user-row {
+    padding: 16px 28px !important;
+  }
+  .td,
+  .th {
+    padding: 18px;
+    font-size: 32px !important;
+    line-height: 1.35 !important;
+  }
+
+  /* 액션 버튼도 키움 (표 셀 대비) */
+  .btn-detail {
+    height: 40px !important;
+    padding: 0 25px !important;
+    font-size: 20px !important;
+    text-align: center !important;
+  }
+
+  /* 헤더 영역 약간 더 여유 */
+  .admin-header {
+    padding: 0 20px !important;
+    margin: 24px auto 16px !important;
+  }
+  .btn-logout {
+    height: 60px !important;
+    padding: 0 28px !important;
+    font-size: 30px !important;
+  }
+
+  /* 페이지네이션도 터치 타깃 확대 */
+  .pagination {
+    padding: 14px 20px 0 !important;
+  }
+  .page-btn {
+    min-width: 70px !important;
+    height: 70px !important;
+    font-size: 24px !important;
+    margin-top: 50px;
+  }
+  .tab-btn {
+    font-size: 32px !important;
+    padding: 20px;
+    padding-top: 25px;
+    padding-bottom: 25px;
+    margin-bottom: 20px;
+    text-align: center;
+    align-items: center;
+  }
+  .badge {
+    font-size: 28px;
+    padding: 10px;
+    border-radius: 20px !important;
+  }
+  /* 모달 내 여백도 상향(옵션, 가독성) */
+
+  .modal {
+    min-width: 700px !important;
+  }
+  .modal-header {
+    padding: 18px 20px !important;
+    font-size: 32px !important;
+  }
+  .modal-body {
+    padding: 30px !important;
+  }
+  .detail-item {
+    margin-bottom: 14px !important;
+  }
+  .detail-label,
+  .label,
+  .value {
+    font-size: 24px !important;
+  }
+  .detail-content-prewrap,
+  .detail-hint {
+    font-size: 20px !important;
+  }
+}

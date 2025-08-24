@@ -1,0 +1,538 @@
+/* Global */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+/* App Container */
+.emotion-container {
+    width: 100%;
+    min-height: 100vh;
+    background: #FEFFF5;
+    position: relative;
+    overflow-y: auto;
+}
+
+/* Header */
+.emotion-header {
+    padding: 60px 24px 20px;
+    background: #FEFFF5;
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+}
+
+.back-button {
+    width: 32px;
+    height: 24px;
+    background: transparent;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+    margin-top: 0px;
+}
+
+.back-button:hover {
+    background: transparent;
+    transform: translateX(-2px);
+}
+
+.header-greeting {
+    flex: 1;
+    text-align: left;
+}
+
+.greeting-text {
+    font-size: 16px;
+    font-weight: 400;
+    color: #1a201c;
+    line-height: 1.4;
+}
+
+.name-text {
+    font-weight: 600;
+}
+
+.bold-text {
+    font-weight: 700;
+}
+
+/* User Greeting */
+.greeting-section {
+    margin: 16px;
+    padding: 20px;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(248, 255, 248, 0.8));
+    border-radius: 20px;
+    border: 1px solid rgba(64, 234, 135, 0.15);
+    backdrop-filter: blur(10px);
+    position: relative;
+    overflow: hidden;
+}
+
+.greeting-text {
+    text-align: left;
+}
+
+.greeting-decoration {
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 100px;
+    height: 100%;
+    pointer-events: none;
+}
+
+.deco-emoji {
+    opacity: 0.7;
+    animation: float 3s ease-in-out infinite;
+}
+
+.greeting-name {
+    font-size: 14px;
+    font-weight: 500;
+    color: #1a201c;
+    margin-bottom: 4px;
+}
+
+.greeting-message {
+    font-size: 12px;
+    color: #5a605b;
+    line-height: 1.4;
+    margin-bottom: 8px;
+}
+
+.greeting-cta {
+    font-size: 12px;
+    font-weight: 600;
+    color: #41604c;
+    line-height: 1.3;
+}
+
+/* Mood Rating Section */
+.mood-section {
+    margin: 16px;
+    background: #FFFFFF80;
+    border-radius: 20px;
+    padding: 20px;
+    border: 1px solid #9C9C9C;
+}
+
+.section-title {
+    font-size: 12px;
+    font-weight: 500;
+    color: #1a201c;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.mood-faces {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 16px 0;
+}
+
+.mood-face {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.mood-face img {
+    width: 45px;
+    height: 45px;
+    object-fit: contain;
+}
+
+.mood-face:hover {
+    transform: scale(1.1);
+}
+
+.mood-face.selected {
+    transform: scale(1.2);
+}
+
+.mood-face.terrible { background: transparent; }
+.mood-face.bad { background: transparent; }
+.mood-face.okay { background: transparent; }
+.mood-face.good { background: transparent; }
+.mood-face.great { background: transparent; }
+
+.mood-labels {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 12px;
+}
+
+.mood-label {
+    font-size: 8px;
+    color: #666;
+    text-align: center;
+    width: 50px;
+}
+
+/* Emotion Selection */
+.emotion-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+    justify-items: center;
+    align-items: start;
+}
+
+.emotion-grid .emotion-item:nth-child(8) {
+    grid-column: 4;
+}
+
+.emotion-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 60px;
+    height: 76px;
+}
+
+.emotion-item:hover {
+    transform: translateY(-4px);
+}
+
+.emotion-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    margin-bottom: 8px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    background: #D1DFD4;
+}
+
+.emotion-icon img {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+}
+
+.emotion-item.selected.joy .emotion-icon { background: #BFFFB6; }
+.emotion-item.selected.frustration .emotion-icon { background: #95AEC0; }
+.emotion-item.selected.pressure .emotion-icon { background: #FBB8B9; }
+.emotion-item.selected.curiosity .emotion-icon { background: #BCA9EE; }
+.emotion-item.selected.hope .emotion-icon { background: #F9F8A7; }
+.emotion-item.selected.anxiety .emotion-icon { background: #85A0FA; }
+.emotion-item.selected.achievement .emotion-icon { background: #FFC46A; }
+.emotion-item.selected.isolation .emotion-icon { background: #C1C1C1; }
+
+.emotion-label {
+    font-size: 8px;
+    font-weight: 400;
+    color: #666;
+    text-align: center;
+}
+
+/* Calendar Section */
+.calendar-section {
+    padding: 16px;
+    background: #FFFFFF80;
+    margin: 12px;
+    border-radius: 20px;
+    border: 1px solid #9C9C9C;
+    width: auto;
+}
+
+.calendar-header {
+    text-align: center;
+    margin-bottom: 16px;
+}
+
+.calendar-navigation {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    margin-bottom: 12px;
+    position: relative;
+}
+
+.nav-btn {
+    background: none;
+    border: none;
+    font-size: 20px;
+    font-weight: bold;
+    color: #40ea87;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.nav-btn:hover {
+    background: rgba(64, 234, 135, 0.1);
+    transform: scale(1.1);
+}
+
+.today-btn {
+    background: #40ea87;
+    border: none;
+    color: white;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 6px 16px;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: inherit;
+    position: absolute;
+    right: 0;
+}
+
+.today-btn:hover {
+    background: #2ad948;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(64, 234, 135, 0.3);
+}
+
+.calendar-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #5a605b;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(240, 255, 246, 0.9));
+    padding: 8px 16px;
+    border-radius: 12px;
+    backdrop-filter: blur(10px);
+    display: inline-block;
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 2px;
+    margin-top: 8px;
+    padding: 0 4px;
+}
+
+.calendar-day {
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 500;
+    color: #333;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    background: rgba(255, 255, 255, 0.8);
+    min-height: 32px;
+}
+
+.calendar-day.header {
+    font-weight: 600;
+    color: #666;
+    cursor: default;
+    background: transparent;
+    font-size: 11px;
+    padding: 0;
+    min-height: 24px;
+}
+
+.calendar-day.today {
+    background: #40ea87;
+    color: white;
+    font-weight: 600;
+    box-shadow: 0 4px 12px rgba(64, 234, 135, 0.3);
+    transform: scale(1.05);
+}
+
+.calendar-day.has-emotion::after {
+    content: '';
+    position: absolute;
+    bottom: 4px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 6px;
+    height: 6px;
+    background: #40ea87;
+    border-radius: 50%;
+}
+
+.calendar-day.today.has-emotion::after {
+    background: white;
+}
+
+.calendar-day.selected {
+    background: rgba(64, 234, 135, 0.2);
+    border: 2px solid #40ea87;
+    font-weight: 600;
+}
+
+.calendar-day.sunday {
+    color: #ff6b6b;
+}
+
+.calendar-day.saturday {
+    color: #4dabf7;
+}
+
+.calendar-day:not(.header):not(.today):hover {
+    background: rgba(64, 234, 135, 0.1);
+    transform: scale(1.05);
+}
+
+.calendar-entry-section {
+    margin-top: 16px;
+    padding: 12px;
+    background: rgba(248, 255, 248, 0.7);
+    border-radius: 12px;
+    border: 1px solid rgba(64, 234, 135, 0.2);
+}
+
+.entry-date {
+    font-size: 13px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 6px;
+}
+
+.entry-preview {
+    font-size: 11px;
+    color: #666;
+    line-height: 1.4;
+}
+
+/* Input Field */
+.diary-input {
+    width: 100%;
+    background: rgba(240, 255, 246, 0.8);
+    border: 1px solid rgba(64, 234, 135, 0.2);
+    border-radius: 16px;
+    padding: 16px;
+    font-size: 12px;
+    color: #5a605b;
+    resize: none;
+    min-height: 40px;
+    font-family: inherit;
+    transition: all 0.3s ease;
+    margin-top: 20px;
+}
+
+.diary-input:focus {
+    outline: none;
+    border-color: rgba(64, 234, 135, 0.4);
+    box-shadow: 0 0 0 3px rgba(64, 234, 135, 0.1);
+}
+
+.diary-input::placeholder {
+    color: rgba(90, 96, 91, 0.6);
+}
+
+/* Save Button */
+.save-button {
+    width: 100%;
+    background: #40ea87;
+    border: none;
+    border-radius: 16px;
+    padding: 14px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 16px;
+    font-family: inherit;
+}
+
+.save-button:hover:not(:disabled) {
+    background: #2ad948;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(64, 234, 135, 0.3);
+}
+
+.save-button:disabled {
+    background: #cccccc;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* Animations */
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+}
+
+.fade-in {
+    animation: fadeIn 0.6s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.slide-in {
+    animation: slideIn 0.8s ease-out;
+}
+
+@keyframes slideIn {
+    from { transform: translateX(-20px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+/* Responsive */
+@media (min-width: 768px) {
+    .calendar-section {
+        margin: 16px auto;
+        max-width: 680px;
+    }
+    .calendar-day {
+        min-height: 48px;
+        font-size: 14px;
+    }
+    .calendar-day.header {
+        font-size: 12px;
+    }
+    .calendar-grid {
+        gap: 4px;
+    }
+    .calendar-entry-section {
+        margin-top: 20px;
+        padding: 16px;
+    }
+}
+
+@media (max-width: 360px) {
+    .calendar-section {
+        padding: 12px;
+        margin: 8px;
+    }
+    .calendar-day {
+        min-height: 28px;
+        font-size: 12px;
+    }
+    .calendar-day.header {
+        font-size: 10px;
+    }
+    .calendar-grid {
+        gap: 1px;
+    }
+}

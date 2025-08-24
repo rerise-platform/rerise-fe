@@ -1,103 +1,181 @@
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { Link } from 'react-router-dom';
 import styled from 'styled-components';
-import { login, clearError } from '../loginSlice';
-import Button from '../../../shared/components/Button';
-import Input from '../../../shared/components/Input';
-import { validators } from '../../../shared/utils/validators';
+import { loginThunk } from '../loginSlice';
 
+// ===== Styled Components =====
+// 입력 박스 스타일
+const InputBox = styled.div`
+  width: 296px;
+  height: 58px;
+  border: 1px solid #40EA87;
+  background-color: rgba(255,255,255,0.2);
+  border-radius: 28px;
+  margin-bottom: 20px;
+  position: relative;
+  backdrop-filter: ${props => props.isPassword ? 'blur(7.5px)' : 'blur(12px)'};
+  -webkit-backdrop-filter: ${props => props.isPassword ? 'blur(7.5px)' : 'blur(12px)'};
+`;
+
+// 입력 필드 스타일
+const Input = styled.input`
+  width: 100%;
+  height: 100%;
+  border: none;
+  background: transparent;
+  padding: 19px 20px;
+  font-size: 15px;
+  color: #3F3F3F;
+  outline: none;
+  box-sizing: border-box;
+  font-family: "Pretendard-Regular", Helvetica;
+  font-weight: 400;
+  letter-spacing: -0.5px;
+  line-height: 20px;
+
+  &::placeholder {
+    color: #3F3F3F;
+  }
+`;
+
+// 로그인 버튼
+const LoginButton = styled.button`
+  width: 304px;
+  height: 68px;
+  background: #40EA87;
+  border: none;
+  border-radius: 28px;
+  font-family: "Pretendard-SemiBold", Helvetica;
+  font-size: 16px;
+  color: #41604C;
+  font-weight: 600;
+  cursor: pointer;
+  margin: 20px 0;
+
+  &:disabled {
+    background: #cccccc;
+    cursor: not-allowed;
+  }
+`;
+
+// 회원가입 안내 섹션
+const SignupPrompt = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  margin-top: 20px;
+  
+  span {
+    font-size: 14px;
+    line-height: 22px;
+    letter-spacing: 0.07px;
+    white-space: nowrap;
+  }
+  
+  .ask {
+    color: #9EA3B2;
+    font-weight: 400;
+  }
+  
+  a {
+    color: #31B066;
+    font-weight: 600;
+    text-decoration: none;
+  }
+`;
+
+// 에러 메시지 스타일
+const ErrorMessage = styled.div`
+  color: #ff4444;
+  font-size: 14px;
+  text-align: center;
+  font-family: "Pretendard-Regular", Helvetica;
+  margin: 10px 0;
+`;
+
+/**
+ * 로그인 폼 컴포넌트
+ * 사용자 인증 정보를 입력받고 Redux를 통해 로그인 처리를 담당
+ */
 const LoginForm = () => {
-  // Redux 디스패치 함수
-  const dispatch = useDispatch();
-  // Redux 스토어에서 로그인 상태 가져오기
-  const { isLoading, error } = useSelector((state) => state.login);
+  // Redux hooks
+  const dispatch = useDispatch(); // 액션을 dispatch하기 위한 함수
+  const { loading, error } = useSelector(state => state.auth); // Redux store에서 상태 가져오기
   
   // 폼 데이터 상태 관리
   const [formData, setFormData] = useState({
-    email: '',
-    password: '',
+    email: '',         // 사용자 이메일
+    password: ''       // 사용자 비밀번호
   });
-  // 폼 유효성 검사 에러 상태 관리
-  const [formErrors, setFormErrors] = useState({});
 
-  // 입력 필드 변경 핸들러
+  /**
+   * 입력 필드 값 변경 핸들러
+   * @param {Event} e - 이벤트 객체
+   */
   const handleChange = (e) => {
     const { name, value } = e.target;
-    // 폼 데이터 업데이트
-    setFormData(prev => ({ ...prev, [name]: value }));
-    // 이전 에러 메시지가 있다면 초기화
-    if (error) dispatch(clearError());
-    
-    // 실시간 유효성 검사 수행
-    const validationError = validators[name]?.(value) || '';
-    setFormErrors(prev => ({
+    setFormData(prev => ({
       ...prev,
-      [name]: validationError
+      [name]: value
     }));
   };
 
-  // 폼 제출 핸들러
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  /**
+   * 폼 제출 핸들러
+   * @param {Event} e - 이벤트 객체
+   */
+  const handleSubmit = (e) => {
+    e.preventDefault(); // 기본 폼 제출 동작 방지
     
-    // 전체 폼 유효성 검사 수행
-    const errors = {
-      email: validators.email(formData.email),
-      password: validators.password(formData.password),
-    };
-
-    // 유효성 검사 실패 시 에러 표시
-    if (Object.values(errors).some(error => error)) {
-      setFormErrors(errors);
-      return;
-    }
-
-    // 로그인 액션 디스패치
-    dispatch(login(formData));
+    // Redux thunk를 통해 로그인 액션 dispatch
+    dispatch(loginThunk({
+      email: formData.email,
+      password: formData.password
+    }));
   };
 
   return (
-    <FormContainer onSubmit={handleSubmit}>
-      <Input
-        type="email"
-        name="email"
-        value={formData.email}
-        onChange={handleChange}
-        placeholder="이메일"
-        error={formErrors.email}
-      />
-      <Input
-        type="password"
-        name="password"
-        value={formData.password}
-        onChange={handleChange}
-        placeholder="비밀번호"
-        error={formErrors.password}
-      />
+    <form onSubmit={handleSubmit}>
+      {/* 입력 필드들 */}
+      <InputBox>
+        <Input
+          type="email"
+          name="email"
+          placeholder="이메일"
+          value={formData.email}
+          onChange={handleChange}
+          required
+        />
+      </InputBox>
+      
+      <InputBox isPassword>
+        <Input
+          type="password"
+          name="password"
+          placeholder="비밀번호"
+          value={formData.password}
+          onChange={handleChange}
+          required
+        />
+      </InputBox>
+
+      {/* 에러 메시지 표시 */}
       {error && <ErrorMessage>{error}</ErrorMessage>}
-      <Button 
-        type="submit" 
-        disabled={isLoading}
-        fullWidth
-      >
-        {isLoading ? '로그인 중...' : '로그인'}
-      </Button>
-    </FormContainer>
+
+      {/* 로그인 버튼 */}
+      <LoginButton type="submit" disabled={loading}>
+        {loading ? '로그인 중...' : '로그인'}
+      </LoginButton>
+
+      {/* 회원가입 안내 */}
+      <SignupPrompt>
+        <span className="ask">아직 회원이 아니신가요?</span>
+        <Link to="/signup">회원가입</Link>
+      </SignupPrompt>
+    </form>
   );
 };
-
-const FormContainer = styled.form`
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  width: 100%;
-  max-width: 400px;
-`;
-
-const ErrorMessage = styled.div`
-  color: var(--error-color);
-  font-size: 0.875rem;
-  margin-top: -0.5rem;
-`;
 
 export default LoginForm;

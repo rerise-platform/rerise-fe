@@ -1,23 +1,57 @@
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import { Routes, Route, useLocation } from "react-router-dom";
+import LoginPage from "./features/login/pages/LoginPage";
+import SignupPage from "./features/signup/pages/SignupPage";
+import MainPage from "./features/main/pages/MainPage";
+import EmotionPage from "./features/emotion/pages/EmotionPage";
+import MissionMainPage from "./features/mission/pages/MissionMainPage.jsx";
+import AdminPage from "./features/admin/pages/AdminPage.jsx";
+import TutorialPage from "./features/mission/pages/TutorialPage.jsx";
+import Navbar from "./shared/components/Navbar";
+import "./App.css";
+import TestPage from "./features/test/pages/TestPage.jsx";
+import TestIntroPage from "./features/test/pages/TestIntroPage.jsx";
+import TestLoadingPage from "./features/test/pages/TestLoadingPage.jsx";
+import TestResultPage from "./features/test/pages/TestResultPage.jsx";
 
 function App() {
+  const location = useLocation();
+  
+  // 네비게이션 숨길 페이지 확장
+  const hideNavbarPages = [
+    "/login",
+    "/signup",
+    "/admin",
+    "/tutorial",
+    "/emotion",
+    "/",
+  ];
+  
+  const shouldShowNavbar = !hideNavbarPages.includes(location.pathname);
+  
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className="app">
+      <Routes>
+        <Route path="/" element={<SignupPage />} />
+        <Route path="/main" element={<MainPage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/signup" element={<SignupPage />} />
+        <Route path="/emotion" element={<EmotionPage />} />
+        <Route path="/tutorial" element={<TutorialPage />} />
+        <Route path="/mission" element={<MissionMainPage />} />
+        <Route path="/admin" element={<AdminPage />} />
+        <Route path="/test" element={<TestIntroPage />} />
+        <Route path="/test/q" element={<TestPage />} />
+        <Route path="/test/loading" element={<TestLoadingPage />} />
+        <Route path="/test/result" element={<TestResultPage />} />
+        <Route
+          path="/recommendation"
+          element={<div>추천 페이지 (준비중)</div>}
+        />
+        <Route path="/mypage" element={<div>마이 페이지 (준비중)</div>} />
+      </Routes>
+      
+      {shouldShowNavbar && <Navbar />}
     </div>
   );
 }

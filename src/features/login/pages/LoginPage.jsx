@@ -1,48 +1,43 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import LoginForm from '../components/LoginForm';
 
-const LoginPage = () => {
-  return (
-    <Container>
-      <Title>로그인</Title>
-      <LoginForm />
-      <SignupLink>
-        계정이 없으신가요? <Link to="/signup">회원가입</Link>
-      </SignupLink>
-    </Container>
-  );
-};
+// ===== Styled Components =====
+// 전체 화면을 감싸는 컨테이너
+const Screen = styled.div`
+  width: 100vw;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #FEFFF5;
+  min-height: 100vh;
+  font-family: 'Pretendard', sans-serif;
+  -webkit-font-smoothing: antialiased;
+`;
 
-const Container = styled.div`
+// 로그인 페이지의 메인 컨테이너
+const LoginContainer = styled.div`
+  background-color: #FEFFF5;
+  width: 360px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  min-height: 100vh;
-  padding: 2rem;
+  padding: 40px 0;
 `;
 
-const Title = styled.h1`
-  margin-bottom: 2rem;
-  font-size: 2rem;
-  font-weight: 600;
-  color: var(--text-primary);
-`;
-
-const SignupLink = styled.p`
-  margin-top: 1rem;
-  color: var(--text-secondary);
-  
-  a {
-    color: var(--primary-color);
-    text-decoration: underline;
-    
-    &:hover {
-      opacity: 0.8;
-    }
-  }
-`;
+/**
+ * 로그인 페이지 컴포넌트
+ * 이미지와 동일한 깔끔한 UI 구현
+ */
+const LoginPage = () => {
+  return (
+    <Screen>
+      <LoginContainer>
+        {/* 로그인 폼 컴포넌트 (모든 UI 요소 포함) */}
+        <LoginForm />
+      </LoginContainer>
+    </Screen>
+  );
+};
 
 export default LoginPage;
