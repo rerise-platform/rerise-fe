@@ -61,6 +61,8 @@ export const loginSlice = createSlice({
     },
     // 로그아웃 시 호출되는 액션
     logout: (state) => {
+      // localStorage에서 토큰 제거
+      localStorage.removeItem('authToken');
       return initialState; // 초기 상태로 리셋
     },
   },
@@ -79,6 +81,12 @@ export const loginSlice = createSlice({
         state.user_id = action.payload.user_id;  // 백엔드 응답에서 user_id 추출
         state.token = action.payload.token;      // 백엔드 응답에서 token 추출
         state.error = null;
+        
+        // JWT 토큰을 localStorage에 저장
+        localStorage.setItem('authToken', action.payload.token);
+        
+        // 로그인 성공 시 메인 페이지로 이동
+        window.location.href = '/main';
       })
       // loginThunk.rejected: 로그인 요청 실패
       .addCase(loginThunk.rejected, (state, action) => {
