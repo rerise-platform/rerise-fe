@@ -1,0 +1,325 @@
+:root {
+  /* 색상 */
+  --bg: #fbfdf5;
+  --ink: #1a201c;
+  --muted: #6b756e;
+  --green: #40ea87;
+  --green-weak: rgba(64, 234, 135, 0.15);
+  --card: #fff;
+  --line: #e8f3ec;
+
+  /* 타이포/스페이싱(반응형) */
+  --fs-base: clamp(16px, 1.7vw, 24px);
+  --fs-sm: clamp(10px, 1.2vw, 15px);
+  --fs-title: clamp(18px, 10vw, 28px);
+  --fs-btn: clamp(15px, 2vw, 18px);
+
+  --pad-v: clamp(16px, 6vw, 32px);
+  --pad-h: clamp(14px, 3.5vw, 28px);
+  --radius: clamp(12px, 2.4vw, 20px);
+  --gap: clamp(8px, 2vw, 16px);
+
+  /* 결과/게이지/컨테이너 */
+  --gauge-h: clamp(15px, 1.3vw, 16px);
+  --gauge-divider: clamp(1px, 0.2vw, 3px);
+  --avatar: clamp(120px, 24vw, 180px);
+  --illust: clamp(160px, 46vw, 340px);
+  --container-w: clamp(320px, 92vw, 980px);
+
+  /* 레이아웃 간격 */
+  --space-topbar: clamp(8px, 1.8vh, 14px);
+  --space-progress-y: clamp(6px, 1.6vh, 14px);
+  --space-title-b: clamp(8px, 1.8vh, 16px);
+  --space-sticky-top: clamp(14px, 5vh, 28px);
+}
+
+/* 뷰포트 중앙 정렬 */
+.test-shell {
+  min-height: 100svh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: var(--bg);
+  padding: clamp(12px, 3vw, 24px);
+  box-sizing: border-box;
+}
+
+/* 컨텐츠 카드 */
+.test-wrap {
+  width: var(--container-w);
+  min-height: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: "Noto Sans KR", system-ui, -apple-system, Segoe UI, Roboto,
+    sans-serif;
+  font-size: var(--fs-base);
+  padding: var(--pad-v) var(--pad-h) calc(var(--pad-v) * 1.2);
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 페이지 타이틀 */
+.page-title {
+  font-weight: 600;
+  font-size: var(--fs-title);
+  margin: 0 auto var(--space-topbar);
+}
+
+/* 인트로 */
+.test-intro-hero {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.test-intro-sub {
+  font-size: clamp(12px, 1.9vw, 16px);
+  color: var(--muted);
+  margin: 0;
+}
+.test-intro-desc {
+  font-size: clamp(14px, 1.9vw, 18px);
+  line-height: 1.5;
+}
+.test-intro-desc b {
+  color: #1db672;
+}
+.hero-illust {
+  width: var(--illust);
+  height: auto;
+  margin: 45px auto;
+  display: block;
+}
+.heart {
+  width: 120px;
+  height: 120px;
+}
+
+/* 버튼 */
+.primary-btn {
+  width: 100%;
+  border: none;
+  border-radius: var(--radius);
+  margin-top: 20px;
+  padding: calc(var(--pad-v) * 0.75) var(--pad-h);
+  font-weight: 700;
+  font-size: var(--fs-btn);
+  background: var(--green);
+  color: #0b2d19;
+  box-shadow: 0 8px 18px rgba(64, 234, 135, 0.35);
+  cursor: pointer;
+}
+
+/* 진행 정보/제목 */
+.progress {
+  display: flex;
+  justify-content: center;
+  gap: 14px;
+  color: var(--muted);
+  font-size: var(--fs-base);
+  margin: var(--space-progress-y) 0 calc(var(--space-progress-y) * 1.2);
+}
+.q-title {
+  font-weight: 700;
+  font-size: clamp(20px, 1.7vw, 24px);
+  margin: 0 0 var(--space-title-b);
+}
+
+/* 선택지 카드 */
+.opt {
+  background: rgba(254, 255, 245, 1);
+  border: 1px solid rgba(156, 156, 156, 1);
+  border-radius: 18px;
+  padding: calc(var(--pad-v) * 0.7) var(--pad-h);
+  margin: 15px 0 0;
+  box-shadow: 0 4px rgba(156, 156, 156, 0.1);
+  cursor: pointer;
+}
+.opt.selected {
+  border: 2px solid #1db672;
+  background: rgba(218, 247, 230, 1);
+}
+
+/* 하단 버튼 구역 */
+.sticky-bottom {
+  margin-top: auto;
+  padding-top: var(--space-sticky-top);
+}
+
+/* 로딩 */
+.loading-wrap {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+.loading-font {
+  font-size: var(--fs-base);
+}
+
+/* 결과 */
+.result-avatar {
+  width: var(--avatar);
+  height: var(--avatar);
+  border-radius: 999px;
+  margin: 8px auto 12px;
+  display: grid;
+  place-items: center;
+}
+.result-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  transform: scale(0.9);
+}
+
+.pillset {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 4px 0 10px;
+}
+.pill {
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: #fff;
+  font-size: var(--fs-sm);
+}
+
+/* 5칸 게이지 */
+.meter {
+  position: relative;
+  margin: 8px 0;
+  background: #e7efea;
+  border-radius: 999px;
+  height: var(--gauge-h);
+  overflow: hidden;
+}
+.meter .fill {
+  height: 100%;
+  background: #40ea87;
+  width: 0%;
+  transition: width 0.3s ease;
+}
+.meter .segments {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  pointer-events: none;
+}
+.meter .segments i {
+  border-left: var(--gauge-divider) solid rgba(255, 255, 255, 0.95);
+}
+.meter .segments i:first-child {
+  border-left: none;
+}
+
+.result-text {
+  font-size: clamp(14px, 2vw, 17px);
+  color: #2a3a33;
+  line-height: 1.6;
+  margin-top: 8px;
+}
+
+/* =========================
+   기기별 미디어 쿼리
+========================= */
+
+/* 초소형(≤375px): 꽉 찬 느낌 완화 */
+@media (max-width: 376px) {
+  .test-wrap {
+    padding-top: clamp(12px, 4.5svh, 20px);
+    padding-bottom: clamp(16px, 5svh, 22px);
+  }
+  .hero-illust {
+    margin-top: clamp(10px, 5svh, 18px);
+    margin-bottom: clamp(12px, 5.5svh, 20px);
+  }
+  :root {
+    --space-topbar: clamp(6px, 1.4svh, 10px);
+    --space-progress-y: clamp(6px, 1.6svh, 10px);
+    --space-title-b: clamp(6px, 1.6svh, 12px);
+    --space-sticky-top: clamp(12px, 4.4svh, 20px);
+  }
+}
+
+/* iPad 포트레이트(768~1024px): 여백/폰트 보정만 */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .test-wrap {
+    padding-top: clamp(16px, 3vh, 24px);
+    padding-bottom: clamp(18px, 3.5vh, 26px);
+  }
+  :root {
+    --space-topbar: clamp(10px, 1.4vh, 16px);
+    --space-progress-y: clamp(8px, 1.3vh, 14px);
+    --space-title-b: clamp(10px, 1.6vh, 16px);
+    --space-sticky-top: clamp(10px, 2.5vh, 18px);
+
+    --fs-base: clamp(18px, 1.6vw, 22px);
+    --fs-btn: clamp(17px, 1.8vw, 22px);
+    --fs-title: clamp(24px, 4vw, 36px);
+  }
+}
+
+/* iPhone SE 375×667: 테스트(문항)만 컴팩트 */
+@media (max-width: 375px) and (max-height: 700px) {
+  .test-wrap:has(.progress) {
+    --fs-base: clamp(14px, 3.6vw, 16px);
+    --fs-sm: clamp(11px, 3.2vw, 13px);
+    --fs-title: clamp(18px, 6.2vw, 22px);
+    --fs-btn: clamp(14px, 4.2vw, 16px);
+
+    --pad-v: clamp(10px, 4.6vh, 16px);
+    --pad-h: clamp(12px, 4.6vw, 18px);
+    --radius: 14px;
+
+    --space-topbar: clamp(6px, 1.4svh, 10px);
+    --space-progress-y: clamp(4px, 1.2svh, 8px);
+    --space-title-b: clamp(6px, 1.4svh, 10px);
+    --space-sticky-top: clamp(10px, 3.6svh, 16px);
+
+    --gauge-h: clamp(10px, 1.8vw, 14px);
+    --gauge-divider: 1.5px;
+  }
+  .test-wrap:has(.progress) .progress {
+    margin: clamp(4px, 1.2svh, 8px) 0 clamp(6px, 1.6svh, 10px);
+  }
+  .test-wrap:has(.progress) .q-title {
+    margin: 0 0 var(--space-title-b);
+  }
+  .test-wrap:has(.progress) .opt {
+    padding: calc(var(--pad-v) * 0.5) calc(var(--pad-h) * 0.9);
+    margin: 8px 0;
+  }
+  .test-wrap:has(.progress) .primary-btn {
+    padding: calc(var(--pad-v) * 0.65) var(--pad-h);
+    margin-top: clamp(12px, 2svh, 16px);
+  }
+}
+
+/* 화면 높이 667px 이하: 문항 버튼 간격 축소 */
+@media (max-height: 667px) {
+  .progress ~ .sticky-bottom {
+    padding-top: 10px;
+  }
+  .progress ~ .sticky-bottom .primary-btn {
+    margin-top: 0;
+  }
+  .opt {
+    margin-bottom: 0;
+  } /* ← 중첩 제거 후 분리 */
+}
+
+/* 화면 높이 600px 이하: 더 타이트 */
+@media (max-height: 600px) {
+  .progress ~ .sticky-bottom {
+    padding-top: 6px;
+  }
+  .progress ~ .sticky-bottom .primary-btn {
+    margin-top: 6px;
+  }
+}
