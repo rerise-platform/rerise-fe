@@ -1,4 +1,4 @@
-import axios from 'axios';
+import api from '../../../lib/apiClient';
 
 /**
  * 로그인 API 호출 함수
@@ -12,7 +12,7 @@ import axios from 'axios';
 export const loginAPI = async (email, password) => {
   try {
     // POST 요청으로 로그인 API 엔드포인트 호출
-    const response = await axios.post('/api/v1/login', {
+    const response = await api.post('/api/v1/login', {
       email,
       password
     });

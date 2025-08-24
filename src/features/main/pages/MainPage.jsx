@@ -15,7 +15,7 @@ import emotion5 from '../../../shared/assets/images/emotion5.svg';
 
 
 // API import
-import { getMainScreenData, completeMission, getEmotionRecord } from '../api/mainAPI';
+import { getMainScreenData, getTodayMissions, completeMission, getEmotionRecord } from '../api/mainAPI';
 
 // 상수
 const EMOTION_IMAGES = {
@@ -88,6 +88,7 @@ const MainPage = () => {
   // 컴포넌트 마운트 시 메인 데이터 로드
   useEffect(() => {
     loadMainData();
+    loadTodayMissions();
     loadTodayEmotion();
   }, []);
 
@@ -117,11 +118,20 @@ const MainPage = () => {
     }
   };
 
+  const loadTodayMissions = async () => {
+    try {
+      const missions = await getTodayMissions();
+      setMainData(prev => prev ? { ...prev, daily_missions: missions } : null);
+    } catch (err) {
+      console.error('오늘의 미션 로드 실패:', err);
+    }
+  };
+
   const handleMissionComplete = async (missionId) => {
     try {
       await completeMission(missionId);
       // 미션 완료 후 데이터 새로고침
-      loadMainData();
+      loadTodayMissions();
     } catch (err) {
       console.error('미션 완료 실패:', err);
     }

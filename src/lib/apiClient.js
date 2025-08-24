@@ -9,7 +9,14 @@ const api = axios.create({
 // 관리자 로그인해서 받은 토큰이 있으면 자동 첨부
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem("accessToken");
-  if (token) config.headers.Authorization = `Bearer ${token}`;
+  console.log('🔍 API 요청:', config.url);
+  console.log('🔑 토큰 상태:', token ? '있음' : '없음', token?.substring(0, 20) + '...');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+    console.log('✅ Authorization 헤더 추가됨');
+  } else {
+    console.log('❌ 토큰이 없어서 Authorization 헤더 추가 안됨');
+  }
   return config;
 });
 

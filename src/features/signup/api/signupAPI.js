@@ -1,4 +1,4 @@
-import axios from 'axios';
+import api from '../../../lib/apiClient';
 
 /**
  * 회원가입 API 호출 함수
@@ -16,7 +16,7 @@ import axios from 'axios';
 export const signupAPI = async (userData) => {
   try {
     // POST 요청으로 회원가입 API 엔드포인트 호출
-    const response = await axios.post('/api/v1/signup', {
+    const response = await api.post('/api/v1/signup', {
       email: userData.email,
       password: userData.password,
       passwordCheck: userData.passwordCheck,

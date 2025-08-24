@@ -1,9 +1,9 @@
-import axios from 'axios';
+import api from '../../../lib/apiClient';
 import { mockMainData, updateMockMissionStatus, mockEmotionRecords, mockEmptyEmotionRecord } from './mockData.js';
 import { getCharacterImage } from '../../../shared/utils/characterImageMapper.js';
 
 // 개발 모드 설정 (true: Mock 데이터 사용, false: 실제 API 사용)
-const USE_MOCK_DATA = true;
+const USE_MOCK_DATA = false;
 
 /**
  * 메인 화면 데이터 조회 API 호출 함수
@@ -25,13 +25,7 @@ export const getMainScreenData = async () => {
     }
 
     // 실제 API 호출 모드
-    const token = localStorage.getItem('authToken');
-    
-    const response = await axios.get('/api/v1/main', {
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
-    });
+    const response = await api.get('/api/v1/main');
     
     // 백엔드 API 응답을 프론트엔드에서 사용하는 구조로 변환
     const data = response.data;
@@ -84,13 +78,7 @@ export const getTodayMissions = async () => {
     }
 
     // 실제 API 호출 모드
-    const token = localStorage.getItem('authToken');
-    
-    const response = await axios.get('/api/missions/today', {
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
-    });
+    const response = await api.get('/api/missions/today');
     
     // API 응답을 프론트엔드 형식으로 변환
     return response.data.map(mission => ({
@@ -140,14 +128,8 @@ export const completeMission = async (userDailyMissionId) => {
     }
 
     // 실제 API 호출 모드
-    const token = localStorage.getItem('authToken');
-    
-    const response = await axios.post('/api/missions/complete', {
+    const response = await api.post('/api/missions/complete', {
       userDailyMissionId: userDailyMissionId
-    }, {
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
     });
     
     // API 응답을 프론트엔드 형식으로 변환
@@ -187,13 +169,7 @@ export const getEmotionRecord = async (date) => {
     }
 
     // 실제 API 호출 모드
-    const token = localStorage.getItem('authToken');
-    
-    const response = await axios.get(`/api/v1/records/date/${date}`, {
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
-    });
+    const response = await api.get(`/api/v1/records/date/${date}`);
     
     return response.data;
   } catch (error) {

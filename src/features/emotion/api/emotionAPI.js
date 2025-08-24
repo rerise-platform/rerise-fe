@@ -1,4 +1,4 @@
-import axios from 'axios';
+import api from '../../../lib/apiClient';
 
 /**
  * 일기 기록 생성/수정 API 호출 함수
@@ -14,18 +14,11 @@ import axios from 'axios';
  */
 export const createOrUpdateRecord = async (recordData) => {
   try {
-    const token = localStorage.getItem('token');
-    
-    const response = await axios.post('/api/v1/records', {
+    const response = await api.post('/api/v1/records', {
       emotion_level: recordData.emotion_level,
       keywords: recordData.keywords,
       memo: recordData.memo,
       recordedAt: recordData.recordedAt
-    }, {
-      headers: {
-        'Authorization': `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      }
     });
     
     return response.data;
@@ -43,13 +36,7 @@ export const createOrUpdateRecord = async (recordData) => {
  */
 export const getRecordByDate = async (date) => {
   try {
-    const token = localStorage.getItem('token');
-    
-    const response = await axios.get(`/api/v1/records/date/${date}`, {
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
-    });
+    const response = await api.get(`/api/v1/records/date/${date}`);
     
     return response.data;
   } catch (error) {
