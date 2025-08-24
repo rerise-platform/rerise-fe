@@ -32,7 +32,7 @@ function TutorialPage() {
     deltaX.current = 0;
   };
 
-  const goMission = () => navigate("/mission");
+  const goTest = () => navigate("/test");
 
   return (
     <div
@@ -156,7 +156,7 @@ function TutorialPage() {
         <button
           className={`start-btn ${index === 2 ? "enabled" : "disabled"}`}
           disabled={index !== 2}
-          onClick={goMission}
+          onClick={goTest}
         >
           시작하기
         </button>
