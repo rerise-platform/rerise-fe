@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { signUp } from "../api/signupAPI";
+import { signupAPI } from "../api/signupAPI";
 import SignupForm from "../components/SignupForm";
 
 function SignupPage() {
@@ -13,7 +13,7 @@ function SignupPage() {
     setSuccess("");
 
     try {
-      const data = await signUp({ email, password, nickname });
+      const data = await signupAPI({ email, password, nickname });
       setSuccess("회원가입 성공!");
       console.log("회원가입 성공:", data);
     } catch (err) {

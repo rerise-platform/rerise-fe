@@ -1,46 +1,57 @@
 import React from "react";
-import { Routes, Route, BrowserRouter } from "react-router-dom";
-import LoginPage from "./features/login/pages/LoginPage.jsx";
-import SignupPage from "./features/signup/pages/SignupPage.jsx";
+import { Routes, Route, useLocation } from "react-router-dom";
+import LoginPage from "./features/login/pages/LoginPage";
+import SignupPage from "./features/signup/pages/SignupPage";
+import MainPage from "./features/main/pages/MainPage";
+import EmotionPage from "./features/emotion/pages/EmotionPage";
 import MissionMainPage from "./features/mission/pages/MissionMainPage.jsx";
 import AdminPage from "./features/admin/pages/AdminPage.jsx";
 import TutorialPage from "./features/mission/pages/TutorialPage.jsx";
-import TestIntroPage from "./features/test/pages/TestIntroPage.jsx";
+import Navbar from "./shared/components/Navbar";
+import "./App.css";
 import TestPage from "./features/test/pages/TestPage.jsx";
+import TestIntroPage from "./features/test/pages/TestIntroPage.jsx";
 import TestLoadingPage from "./features/test/pages/TestLoadingPage.jsx";
 import TestResultPage from "./features/test/pages/TestResultPage.jsx";
-import "./App.css";
 
 function App() {
+  const location = useLocation();
+  
+  // 네비게이션 숨길 페이지 확장
+  const hideNavbarPages = [
+    "/login",
+    "/signup",
+    "/admin",
+    "/tutorial",
+    "/emotion",
+    "/",
+  ];
+  
+  const shouldShowNavbar = !hideNavbarPages.includes(location.pathname);
+  
   return (
     <div className="app">
-      <BrowserRouter>
-        {/* 라우팅 설정 */}
-        <Routes>
-          {/* 기본 경로 - 로그인 페이지로 리다이렉트 */}
-          <Route path="/" element={<LoginPage />} />
-
-          {/* 로그인 페이지 경로 */}
-          <Route path="/login" element={<LoginPage />} />
-
-          {/* 회원가입 페이지 경로 */}
-          <Route path="/signup" element={<SignupPage />} />
-
-          {/* 튜토리얼 페이지 경로 */}
-          <Route path="/tutorial" element={<TutorialPage />} />
-
-          {/* 미션 페이지 경로 */}
-          <Route path="/mission" element={<MissionMainPage />} />
-
-          {/* 관리자 페이지 경로 */}
-          <Route path="/admin" element={<AdminPage />} />
-          <Route path="/test" element={<TestIntroPage />} />
-          <Route path="/test/q" element={<TestPage />} />
-          <Route path="/test/loading" element={<TestLoadingPage />} />
-          <Route path="/test/result" element={<TestResultPage />} />
-          {/* <Route path="/" element={<Navigate to="/test" replace />} /> */}
-        </Routes>
-      </BrowserRouter>
+      <Routes>
+        <Route path="/" element={<SignupPage />} />
+        <Route path="/main" element={<MainPage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/signup" element={<SignupPage />} />
+        <Route path="/emotion" element={<EmotionPage />} />
+        <Route path="/tutorial" element={<TutorialPage />} />
+        <Route path="/mission" element={<MissionMainPage />} />
+        <Route path="/admin" element={<AdminPage />} />
+        <Route path="/test" element={<TestIntroPage />} />
+        <Route path="/test/q" element={<TestPage />} />
+        <Route path="/test/loading" element={<TestLoadingPage />} />
+        <Route path="/test/result" element={<TestResultPage />} />
+        <Route
+          path="/recommendation"
+          element={<div>추천 페이지 (준비중)</div>}
+        />
+        <Route path="/mypage" element={<div>마이 페이지 (준비중)</div>} />
+      </Routes>
+      
+      {shouldShowNavbar && <Navbar />}
     </div>
   );
 }

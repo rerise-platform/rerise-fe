@@ -1,4 +1,3 @@
-// 맨 위 import 옆에 추가
 import {
   fetchAdminMissions,
   fetchPendingDetail,
