@@ -91,8 +91,8 @@
   display: block;
 }
 .heart {
-  width: 120px;
-  height: 120px;
+  width: 150px;
+  height: 150px;
 }
 
 /* 버튼 */
@@ -223,8 +223,12 @@
   color: #2a3a33;
   line-height: 1.6;
   margin-top: 8px;
+  margin-bottom: 0;
+  padding-bottom: 0;
 }
-
+.barName {
+  font-size: 14px;
+}
 /* =========================
    기기별 미디어 쿼리
 ========================= */
@@ -321,5 +325,47 @@
   }
   .progress ~ .sticky-bottom .primary-btn {
     margin-top: 6px;
+  }
+}
+/* === Big screens (iPad Air/Pro & Desktop) scale-up overrides === */
+
+/* 큰 데스크톱(1440px~): 타이틀/컨테이너 상한 더 올리기 */
+@media (min-width: 819px) {
+  .test-wrap {
+    padding-top: clamp(16px, 5vh, 24px);
+    padding-bottom: clamp(18px, 3.5vh, 26px);
+  }
+  .result-text {
+    padding: 10px;
+    padding-top: clamp(20px, 5vh, 50px);
+    font-size: clamp(30px, 3.2vw, 32px);
+  }
+  .pill {
+    padding-left: clamp(20px, 5vh, 24px);
+    padding-right: clamp(20px, 5vh, 24px);
+  }
+  .pillset {
+    margin-bottom: 50px;
+  }
+  .q-title {
+    font-size: clamp(36px, 2vw, 55px);
+  }
+  .barName {
+    font-size: clamp(30px, 2vw, 40px);
+  }
+  :root {
+    --fs-base: clamp(32px, 2vw, 48px);
+    --fs-title: clamp(30px, 2.3vw, 60px);
+    --fs-btn: clamp(32px, 1vw, 48px);
+    --fs-sm: clamp(30px, 3.2vw, 32px);
+
+    --container-w: clamp(820px, 70vw, 1440px);
+    --avatar: clamp(180px, 16vw, 500px);
+    --illust: clamp(280px, 32vw, 520px);
+    --gauge-h: clamp(30px, 2vw, 100px);
+  }
+  /* 큰 화면에서는 아바타 축소 없애기 */
+  .result-avatar img {
+    transform: none;
   }
 }
