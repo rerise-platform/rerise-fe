@@ -26,6 +26,10 @@ function App() {
     "/tutorial",
     "/emotion",
     "/",
+    "/test",
+    "/test/q",
+    "/test/loading",
+    "/test/result",
   ];
   
   const shouldShowNavbar = !hideNavbarPages.includes(location.pathname);
