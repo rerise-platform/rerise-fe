@@ -7,6 +7,7 @@ import EmotionPage from "./features/emotion/pages/EmotionPage";
 import MissionMainPage from "./features/mission/pages/MissionMainPage.jsx";
 import AdminPage from "./features/admin/pages/AdminPage.jsx";
 import TutorialPage from "./features/mission/pages/TutorialPage.jsx";
+import RecommendationPage from "./features/recommendation/pages/RecommendationPage";
 import Navbar from "./shared/components/Navbar";
 import "./App.css";
 import TestPage from "./features/test/pages/TestPage.jsx";
@@ -44,10 +45,7 @@ function App() {
         <Route path="/test/q" element={<TestPage />} />
         <Route path="/test/loading" element={<TestLoadingPage />} />
         <Route path="/test/result" element={<TestResultPage />} />
-        <Route
-          path="/recommendation"
-          element={<div>추천 페이지 (준비중)</div>}
-        />
+        <Route path="/recommendation" element={<RecommendationPage />} />
         <Route path="/mypage" element={<div>마이 페이지 (준비중)</div>} />
       </Routes>
       
