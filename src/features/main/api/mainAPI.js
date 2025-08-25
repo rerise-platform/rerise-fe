@@ -30,27 +30,38 @@ export const getMainScreenData = async () => {
     // 백엔드 API 응답을 프론트엔드에서 사용하는 구조로 변환
     const data = response.data;
     
-    // 온보딩 완료 여부 확인
-    const isOnboardingComplete = data.characterType !== null && 
-                                data.characterStage !== null && 
-                                data.level !== null && 
-                                data.growthRate !== null;
+    // 온보딩 완료 여부 확인 (characterInfo가 있는지 확인)
+    const isOnboardingComplete = data.characterInfo !== null && 
+                                data.characterInfo.characterType !== null;
     
     return {
+      userId: data.userId,
       nickname: data.nickname,
       isOnboardingComplete,
       character_status: isOnboardingComplete ? {
         nickname: data.nickname,
-        level: data.level,
-        exp: Math.floor(data.growthRate * 10), // growthRate를 exp로 변환 (65.5 → 655)
+        level: data.characterInfo.level,
+        exp: data.characterInfo.experience,
         exp_to_next_level: 1000,
-        character_type: data.characterType,
-        character_stage: data.characterStage,
-        character_image: getCharacterImage(data.characterType, data.characterStage), // 이미지 매핑 추가
-        growth_rate: data.growthRate
+        character_type: data.characterInfo.characterType,
+        character_stage: data.characterInfo.stage,
+        character_image: getCharacterImage(data.characterInfo.characterType, data.characterInfo.stage),
+        character_name: data.characterInfo.characterName
       } : null,
-      daily_missions: [], // 미션 데이터는 별도 API에서 가져올 예정
-      emotion_records: [] // 감정 기록도 별도 API에서 가져올 예정
+      daily_missions: data.todayMissions ? data.todayMissions.map(mission => ({
+        mission_id: mission.userDailyMissionId,
+        title: mission.content,
+        theme: mission.theme,
+        theory: mission.theory,
+        is_completed: mission.status === 'COMPLETED'
+      })) : [],
+      recent_record: data.recentRecord ? {
+        record_id: data.recentRecord.recordId,
+        emotion_level: data.recentRecord.emotionLevel,
+        keywords: data.recentRecord.keywords,
+        memo: data.recentRecord.memo,
+        recorded_at: data.recentRecord.recordedAt
+      } : null
     };
   } catch (error) {
     console.error('메인 화면 데이터 조회 실패:', error);
@@ -60,6 +71,7 @@ export const getMainScreenData = async () => {
 
 /**
  * 오늘의 일일 미션 조회 API
+ * 주의: 메인 API에서 통합 제공하므로 별도 호출은 필요시에만 사용
  * 
  * @returns {Promise<Array>} 오늘의 미션 목록
  * @throws {Error} API 호출 실패 시 에러 객체
@@ -77,19 +89,18 @@ export const getTodayMissions = async () => {
       return mockMainData.daily_missions || [];
     }
 
-    // 실제 API 호출 모드
-    const response = await api.get('/api/missions/today');
+    // 실제 API 호출 모드 - 메인 API에서 미션 데이터도 함께 제공됨
+    // 별도 미션 API가 필요한 경우에만 사용
+    const response = await api.get('/api/v1/main');
     
-    // API 응답을 프론트엔드 형식으로 변환
-    return response.data.map(mission => ({
+    // API 응답에서 미션 데이터만 추출하여 변환
+    const missions = response.data.todayMissions || [];
+    return missions.map(mission => ({
       mission_id: mission.userDailyMissionId,
       title: mission.content,
       theme: mission.theme,
       theory: mission.theory,
-      reward_exp: mission.rewardExp,
-      is_completed: mission.status === 'COMPLETED',
-      assigned_date: mission.assignedDate,
-      completed_date: mission.completedDate
+      is_completed: mission.status === 'COMPLETED'
     }));
   } catch (error) {
     console.error('오늘의 미션 조회 실패:', error);
