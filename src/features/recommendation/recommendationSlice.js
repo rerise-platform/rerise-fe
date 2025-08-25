@@ -28,6 +28,7 @@ export const fetchPrograms = createAsyncThunk(
 const initialState = {
   places: [],
   programs: [],
+  recommendationReason: null,
   loading: false,
   error: null,
   lastFetched: {
@@ -46,6 +47,7 @@ const recommendationSlice = createSlice({
     clearData: (state) => {
       state.places = [];
       state.programs = [];
+      state.recommendationReason = null;
       state.lastFetched = {
         places: null,
         programs: null
@@ -73,7 +75,8 @@ const recommendationSlice = createSlice({
       })
       .addCase(fetchPrograms.fulfilled, (state, action) => {
         state.loading = false;
-        state.programs = action.payload;
+        state.programs = action.payload.programs || action.payload;
+        state.recommendationReason = action.payload.recommendationReason;
         state.lastFetched.programs = Date.now();
       })
       .addCase(fetchPrograms.rejected, (state, action) => {
@@ -87,6 +90,7 @@ export const { clearError, clearData } = recommendationSlice.actions;
 
 export const selectPlaces = (state) => state.recommendation.places;
 export const selectPrograms = (state) => state.recommendation.programs;
+export const selectRecommendationReason = (state) => state.recommendation.recommendationReason;
 export const selectRecommendationLoading = (state) => state.recommendation.loading;
 export const selectRecommendationError = (state) => state.recommendation.error;
 

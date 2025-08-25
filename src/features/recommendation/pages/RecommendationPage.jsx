@@ -3,12 +3,14 @@ import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components';
 import RecommendationCard from '../components/RecommendationCard';
 import ProgramCard from '../components/ProgramCard';
-import { fetchPrograms } from '../recommendationSlice';
+import { fetchPrograms, selectPrograms } from '../recommendationSlice';
 
 const RecommendationPage = () => {
   const dispatch = useDispatch();
   const { loading } = useSelector(state => state.recommendation);
+  const programs = useSelector(selectPrograms);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [currentProgramIndex, setCurrentProgramIndex] = useState(0);
 
   useEffect(() => {
     dispatch(fetchPrograms());
@@ -19,35 +21,36 @@ const RecommendationPage = () => {
   };
 
   const handleProgramRefresh = () => {
-    dispatch(fetchPrograms());
+    if (programs && programs.length > 2) {
+      setCurrentProgramIndex((prevIndex) => {
+        const nextIndex = prevIndex + 2;
+        return nextIndex >= programs.length ? 0 : nextIndex;
+      });
+    } else {
+      dispatch(fetchPrograms());
+    }
+  };
+
+  // 현재 표시할 프로그램들 가져오기 (2개씩)
+  const getCurrentPrograms = () => {
+    if (!programs || programs.length === 0) return [];
+    
+    const displayPrograms = [];
+    for (let i = 0; i < 2; i++) {
+      const index = (currentProgramIndex + i) % programs.length;
+      if (programs[index]) {
+        displayPrograms.push(programs[index]);
+      }
+    }
+    return displayPrograms;
   };
 
   const handleProgramVisit = (program) => {
     console.log('Visiting program:', program);
-  };
-
-  const mockPrograms = [
-    {
-      id: 1,
-      title: "경기도 '나와, 볼만한 세상'",
-      target: "경기도에 거주하는 만 19~39세 고립·은둔 청년",
-      content: [
-        "1:1 심리상담 및 맞춤형 회복 프로그램",
-        "일상 회복 챌린지, 운동 챌린지, 반려식물 키우기, 문화예술 체험 등",
-        "힐링 명상, 자조 모임(산책·점심 등), 진로 탐색 프로그램",
-        "사회 적응력 훈련, 멘토링, 진로 컨설팅 등 포함"
-      ]
-    },
-    {
-      id: 2,
-      title: "LH 사회공헌 프로그램 '움직이는 ...",
-      target: "은둔형 외톨이 청년(6개월 이상 사회 단절 상태)",
-      content: [
-        "목공 교육, 심리상담, 예술치유, 치유캠프 운영",
-        "관계 형성 및 사회적 복귀를 위한 실질적 지원을 제공"
-      ]
+    if (program.url) {
+      window.open(program.url, '_blank');
     }
-  ];
+  };
 
   if (loading) {
     return (
@@ -79,13 +82,18 @@ const RecommendationPage = () => {
           </ProgramsRefresh>
         </ProgramsHeader>
         
-        {mockPrograms.map((program) => (
-          <ProgramCard
-            key={program.id}
-            program={program}
-            onVisit={handleProgramVisit}
-          />
-        ))}
+        
+        {getCurrentPrograms().length > 0 ? (
+          getCurrentPrograms().map((program, index) => (
+            <ProgramCard
+              key={`${program.programName || program.title || 'program'}-${currentProgramIndex}-${index}`}
+              program={program}
+              onVisit={handleProgramVisit}
+            />
+          ))
+        ) : (
+          <EmptyMessage>추천 프로그램을 불러오는 중입니다...</EmptyMessage>
+        )}
       </ProgramsSection>
     </Container>
   );
@@ -194,6 +202,17 @@ const LoadingMessage = styled.div`
   height: 200px;
   font-size: 16px;
   color: #666;
+`;
+
+
+const EmptyMessage = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100px;
+  font-size: 14px;
+  color: #999;
+  margin: 20px;
 `;
 
 export default RecommendationPage;

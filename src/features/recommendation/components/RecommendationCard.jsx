@@ -6,16 +6,34 @@ import Emotion2 from '../../../shared/assets/images/emotion2.svg';
 import Emotion3 from '../../../shared/assets/images/emotion3.svg';
 import Emotion4 from '../../../shared/assets/images/emotion4.svg';
 import Emotion5 from '../../../shared/assets/images/emotion5.svg';
+import { getSeochoPlaceRecommendations } from '../api/recommendationAPI';
 
 const RecommendationCard = ({ onRefresh }) => {
   const [emotionLevel, setEmotionLevel] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [allPlaces, setAllPlaces] = useState([]);
+  const [currentPlaceIndex, setCurrentPlaceIndex] = useState(0);
+
+  // 장소 추천 API 호출
+  const fetchPlaceRecommendations = async () => {
+    try {
+      const response = await getSeochoPlaceRecommendations();
+      if (response.success && response.recommendation) {
+        // 🌟으로 장소들을 분할하고 빈 문자열 제거
+        const places = response.recommendation.split('🌟').filter(place => place.trim());
+        setAllPlaces(places);
+        setCurrentPlaceIndex(0);
+      }
+    } catch (error) {
+      console.error('장소 추천 조회 중 오류 발생:', error);
+    }
+  };
 
   // 오늘 날짜의 일기 조회 API 호출
   const fetchTodayRecord = async () => {
     try {
       const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD 형식
-      const token = localStorage.getItem('authToken'); // JWT 토큰 가져오기
+      const token = localStorage.getItem('token'); // JWT 토큰 가져오기
       
       const response = await fetch(`/api/v1/records/date/${today}`, {
         method: 'GET',
@@ -43,7 +61,16 @@ const RecommendationCard = ({ onRefresh }) => {
   // 컴포넌트 마운트 시 API 호출
   useEffect(() => {
     fetchTodayRecord();
+    fetchPlaceRecommendations();
   }, []);
+
+  // 다음 장소로 새로고침
+  const handleRefresh = () => {
+    if (allPlaces.length > 0) {
+      setCurrentPlaceIndex((prevIndex) => (prevIndex + 1) % allPlaces.length);
+    }
+    if (onRefresh) onRefresh();
+  };
 
   // emotion_level에 따른 이모지 SVG 매핑
   const getEmotionEmoji = (level) => {
@@ -57,9 +84,30 @@ const RecommendationCard = ({ onRefresh }) => {
     }
   };
 
+  // 현재 표시할 장소 가져오기
+  const getCurrentPlace = () => {
+    if (allPlaces.length === 0) return '추천장소를 불러오는 중입니다...';
+    return allPlaces[currentPlaceIndex] || '추천장소를 불러오는 중입니다...';
+  };
+
+  // 장소 URL 추출하기
+  const getCurrentPlaceUrl = () => {
+    const currentPlace = getCurrentPlace();
+    const urlMatch = currentPlace.match(/\(https:\/\/[^)]+\)/);
+    return urlMatch ? urlMatch[0].slice(1, -1) : null; // 괄호 제거
+  };
+
+  // 자세히 보기 버튼 클릭
+  const handleDetailClick = () => {
+    const url = getCurrentPlaceUrl();
+    if (url) {
+      window.open(url, '_blank');
+    }
+  };
+
   return (
     <CardContainer>
-      <CardHeader onClick={onRefresh}>
+      <CardHeader onClick={handleRefresh}>
         <RefreshIcon viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
           <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" />
           <path d="M21 3v5h-5" />
@@ -81,18 +129,19 @@ const RecommendationCard = ({ onRefresh }) => {
       
       <MainText>
         오늘의 감정 상태를 반영한<br />
-        추천장소는<br />
-        <LocationHighlight>경기 용인시 기흥구 구갈동</LocationHighlight>입니다!
+        <LocationHighlight>서초구 추천장소</LocationHighlight>입니다!
       </MainText>
       
       <Description>
-        오늘은 기분이 가볍고 즐거운 날이네요!<br />
-        활기찬 기운을 이어가려면<br />
-        <Highlight>구갈동의 카페거리</Highlight>에서 산책하며<br />
-        새로운 공간을 탐험해보는 건 어때요?
+        {getCurrentPlace().split('\n').map((line, index) => (
+          <span key={index}>
+            {index === 0 ? `🌟${line}` : line}
+            {index < getCurrentPlace().split('\n').length - 1 && <br />}
+          </span>
+        ))}
       </Description>
       
-      <ActionButton>추천 장소 자세하게 보기</ActionButton>
+      <ActionButton onClick={handleDetailClick}>추천 장소 자세하게 보기</ActionButton>
     </CardContainer>
   );
 };

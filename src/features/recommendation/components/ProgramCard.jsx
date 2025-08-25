@@ -2,7 +2,9 @@ import styled from 'styled-components';
 
 const ProgramCard = ({ program, onVisit }) => {
   const handleVisit = () => {
-    if (onVisit) {
+    if (program.url && onVisit) {
+      window.open(program.url, '_blank');
+    } else if (onVisit) {
       onVisit(program);
     }
   };
@@ -10,16 +12,23 @@ const ProgramCard = ({ program, onVisit }) => {
   return (
     <CardContainer>
       <VisitButton onClick={handleVisit}>사이트 방문하기</VisitButton>
-      <ProgramTitle>{program.title}</ProgramTitle>
+      <ProgramTitle>{program.programName || program.title}</ProgramTitle>
       <ProgramTarget>대상: {program.target}</ProgramTarget>
-      <ProgramContent>
-        <ContentLabel>내용:</ContentLabel>
-        <ContentList>
-          {program.content.map((item, index) => (
-            <ContentItem key={index}>{item}</ContentItem>
-          ))}
-        </ContentList>
-      </ProgramContent>
+      <ProgramDetails>
+        {program.category && <ProgramCategory>분류: {program.category}</ProgramCategory>}
+        {program.recruitmentPeriod && <RecruitmentPeriod>모집기간: {program.recruitmentPeriod}</RecruitmentPeriod>}
+        {program.location && <Location>장소: {program.location}</Location>}
+      </ProgramDetails>
+      {program.content && (
+        <ProgramContent>
+          <ContentLabel>내용:</ContentLabel>
+          <ContentList>
+            {program.content.map((item, index) => (
+              <ContentItem key={index}>{item}</ContentItem>
+            ))}
+          </ContentList>
+        </ProgramContent>
+      )}
     </CardContainer>
   );
 };
@@ -123,6 +132,56 @@ const ContentList = styled.ul`
 const ContentItem = styled.li`
   margin-bottom: 2px;
   line-height: 1.5;
+`;
+
+const ProgramDetails = styled.div`
+  margin-bottom: 12px;
+`;
+
+const ProgramCategory = styled.div`
+  font-size: 10px;
+  color: #34C759;
+  margin-bottom: 4px;
+  font-weight: 500;
+  letter-spacing: -0.1px;
+
+  @media (min-width: 768px) {
+    font-size: 11px;
+  }
+
+  @media (max-width: 360px) {
+    font-size: 9px;
+  }
+`;
+
+const RecruitmentPeriod = styled.div`
+  font-size: 10px;
+  color: #666;
+  margin-bottom: 4px;
+  letter-spacing: -0.1px;
+
+  @media (min-width: 768px) {
+    font-size: 11px;
+  }
+
+  @media (max-width: 360px) {
+    font-size: 9px;
+  }
+`;
+
+const Location = styled.div`
+  font-size: 10px;
+  color: #666;
+  margin-bottom: 4px;
+  letter-spacing: -0.1px;
+
+  @media (min-width: 768px) {
+    font-size: 11px;
+  }
+
+  @media (max-width: 360px) {
+    font-size: 9px;
+  }
 `;
 
 export default ProgramCard;
