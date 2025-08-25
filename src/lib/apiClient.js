@@ -2,7 +2,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: process.env.REACT_APP_API_BASE_URL || "http://localhost:8080",
+  baseURL: process.env.REACT_APP_API_BASE_URL || "https://rerise.store",
   withCredentials: true, // 쿠키 쓰면 유지, JWT만 쓰면 있어도 무방
 });
 
