@@ -17,6 +17,10 @@ const MissionMainPage = () => {
   const [photoPreviewById, setPhotoPreviewById] = useState({});
   const [confirmRoadmapId, setConfirmRoadmapId] = useState(null);
 
+  // 추가: 주간 요약 말풍선용 상태
+  const [weeklySummary, setWeeklySummary] = useState("");
+  const [summaryOpenId, setSummaryOpenId] = useState(null);
+
   // ===== 데일리 =====
   const [dailyMissions, setDailyMissions] = useState([]);
   const [confirmId, setConfirmId] = useState(null);
@@ -46,6 +50,7 @@ const MissionMainPage = () => {
         // 1) 주간(로드맵) 조회
         const weekly = await fetchWeeklyMissions();
         setRoadmapMissions(weekly.missions || []);
+        setWeeklySummary(weekly.summaryMessage || "");
 
         // 2) 오늘의 미션 조회 (없으면 생성)
         let today = await fetchTodayMissions();
@@ -55,17 +60,24 @@ const MissionMainPage = () => {
         setDailyMissions(today);
       } catch (e) {
         console.error(e);
-        alert("미션 불러오기에 실패했어요. 로그인(토큰)과 서버 상태를 확인해 주세요.");
+        alert(
+          "미션 불러오기에 실패했어요. 로그인(토큰)과 서버 상태를 확인해 주세요."
+        );
       } finally {
         setLoading(false);
       }
     })();
   }, []);
 
-  // ===== 로드맵: 열고 닫기 =====
+  // ===== 로드맵: 헤더 클릭 (말풍선 토글 + 작성 영역 토글) =====
   const handleClickMission = (id) => {
+    // 말풍선은 상태와 무관하게 토글
+    setSummaryOpenId((prev) => (prev === id ? null : id));
+
+    // 후기 입력 영역은 'none' 상태에서만 토글
     const m = roadmapMissions.find((x) => x.id === id);
-    if (!m || m.status !== "none") return;
+    if (!m) return;
+    if (m.status !== "none") return;
     setActiveFeedbackId((prev) => (prev === id ? -1 : id));
   };
 
@@ -165,6 +177,7 @@ const MissionMainPage = () => {
       if (e.key === "Escape") {
         setConfirmId(null);
         setConfirmRoadmapId(null);
+        setSummaryOpenId(null);
       }
     };
     window.addEventListener("keydown", onKey);
@@ -203,7 +216,9 @@ const MissionMainPage = () => {
       <div className="mission-rewards">
         {rewardLabels.map((label, idx) => {
           const unlocked = idx < completedCount;
-          const imgSrc = unlocked ? "/images/mission2.png" : "/images/mission3.png";
+          const imgSrc = unlocked
+            ? "/images/mission2.png"
+            : "/images/mission3.png";
           return (
             <div key={idx} className={`reward ${unlocked ? "unlocked" : ""}`}>
               <img src={imgSrc} alt={unlocked ? "unlocked" : "locked"} />
@@ -233,29 +248,6 @@ const MissionMainPage = () => {
         })}
       </div>
 
-      {/* ===== 데일리 완료 확인 다이얼로그 ===== */}
-      {missionToConfirm && (
-        <div className="modal-overlay" role="dialog" aria-modal="true">
-          <div className="modal">
-            <div className="modal-header">미션 완료 확인</div>
-            <div className="modal-body">
-              <div>
-                <span className="modal-title">“{missionToConfirm.title}”</span>
-                <br /> 미션을 완료하셨나요?
-              </div>
-            </div>
-            <div className="modal-actions">
-              <button className="modal-btn-cancel" onClick={handleCloseDialog}>
-                취소
-              </button>
-              <button className="modal-btn-confirm" onClick={handleConfirmComplete}>
-                네, 완료했습니다
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
       {/* ===== 로드맵 섹션 ===== */}
       <div className="roadmap-section">
         <div className="roadmap-badge">로드맵 미션</div>
@@ -273,7 +265,9 @@ const MissionMainPage = () => {
         <ul className="roadmap-list">
           {roadmapMissions.map((m) => {
             const isActive = activeFeedbackId === m.id && m.status === "none";
+            const showSummary = !!weeklySummary && summaryOpenId === m.id;
             const previews = photoPreviewById[m.id] || [];
+
             return (
               <React.Fragment key={m.id}>
                 <li
@@ -283,6 +277,17 @@ const MissionMainPage = () => {
                     isActive ? "active" : "",
                   ].join(" ")}
                 >
+                  {/* 요약 말풍선: 헤더 바로 위에 표시 */}
+                  {showSummary && (
+                    <div
+                      className="summary-bubble"
+                      role="status"
+                      aria-live="polite"
+                    >
+                      {weeklySummary}
+                    </div>
+                  )}
+
                   <button
                     type="button"
                     className="roadmap-head"
@@ -296,6 +301,12 @@ const MissionMainPage = () => {
                     }
                   >
                     <span className="roadmap-title-text">{m.title}</span>
+
+                    {/* ⬇⬇ rewardExp 뱃지 (제목과 상태 아이콘 사이) ⬇⬇ */}
+                    {typeof m.rewardExp === "number" && (
+                      <span className="reward-exp-badge">+{m.rewardExp}</span>
+                    )}
+
                     <img
                       className="status-icon"
                       src={statusIconSrc(m.status)}
@@ -387,6 +398,32 @@ const MissionMainPage = () => {
         </ul>
       </div>
 
+      {/* ===== 데일리 완료 확인 다이얼로그 ===== */}
+      {missionToConfirm && (
+        <div className="modal-overlay" role="dialog" aria-modal="true">
+          <div className="modal">
+            <div className="modal-header">미션 완료 확인</div>
+            <div className="modal-body">
+              <div>
+                <span className="modal-title">“{missionToConfirm.title}”</span>
+                <br /> 미션을 완료하셨나요?
+              </div>
+            </div>
+            <div className="modal-actions">
+              <button className="modal-btn-cancel" onClick={handleCloseDialog}>
+                취소
+              </button>
+              <button
+                className="modal-btn-confirm"
+                onClick={handleConfirmComplete}
+              >
+                네, 완료했습니다
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* ===== 로드맵 전송 확인 다이얼로그 ===== */}
       {roadmapToConfirm && (
         <div className="modal-overlay" role="dialog" aria-modal="true">
@@ -405,7 +442,10 @@ const MissionMainPage = () => {
               >
                 취소
               </button>
-              <button className="modal-btn-confirm" onClick={handleConfirmRoadmap}>
+              <button
+                className="modal-btn-confirm"
+                onClick={handleConfirmRoadmap}
+              >
                 네, 완료했습니다
               </button>
             </div>
