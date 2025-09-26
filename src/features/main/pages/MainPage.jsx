@@ -16,6 +16,7 @@ import emotion5 from '../../../shared/assets/images/emotion5.svg';
 
 // API import
 import { getMainScreenData, getTodayMissions, completeMission, getEmotionRecord } from '../api/mainAPI';
+import { getCharacterImage } from '../../../shared/utils/characterImageMapper';
 
 // 상수
 const EMOTION_IMAGES = {
@@ -110,6 +111,10 @@ const MainPage = () => {
       setLoading(true);
       const data = await getMainScreenData();
       console.log('✅ 메인 데이터 로드 성공:', data);
+      console.log('👤 닉네임:', data?.nickname);
+      console.log('🎭 캐릭터 타입:', data?.characterType);
+      console.log('⭐ 캐릭터 단계:', data?.characterStage);
+      
       setMainData(data);
       setError(null);
     } catch (err) {
@@ -188,19 +193,26 @@ const MainPage = () => {
   // 데이터가 없을 때
   if (!mainData) return null;
 
+  console.log('🎨 [RENDER] 렌더링 시점의 mainData:', mainData);
+  console.log('🎨 [RENDER] 표시될 닉네임:', mainData?.nickname);
+  console.log('🎨 [RENDER] 캐릭터 이미지 소스:', getCharacterImage(mainData?.characterType, mainData?.characterStage));
+
   return (
     <ElementEXP>
       <MainContent>
         <Header>
           <Greeting>
             <GreetingText>
-              <Name>{mainData?.character_status?.type || '사용자'}</Name>
+              <Name>{mainData?.nickname || '사용자'}</Name>
               <Message>님, 안녕하세요!</Message>
             </GreetingText>
           </Greeting>
           <Character onClick={greetCharacter}>
             <CharacterCircle onClick={greetCharacter}>
-              <CharacterSvg src={mony1} alt="캐릭터" />
+              <CharacterSvg 
+                src={getCharacterImage(mainData?.characterType, mainData?.characterStage) || mony1} 
+                alt="캐릭터" 
+              />
             </CharacterCircle>
           </Character>
         </Header>

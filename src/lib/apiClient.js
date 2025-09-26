@@ -65,6 +65,20 @@ api.interceptors.response.use(
       timestamp: new Date().toISOString()
     });
     
+    // 401/403 오류 특별 처리
+    if (error.response?.status === 401) {
+      console.error("🚫 401 Unauthorized: 토큰이 유효하지 않습니다. 다시 로그인해주세요.");
+      // 토큰 제거 및 로그인 페이지로 리다이렉트
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('refreshToken');
+      window.location.href = '/login';
+    } else if (error.response?.status === 403) {
+      console.error("🚫 403 Forbidden: 접근 권한이 없습니다.");
+      console.error("🔍 요청 URL:", error.config?.url);
+      console.error("🔍 요청 방법:", error.config?.method);
+      console.error("🔍 현재 토큰:", localStorage.getItem('accessToken')?.substring(0, 20) + '...');
+    }
+    
     // CORS 오류 처리
     if (error.message === 'Network Error' && !error.response) {
       console.error("🚫 CORS 오류 또는 네트워크 연결 문제가 발생했습니다.");

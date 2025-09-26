@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createOrUpdateRecord, getRecordByDate } from '../api/emotionAPI';
+import { checkCurrentTokenStatus } from '../../../shared/utils/tokenUtils';
 import './EmotionPage.css';
 
 // SVG 아이콘들 import (기본 상태)
@@ -67,6 +68,18 @@ const EmotionPage = () => {
 
     const handleSaveEmotion = async () => {
         try {
+            console.log('💾 [HANDLE SAVE] 감정 저장 시작');
+            
+            // 토큰 상태 상세 확인
+            const tokenStatus = checkCurrentTokenStatus();
+            if (!tokenStatus.hasToken || !tokenStatus.valid || tokenStatus.expired) {
+                alert('로그인이 필요하거나 토큰이 만료되었습니다. 다시 로그인해주세요.');
+                localStorage.removeItem('accessToken');
+                localStorage.removeItem('refreshToken');
+                window.location.href = '/login';
+                return;
+            }
+            
             const today = new Date().toISOString().split('T')[0];
             const emotionData = {
                 mood: selectedMood,
@@ -74,14 +87,24 @@ const EmotionPage = () => {
                 diary: diaryText
             };
             
+            console.log('💾 [HANDLE SAVE] 저장할 데이터:', emotionData);
+            
             await saveEmotionRecord(today, emotionData);
             alert('감정이 성공적으로 기록되었습니다!');
             
             // 캘린더 새로고침
             fetchEmotionRecords(displayYear, displayMonth);
         } catch (error) {
-            alert('감정 기록에 실패했습니다. 다시 시도해주세요.');
-            console.error('감정 저장 실패:', error);
+            console.error('❌ [HANDLE SAVE] 감정 저장 실패:', error);
+            
+            if (error.response?.status === 403) {
+                alert('접근 권한이 없습니다. 로그인을 다시 해주세요.');
+                localStorage.removeItem('accessToken');
+                localStorage.removeItem('refreshToken');
+                window.location.href = '/login';
+            } else {
+                alert('감정 기록에 실패했습니다. 다시 시도해주세요.');
+            }
         }
     };
 
@@ -109,46 +132,84 @@ const EmotionPage = () => {
         console.log('Selected date:', dateStr, 'Records:', emotionRecords[dateStr]);
     };
 
-    // API 연동 함수들
+    // API 연동 함수들 (개별 날짜 조회 방식 사용)
     const fetchEmotionRecords = async (year, month) => {
         try {
+            console.log(`📅 [CALENDAR] ${year}년 ${month + 1}월 감정 기록 조회 시작`);
             const records = {};
             const daysInMonth = new Date(year, month + 1, 0).getDate();
             
-            // 해당 월의 모든 날짜에 대해 기록 조회
+            // 병렬 처리로 성능 개선: 모든 날짜 동시 조회
+            const datePromises = [];
             for (let day = 1; day <= daysInMonth; day++) {
                 const date = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-                const record = await getRecordByDate(date);
-                
+                datePromises.push(
+                    getRecordByDate(date)
+                        .then(record => ({ date, record }))
+                        .catch(error => {
+                            console.log(`📅 [CALENDAR] ${date} 조회 실패 (정상):`, error.message);
+                            return { date, record: null };
+                        })
+                );
+            }
+            
+            // 모든 API 호출 완료 대기
+            const results = await Promise.all(datePromises);
+            
+            // 결과 처리
+            results.forEach(({ date, record }) => {
                 if (record) {
+                    // API 응답의 keywords가 배열인지 문자열인지 확인 후 처리
+                    let emotionKeywords = [];
+                    if (Array.isArray(record.keywords)) {
+                        emotionKeywords = record.keywords;
+                    } else if (typeof record.keywords === 'string') {
+                        emotionKeywords = record.keywords.split(', ').filter(k => k.trim());
+                    }
+                    
                     records[date] = {
                         mood: getMoodFromLevel(record.emotion_level),
-                        emotions: record.keywords ? record.keywords.split(', ') : [],
+                        emotions: emotionKeywords,
                         diary: record.memo
                     };
                 }
-            }
+            });
             
+            console.log(`✅ [CALENDAR] ${year}년 ${month + 1}월 조회 완료:`, Object.keys(records).length, '건');
             setEmotionRecords(records);
         } catch (error) {
-            console.error('감정 기록 조회 실패:', error);
+            console.error('❌ [CALENDAR] 감정 기록 조회 실패:', error);
         }
     };
 
     const saveEmotionRecord = async (date, data) => {
         try {
+            console.log('🎯 [EMOTION PAGE] 감정 기록 저장 시작');
+            console.log('📅 [EMOTION PAGE] 날짜:', date);
+            console.log('📊 [EMOTION PAGE] 원본 데이터:', data);
+            
+            // 토큰 확인
+            const token = localStorage.getItem('accessToken');
+            console.log('🔑 [EMOTION PAGE] 토큰 상태:', token ? '있음' : '없음');
+            if (token) {
+                console.log('🔑 [EMOTION PAGE] 토큰 프리뷰:', token.substring(0, 20) + '...');
+            }
+            
             // 감정 ID를 한국어 텍스트로 변환
             const emotionLabels = data.emotions.map(emotionId => {
                 const emotion = emotions.find(e => e.id === emotionId);
                 return emotion ? emotion.label : emotionId;
             });
             
+            // API 명세서에 맞게 데이터 형식 조정
             const recordData = {
-                emotion_level: data.mood, // 직접 숫자로 전송
-                keywords: emotionLabels.join(', '), // 한국어 감정 텍스트로 전송
+                emotion_level: data.mood * 2, // 1-5 범위를 1-10 범위로 변환 (2배)
+                keywords: emotionLabels, // 배열 형태로 전송 (API 명세서 요구사항)
                 memo: data.diary,
                 recordedAt: date
             };
+            
+            console.log('📝 [EMOTION PAGE] 전송할 데이터:', recordData);
             
             await createOrUpdateRecord(recordData);
             
@@ -158,14 +219,18 @@ const EmotionPage = () => {
                 [date]: data
             }));
         } catch (error) {
-            console.error('감정 기록 저장 실패:', error);
+            console.error('❌ [EMOTION PAGE] 감정 기록 저장 실패:', error);
+            console.error('❌ [EMOTION PAGE] 에러 상태:', error?.response?.status);
+            console.error('❌ [EMOTION PAGE] 에러 메시지:', error?.response?.data);
+            console.error('❌ [EMOTION PAGE] 전체 에러:', error);
+            throw error; // 상위로 에러 전파
         }
     };
 
-    // 감정 레벨과 기분 매핑 헬퍼 함수들
+    // 감정 레벨과 기분 매핑 헬퍼 함수들 (API는 1-10 범위, UI는 1-5 범위)
     const getMoodFromLevel = (level) => {
-        const moodMap = { 1: 'terrible', 2: 'bad', 3: 'okay', 4: 'good', 5: 'great' };
-        return moodMap[level] || 'okay';
+        // 1-10 범위를 1-5 범위로 변환
+        return Math.ceil(level / 2);
     };
 
     const getLevelFromMood = (mood) => {

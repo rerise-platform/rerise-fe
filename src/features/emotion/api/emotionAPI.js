@@ -5,8 +5,8 @@ import api from '../../../lib/apiClient';
  * 서버에 감정 일기 정보를 전송하여 기록을 처리
  * 
  * @param {Object} recordData - 일기 기록 데이터
- * @param {number} recordData.emotion_level - 감정 레벨 (1-5)
- * @param {string} recordData.keywords - 감정 키워드들 (쉼표로 구분)
+ * @param {number} recordData.emotion_level - 감정 레벨 (1-10)
+ * @param {Array<string>|string} recordData.keywords - 감정 키워드들 (배열 또는 쉼표로 구분된 문자열)
  * @param {string} recordData.memo - 일기 내용
  * @param {string} recordData.recordedAt - 기록 날짜 (YYYY-MM-DD)
  * @returns {Promise<Object>} 생성된 기록 데이터
@@ -14,15 +14,36 @@ import api from '../../../lib/apiClient';
  */
 export const createOrUpdateRecord = async (recordData) => {
   try {
+    // keywords를 배열로 변환 (API 명세서에 따라)
+    let keywords;
+    if (Array.isArray(recordData.keywords)) {
+      keywords = recordData.keywords;
+    } else if (typeof recordData.keywords === 'string') {
+      // 쉼표로 구분된 문자열을 배열로 변환
+      keywords = recordData.keywords.split(',').map(keyword => keyword.trim()).filter(keyword => keyword);
+    } else {
+      keywords = [];
+    }
+
+    console.log('🚀 [API] 일기 기록 요청 시작');
+    console.log('📤 [API] 요청 데이터:', {
+      emotion_level: recordData.emotion_level,
+      keywords: keywords,
+      memo: recordData.memo,
+      recordedAt: recordData.recordedAt
+    });
+
     const response = await api.post('/api/v1/records', {
       emotion_level: recordData.emotion_level,
-      keywords: recordData.keywords,
+      keywords: keywords, // 배열 형태로 전송
       memo: recordData.memo,
       recordedAt: recordData.recordedAt
     });
     
+    console.log('✅ [API] 일기 기록 성공:', response.data);
     return response.data;
   } catch (error) {
+    console.error('❌ [API] 일기 기록 실패:', error.response?.status, error.response?.data);
     throw error.response?.data || error.message;
   }
 };
