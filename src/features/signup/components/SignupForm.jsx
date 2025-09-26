@@ -23,6 +23,8 @@ export default function SignupForm() {
     marketing: false,
   });
 
+  const [isShowPwChecked, setShowPwChecked] = useState(false);
+
   const isFormValid =
     email &&
     password &&
