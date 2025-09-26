@@ -86,20 +86,27 @@ const MainPage = () => {
   const [error, setError] = useState(null);
   const [emotionRecord, setEmotionRecord] = useState(null);
 
-  // 컴포넌트 마운트 시 메인 데이터 로드
+  // 컴포넌트 마운트 시 데이터 로드
   useEffect(() => {
+    console.log('🚀 [MAIN PAGE] useEffect 시작 - 모든 데이터 로드');
+    
+    // 메인 데이터 로드 (로딩 상태 관리)
     loadMainData();
-    loadTodayMissions();
-    loadTodayEmotion();
+    
+    // 추가 데이터들은 비동기로 백그라운드에서 로드 (로딩 상태에 영향 안 줌)
+    loadTodayMissions().catch(err => console.error('미션 로드 에러:', err));
+    loadTodayEmotion().catch(err => console.error('감정 로드 에러:', err));
   }, []);
 
   const loadTodayEmotion = async () => {
     try {
+      console.log('🎭 [EMOTION] 오늘 감정 기록 로드 시작');
       const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD 형식
       const emotionData = await getEmotionRecord(today);
+      console.log('✅ [EMOTION] 오늘 감정 기록 로드 완료:', emotionData);
       setEmotionRecord(emotionData);
     } catch (err) {
-      console.error('감정 기록 로드 실패:', err);
+      console.error('❌ [EMOTION] 감정 기록 로드 실패:', err);
       setEmotionRecord(null);
     }
   }
@@ -132,10 +139,12 @@ const MainPage = () => {
 
   const loadTodayMissions = async () => {
     try {
+      console.log('🎯 [MISSIONS] 오늘의 미션 로드 시작');
       const missions = await getTodayMissions();
+      console.log('✅ [MISSIONS] 오늘의 미션 로드 완료:', missions);
       setMainData(prev => prev ? { ...prev, daily_missions: missions } : null);
     } catch (err) {
-      console.error('오늘의 미션 로드 실패:', err);
+      console.error('❌ [MISSIONS] 오늘의 미션 로드 실패:', err);
     }
   };
 
