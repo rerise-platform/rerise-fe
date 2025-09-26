@@ -11,6 +11,14 @@
 
   /* 글씨 크기: 화면 폭에 맞게 비율 조정 (모바일 ~ 데스크탑) */
   font-size: clamp(14px, 2.5vw, 22px);
+
+  user-select: none; /* ← 글자 드래그 방지 */
+  -webkit-user-select: none; /* 사파리/모바일 */
+  -ms-user-select: none; /* 구 IE 엣지 */
+  -webkit-touch-callout: none; /* iOS 길게눌러 복사 메뉴 금지 */
+}
+.tutorial-page {
+  cursor: default;
 }
 
 /* 가로 슬라이더 */
@@ -91,6 +99,7 @@
 }
 
 .hero-img {
+  pointer-events: none;
   width: auto;
   max-width: 100%;
   max-height: 100%;
@@ -141,6 +150,7 @@
 }
 
 .char-img {
+  pointer-events: none;
   width: 8.5em;
   height: auto;
   flex: 0 0 auto;
@@ -205,6 +215,7 @@
   border-radius: 0.875em;
   font-weight: 700;
   font-size: 1em;
+  cursor: pointer;
 }
 .start-btn.disabled {
   background: #e9efe9;
