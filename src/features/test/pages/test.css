@@ -229,6 +229,7 @@
 .barName {
   font-size: 14px;
 }
+
 /* =========================
    기기별 미디어 쿼리
 ========================= */
@@ -251,7 +252,7 @@
   }
 }
 
-/* iPad 포트레이트(768~1024px): 여백/폰트 보정만 */
+/* iPad 포트레이트(768~1024px): 여백/폰트 보정 */
 @media (min-width: 768px) and (max-width: 1024px) {
   .test-wrap {
     padding-top: clamp(16px, 3vh, 24px);
@@ -315,7 +316,7 @@
   }
   .opt {
     margin-bottom: 0;
-  } /* ← 중첩 제거 후 분리 */
+  }
 }
 
 /* 화면 높이 600px 이하: 더 타이트 */
@@ -327,10 +328,11 @@
     margin-top: 6px;
   }
 }
-/* === Big screens (iPad Air/Pro & Desktop) scale-up overrides === */
 
-/* 큰 데스크톱(1440px~): 타이틀/컨테이너 상한 더 올리기 */
-@media (min-width: 819px) {
+/* =========================
+   스케일업은 '터치 큰 화면'에서만
+========================= */
+@media (min-width: 819px) and (hover: none) and (pointer: coarse) {
   .test-wrap {
     padding-top: clamp(16px, 5vh, 24px);
     padding-bottom: clamp(18px, 3.5vh, 26px);
@@ -364,8 +366,160 @@
     --illust: clamp(280px, 32vw, 520px);
     --gauge-h: clamp(30px, 2vw, 100px);
   }
-  /* 큰 화면에서는 아바타 축소 없애기 */
   .result-avatar img {
     transform: none;
+  }
+}
+
+/* =========================
+   데스크탑(마우스/hover 가능) = 항상 430px 모바일 스케일
+========================= */
+@media (hover: hover) and (pointer: fine) {
+  :root {
+    --pc-min-h: 680px;
+  }
+
+  html,
+  body {
+    min-height: var(--pc-min-h);
+  }
+  .test-shell {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: flex-start;
+    min-height: var(--pc-min-h);
+    align-items: flex-start; /* 낮은 높이에서도 위에서 시작 */
+  }
+  /* 430px 고정 컬럼 */
+  .test-wrap {
+    box-sizing: border-box;
+    width: 430px !important;
+    max-width: 430px !important;
+    min-width: 430px !important;
+    margin: 0 auto !important;
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+    flex: 0 0 430px !important; /* flex 늘어남 방지 */
+    min-height: calc(var(--pc-min-h) - 2 * clamp(12px, 3vw, 24px));
+    padding-bottom: max(calc(var(--pad-v) * 1.2), 120px) !important;
+  }
+
+  /* 내부 요소가 100vw로 커지지 않게 */
+  .test-wrap > * {
+    max-width: 100% !important;
+  }
+  .progress,
+  .pillset,
+  .result-text,
+  .test-intro-hero,
+  .test-topbar,
+  .meter {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  /* CTA 버튼 컨테이너도 430px로 중앙 고정 */
+  .sticky-bottom {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 430px !important;
+    max-width: 430px !important;
+  }
+  .sticky-bottom .primary-btn {
+    width: 100% !important;
+    font-size: 16px !important;
+    padding: 14px 16px !important;
+    border-radius: 12px !important;
+  }
+
+  /* 이미지 모바일 크기 */
+  .test-wrap img {
+    max-width: 100% !important;
+    height: auto !important;
+    display: block;
+  }
+  .hero-illust {
+    width: 260px !important;
+    margin: 8px auto 0 !important;
+  }
+  .result-avatar img {
+    width: 140px !important;
+    margin: 0 auto !important;
+    transform: none !important;
+  }
+  .heart {
+    width: 96px !important;
+    margin: 0 auto 8px !important;
+  }
+
+  /* 텍스트/카드 모바일 스케일 */
+  .page-title {
+    font-size: 24px !important;
+  }
+  .test-intro-sub {
+    font-size: 16px !important;
+  }
+  .test-intro-desc {
+    font-size: 14px !important;
+    line-height: 1.6 !important;
+  }
+  .q-title {
+    font-size: 18px !important;
+    line-height: 1.4 !important;
+  }
+  .progress {
+    margin: 20px 0px;
+    font-size: 18px;
+  }
+  .loading-font,
+  .result-text {
+    font-size: 14px !important;
+  }
+  .result-text {
+    line-height: 1.7 !important;
+  }
+  .opt {
+    font-size: 16px !important;
+    padding: 14px 16px !important;
+    border-radius: 14px !important;
+  }
+  .pill {
+    font-size: 12px !important;
+    padding: 6px 10px !important;
+    border-radius: 999px !important;
+  }
+  .pillset {
+    gap: 6px !important;
+  }
+  .barName {
+    font-size: 12px !important;
+  }
+  .meter {
+    height: 10px !important;
+  }
+  .meter .segments i {
+    width: 1px !important;
+  }
+
+  /* === PC(마우스/hover 가능)에서만: Intro/Test 버튼 살짝 위로, 문항 카드 간격 업 === */
+  @media (hover: hover) and (pointer: fine) {
+    /* Intro 페이지(시작하기 버튼) & Test 페이지(다음/결과보기 버튼)만 위로 */
+    .test-wrap:has(.test-intro-hero) .sticky-bottom,
+    .test-wrap:has(.progress) .sticky-bottom {
+      bottom: 56px !important; /* ← 기존 24px에서 살짝 위로 (원하면 48~72px 조절) */
+    }
+
+    /* 버튼이 내용 가리지 않도록, Intro/Test 페이지 하단 패딩 보강 */
+    .test-wrap:has(.test-intro-hero),
+    .test-wrap:has(.progress) {
+      padding-bottom: max(calc(var(--pad-v) * 1.2), 136px) !important;
+    }
+
+    /* Test 페이지 문항 카드 간격만 조금 더 넓게 */
+    .test-wrap:has(.progress) .opt {
+      margin: 20px 0 0 !important; /* ← 기존 15px → 20px */
+    }
   }
 }
