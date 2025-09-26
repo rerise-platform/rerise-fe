@@ -57,6 +57,7 @@ function TutorialPage() {
               src="/images/mission.png"
               alt="일일 미션"
               className="hero-img"
+              draggable={false}
             />
           </div>
           <p className="desc">
@@ -74,6 +75,7 @@ function TutorialPage() {
               src="/images/roadmap.png"
               alt="로드맵 미션"
               className="hero-img roadmap-img"
+              draggable={false}
             />
           </div>
           <p className="desc">
@@ -92,7 +94,7 @@ function TutorialPage() {
           {/* 캐릭터만 전체 폭 사용 */}
           <div className="image-wrap">
             <div className="char-marquee-viewport">
-              <div className="char-marquee-track">
+              <div className="char-marquee-track" draggable={false}>
                 <img src="/images/char1.png" alt="char1" className="char-img" />
                 <img src="/images/char2.png" alt="char2" className="char-img" />
                 <img src="/images/char3.png" alt="char3" className="char-img" />
