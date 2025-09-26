@@ -42,6 +42,43 @@ const USE_MOCK_DATA = false;
  */
 export const fetchMainPageData = async () => {
   try {
+    // Mock 데이터 사용 모드
+    if (USE_MOCK_DATA) {
+      console.log('🧪 Mock 데이터 사용 중... (fetchMainPageData)');
+      
+      // 실제 API 호출처럼 약간의 지연 시간 추가
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      // Mock 데이터 변환하여 백엔드 API 응답 형식으로 반환
+      return {
+        userId: mockMainData.userId || 1,
+        nickname: mockMainData.nickname || mockMainData.character_status?.nickname,
+        characterInfo: {
+          characterId: 1,
+          characterName: mockMainData.character_status?.character_name || "캐릭터",
+          characterType: mockMainData.character_status?.character_type || "mony",
+          level: mockMainData.character_status?.level || 1,
+          experience: mockMainData.character_status?.exp || 0,
+          stage: mockMainData.character_status?.character_stage || 1
+        },
+        recentRecord: mockMainData.recent_record ? {
+          recordId: mockMainData.recent_record.record_id,
+          emotionLevel: mockMainData.recent_record.emotion_level,
+          keywords: mockMainData.recent_record.keywords,
+          memo: mockMainData.recent_record.memo,
+          recordedAt: mockMainData.recent_record.recorded_at
+        } : null,
+        todayMissions: mockMainData.daily_missions ? mockMainData.daily_missions.map(mission => ({
+          userDailyMissionId: mission.mission_id,
+          missionId: mission.mission_id,
+          content: mission.title,
+          theme: mission.theme,
+          theory: mission.theory,
+          status: mission.is_completed ? 'COMPLETED' : 'PENDING'
+        })) : []
+      };
+    }
+
     // JWT 토큰 가져오기
     const token = localStorage.getItem('authToken');
     if (!token) {

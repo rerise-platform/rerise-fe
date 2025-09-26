@@ -114,10 +114,16 @@ const MainPage = () => {
 
   const loadTodayEmotion = async () => {
     try {
-      const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD 형식
+      // 오늘 날짜를 YYYY-MM-DD 형식으로 가져옴
+      const today = "2025-09-27"; // 현재는 테스트를 위해 고정 날짜 사용
+      // const today = new Date().toISOString().split('T')[0]; // 실제 환경에서는 이것을 사용
+      
+      // 오늘의 감정 기록 가져오기
       const emotionData = await getEmotionRecord(today);
       setEmotionRecord(emotionData);
+      console.log("오늘의 감정 상태 로드됨:", emotionData);
     } catch (err) {
+      console.error("오늘의 감정 상태 로드 실패:", err);
       setEmotionRecord(null);
     }
   }
@@ -262,11 +268,13 @@ const MainPage = () => {
           </StatsRow>
           
           <SecondRow>
-            <DayCard $hasEmotion={!!emotionRecord?.emotion_level}>
+            <DayCard $hasEmotion={!!emotionRecord?.emotion_level} onClick={() => navigate('/emotion')}>
               <DayEmoji>오늘의 감정 상태</DayEmoji>
               <DayText src={getEmotionImageByLevel(emotionRecord?.emotion_level)} alt="감정상태" />
-              {!emotionRecord?.emotion_level && (
+              {!emotionRecord?.emotion_level ? (
                 <DayDescription>오늘의 감정을<br />기록해 주세요!</DayDescription>
+              ) : (
+                <DayDescription>{emotionRecord?.keywords?.split(',')[0] || '오늘의 감정'}</DayDescription>
               )}
             </DayCard>
           </SecondRow>
@@ -352,7 +360,7 @@ const MainContent = styled.div`
 const Header = styled.header`
   position: relative;
   padding: 0;
-  height: 200px;
+  height: 230px;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
@@ -386,7 +394,7 @@ const Message = styled.span`
 
 const Character = styled.div`
   position: absolute;
-  top: 80px;
+  top: 120px;
   right: 20px;
   z-index: 100;
   cursor: pointer;
@@ -427,7 +435,7 @@ const CharacterSvg = styled.img`
 
 const StatsContainer = styled.div`
   position: absolute;
-  top: 80px;
+  top: 110px;
   left: 20px;
   right: 20px;
   display: flex;
@@ -454,12 +462,13 @@ const SecondRow = styled.div`
   align-items: flex-start;
   justify-content: flex-start;
   position: relative;
+  margin-top: 15px;
 `;
 
 const SpeechBubble = styled.div`
   position: absolute;
   top: -4px;
-  left: -2px;
+  left: -8px;
   width: 220px;
   height: 70px;
   pointer-events: none;
@@ -517,7 +526,7 @@ const StatItem = styled.div`
   }
 
   &.points {
-    width: 70px;
+    width: 80px;
   }
 
   &.level {
@@ -577,15 +586,15 @@ const ProgressFill = styled.div`
 `;
 
 const DayCard = styled.div`
-  width: 120px;
-  height: 120px; /* 정사각형 유지 */
+  width: 100px;
+  height: 100px; /* 정사각형 유지 */
   background: white;
-  border-radius: 15px;
+  border-radius: 12px;
   display: flex;
   flex-direction: column;
-  justify-content: ${props => props.$hasEmotion ? 'center' : 'space-between'};
+  justify-content: ${props => props.$hasEmotion ? 'center' : 'flex-start'};
   align-items: center;
-  padding: 15px 12px;
+  padding: 8px 10px 16px 10px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   cursor: pointer;
   transition: transform 0.2s ease;
@@ -596,22 +605,23 @@ const DayCard = styled.div`
 `;
 
 const DayEmoji = styled.div`
-  font-size: 12px;
+  font-size: 10px;
   font-weight: 600;
   color: #333;
-  margin-bottom: 6px;
+  margin-bottom: 5px;
   text-align: center;
   line-height: 1.2;
 `;
 
 const DayText = styled.img`
-  width: 40px;
-  height: 40px;
+  width: 42px;
+  height: 42px;
   flex-shrink: 0;
+  margin-bottom: 6px;
 `;
 
 const DayDescription = styled.p`
-  font-size: 10px;
+  font-size: 9px;
   font-weight: 500;
   color: #666666;
   margin: 0;
@@ -649,7 +659,7 @@ const PromptText = styled.span`
 
 const MissionSection = styled.section`
   padding: 0;
-  margin-top: 20px;
+  margin-top: 80px;
   position: relative;
   z-index: 1;
   width: 100%;
@@ -740,8 +750,8 @@ const MissionCheck = styled.div`
 
 const EmotionSection = styled.section`
   padding: 0;
-  margin-top: 20px;
-  margin-bottom: 100px;
+  margin-top: 30px;
+  margin-bottom: 50px;
   position: relative;
   z-index: 1;
   width: 100%;
