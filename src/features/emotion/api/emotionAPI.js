@@ -46,3 +46,45 @@ export const getRecordByDate = async (date) => {
     throw error.response?.data || error.message;
   }
 };
+
+/**
+ * 월별 캘린더 데이터 조회 API 호출 함수
+ * 특정 연도와 월의 감정 기록 데이터를 조회
+ * 
+ * @param {number} year - 조회할 연도 (YYYY)
+ * @param {number} month - 조회할 월 (1-12)
+ * @returns {Promise<Object>} 해당 월의 캘린더 데이터
+ * @throws {Error} 조회 실패 시 에러 객체
+ */
+export const getCalendarByMonth = async (year, month) => {
+  try {
+    console.log(`🔍 [CALENDAR API] ${year}년 ${month}월 캘린더 데이터 조회 요청`);
+    
+    const response = await api.get(`/api/v1/records/calendar/${year}/${month}`);
+    
+    console.log('✅ [CALENDAR API] 캘린더 데이터 조회 성공');
+    console.log('📋 [CALENDAR API] 응답 상태:', response.status, response.statusText);
+    console.log('📄 [CALENDAR API] 응답 데이터:', response.data);
+    
+    return response.data;
+  } catch (error) {
+    console.error('❌ [CALENDAR API] 캘린더 데이터 조회 에러 발생!');
+    console.error('🚫 [CALENDAR API] 에러 타입:', error.name);
+    console.error('💥 [CALENDAR API] 에러 메시지:', error.message);
+    console.error('📡 [CALENDAR API] 응답 상태:', error.response?.status);
+    console.error('📄 [CALENDAR API] 응답 데이터:', error.response?.data);
+    
+    // 에러 발생 시 처리
+    if (error.response) {
+      // 서버 응답이 있는 경우
+      const errorMsg = error.response.data || `${year}년 ${month}월 캘린더 데이터 조회에 실패했습니다.`;
+      throw new Error(errorMsg);
+    } else if (error.request) {
+      // 요청이 전송되었지만 응답이 없는 경우
+      throw new Error('서버에 연결할 수 없습니다. 네트워크 연결을 확인하세요.');
+    } else {
+      // 그 외의 에러
+      throw new Error(error.message || '알 수 없는 오류가 발생했습니다.');
+    }
+  }
+};

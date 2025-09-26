@@ -48,7 +48,7 @@ export const getSeochoPlaceRecommendations = async () => {
       return mockPlacesResponse;
     }
 
-    const response = await api.get('/api/v1/place/recommend/seocho');
+    const response = await api.get('/api/v1/recommendation/places/seocho');
     return response.data;
   } catch (error) {
     console.error('Failed to load Seocho places:', error);

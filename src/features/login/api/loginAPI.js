@@ -56,3 +56,44 @@ export const loginAPI = async (email, password) => {
     }
   }
 };
+
+/**
+ * 로그아웃 API 호출 함수
+ * 서버에 로그아웃 요청을 보내어 토큰을 무효화
+ * 
+ * @returns {Promise<void>} 로그아웃 성공 시 void
+ * @throws {Error} 로그아웃 실패 시 에러 객체
+ */
+export const logoutAPI = async () => {
+  try {
+    console.log('🚀 [LOGOUT API] 로그아웃 요청 시작');
+    
+    // POST 요청으로 로그아웃 API 엔드포인트 호출
+    const response = await api.post('/api/v1/logout');
+    
+    console.log('✅ [LOGOUT API] 로그아웃 성공');
+    console.log('📋 [LOGOUT API] 응답 상태:', response.status, response.statusText);
+    console.log('📄 [LOGOUT API] 응답 데이터:', response.data);
+    
+    return response.data;
+  } catch (error) {
+    console.error('❌ [LOGOUT API] 로그아웃 에러 발생!');
+    console.error('🚫 [LOGOUT API] 에러 타입:', error.name);
+    console.error('💥 [LOGOUT API] 에러 메시지:', error.message);
+    console.error('📡 [LOGOUT API] 응답 상태:', error.response?.status);
+    console.error('📄 [LOGOUT API] 응답 데이터:', error.response?.data);
+    
+    // 에러 발생 시 처리
+    if (error.response) {
+      // 서버 응답이 있는 경우
+      const errorMsg = error.response.data || '로그아웃에 실패했습니다.';
+      throw new Error(errorMsg);
+    } else if (error.request) {
+      // 요청이 전송되었지만 응답이 없는 경우
+      throw new Error('서버에 연결할 수 없습니다. 네트워크 연결을 확인하세요.');
+    } else {
+      // 그 외의 에러
+      throw new Error(error.message || '알 수 없는 오류가 발생했습니다.');
+    }
+  }
+};

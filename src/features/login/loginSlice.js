@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { loginAPI } from './api/loginAPI';
+import { loginAPI, logoutAPI } from './api/loginAPI';
 
 /**
  * 비동기 로그인 처리 thunk
@@ -19,6 +19,25 @@ export const loginThunk = createAsyncThunk(
       // 에러 발생 시 Error 객체의 message를 문자열로 변환하여 전달
       const errorMessage = error?.message || '로그인에 실패했습니다.';
       return rejectWithValue(errorMessage);
+    }
+  }
+);
+
+/**
+ * 비동기 로그아웃 처리 thunk
+ * @returns {Promise} API 응답 데이터 또는 에러
+ */
+export const logoutThunk = createAsyncThunk(
+  'auth/logout',
+  async (_, { rejectWithValue }) => {
+    try {
+      // logoutAPI 함수를 호출하여 서버에 로그아웃 요청
+      const response = await logoutAPI();
+      return response;
+    } catch (error) {
+      // 에러가 발생해도 로컬에서는 로그아웃 처리를 진행
+      console.warn('서버 로그아웃 실패했지만 로컬 로그아웃은 진행:', error?.message);
+      return null; // 에러가 있어도 성공으로 처리
     }
   }
 );
@@ -92,6 +111,37 @@ export const loginSlice = createSlice({
         state.loading = false;
         // 이미 문자열로 변환된 에러 메시지를 저장
         state.error = action.payload || '로그인에 실패했습니다.';
+      })
+      // 로그아웃 요청 시작
+      .addCase(logoutThunk.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      // 로그아웃 요청 성공
+      .addCase(logoutThunk.fulfilled, (state) => {
+        // localStorage에서 토큰 제거
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
+        localStorage.removeItem('testCompleted');
+        
+        // 상태 초기화
+        Object.assign(state, initialState);
+        
+        // 로그인 페이지로 리다이렉트
+        window.location.href = '/login';
+      })
+      // 로그아웃 요청 실패 (서버 에러여도 로컬 로그아웃은 진행)
+      .addCase(logoutThunk.rejected, (state) => {
+        // localStorage에서 토큰 제거
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
+        localStorage.removeItem('testCompleted');
+        
+        // 상태 초기화
+        Object.assign(state, initialState);
+        
+        // 로그인 페이지로 리다이렉트
+        window.location.href = '/login';
       });
   },
 });
