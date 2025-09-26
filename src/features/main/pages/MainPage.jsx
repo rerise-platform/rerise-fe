@@ -70,6 +70,8 @@ const renderMissionList = (missions, handleMissionComplete) => {
         </MissionCheck>
       </MissionItem>
     ));
+  } else {
+    return <div style={{ padding: '20px', textAlign: 'center' }}>미션이 없습니다.</div>;
   }
 };
 
@@ -204,14 +206,16 @@ const MainPage = () => {
   if (!mainData) return null;
 
   // API 응답을 UI 구조에 맞게 변환
+  // mockMainPageData와 MainPage 컴포넌트가 예상하는 구조를 맞추기
   const uiData = {
     nickname: mainData.nickname,
     character_status: mainData.characterInfo ? {
       type: mainData.characterInfo.characterType,
       level: mainData.characterInfo.level,
       exp: mainData.characterInfo.experience,
-      exp_to_next_level: 1000 // 임의의 값 설정 또는 API에서 받아와야 함
+      exp_to_next_level: 1000 // 임의의 값 설정
     } : null,
+    // todayMissions 데이터를 daily_missions 형식으로 변환
     daily_missions: mainData.todayMissions?.map(mission => ({
       mission_id: mission.userDailyMissionId,
       title: mission.content,

@@ -1,5 +1,5 @@
 import api from '../../../lib/apiClient';
-import { mockMainData, updateMockMissionStatus, mockEmotionRecords, mockEmptyEmotionRecord } from './mockData.js';
+import { mockMainData, mockMainPageData, updateMockMissionStatus, mockEmotionRecords, mockEmptyEmotionRecord } from './mockData.js';
 
 // 개발 모드 설정 (true: Mock 데이터 사용, false: 실제 API 사용)
 const USE_MOCK_DATA = false;
@@ -48,36 +48,11 @@ export const fetchMainPageData = async () => {
       // 실제 API 호출처럼 약간의 지연 시간 추가
       await new Promise(resolve => setTimeout(resolve, 500));
       
-      // Mock 데이터 변환하여 백엔드 API 응답 형식으로 반환
-      return {
-        userId: mockMainData.userId || 1,
-        nickname: mockMainData.nickname || mockMainData.character_status?.nickname,
-        character_status: mockMainData.character_status ? {
-          id: mockMainData.character_status.id || 1,
-          nickname: mockMainData.nickname || mockMainData.character_status?.nickname,
-          type: mockMainData.character_status?.character_type || "mony",
-          level: mockMainData.character_status?.level || 1,
-          exp: mockMainData.character_status?.exp || 0,
-          exp_to_next_level: 1000, // 백엔드에서 제공되지 않는 정보는 기본값 설정
-          character_type: mockMainData.character_status?.character_type || "mony",
-          character_stage: mockMainData.character_status?.character_stage || 1,
-          character_name: mockMainData.character_status?.character_name || "캐릭터"
-        } : null,
-        daily_missions: mockMainData.daily_missions ? mockMainData.daily_missions.map(mission => ({
-          mission_id: mission.mission_id,
-          title: mission.title,
-          theme: mission.theme,
-          theory: mission.theory,
-          is_completed: mission.is_completed || false
-        })) : [],
-        recent_record: mockMainData.recent_record ? {
-          record_id: mockMainData.recent_record.record_id,
-          emotion_level: mockMainData.recent_record.emotion_level,
-          keywords: mockMainData.recent_record.keywords,
-          memo: mockMainData.recent_record.memo,
-          recorded_at: mockMainData.recent_record.recorded_at
-        } : null
-      };
+      // 데이터 구조 디버깅 로그
+      console.log('📊 목데이터 구조:', mockMainPageData);
+      
+      // 목데이터를 직접 반환 (구조를 유지함)
+      return mockMainPageData;
     }
     
     // JWT 토큰 가져오기 (apiClient.js의 interceptors에서 처리)
