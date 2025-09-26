@@ -6,6 +6,69 @@ import { getCharacterImage } from '../../../shared/utils/characterImageMapper.js
 const USE_MOCK_DATA = false;
 
 /**
+ * 메인 페이지 데이터를 조회합니다. (Redux Toolkit 용)
+ * @returns {Promise} API 응답 결과
+ * 
+ * 응답 형식:
+ * {
+ *   "userId": 123,
+ *   "nickname": "testuser",
+ *   "characterInfo": {
+ *     "characterId": 1,
+ *     "characterName": "모니",
+ *     "characterType": "mony",
+ *     "level": 5,
+ *     "experience": 120,
+ *     "stage": 2
+ *   },
+ *   "recentRecord": {
+ *     "recordId": 10,
+ *     "emotionLevel": 4,
+ *     "keywords": ["행복", "성취감"],
+ *     "memo": "오늘은 좋은 하루였다",
+ *     "recordedAt": "2024-08-24"
+ *   },
+ *   "todayMissions": [
+ *     {
+ *       "userDailyMissionId": 1,
+ *       "missionId": 15,
+ *       "content": "5분간 간단한 스트레칭으로 몸 풀어주기",
+ *       "theme": "몸돌보기",
+ *       "theory": "BEHAVIORAL_ACTIVATION",
+ *       "status": "PENDING"
+ *     }
+ *   ]
+ * }
+ */
+export const fetchMainPageData = async () => {
+  try {
+    // JWT 토큰 가져오기
+    const token = localStorage.getItem('authToken');
+    if (!token) {
+      throw new Error('인증 정보가 없습니다. 다시 로그인해주세요.');
+    }
+    
+    // 실제 API 호출
+    const response = await api.get('/api/v1/main');
+    
+    // 응답 데이터 반환
+    return response.data;
+  } catch (error) {
+    // 에러가 발생하면 예외를 던져 createAsyncThunk에서 처리할 수 있게 합니다.
+    if (error.response) {
+      // 서버에서 응답을 받았지만 2xx 범위를 벗어난 상태 코드가 반환된 경우
+      throw new Error(error.response.data?.message || '서버에서 오류가 발생했습니다.');
+    } else if (error.request) {
+      // 요청은 보냈지만 응답을 받지 못한 경우
+      throw new Error('서버에 연결할 수 없습니다. 네트워크 연결을 확인해주세요.');
+    } else {
+      // 요청 설정 중에 문제가 발생한 경우
+      throw new Error(error.message || '요청 설정 중 오류가 발생했습니다.');
+    }
+  }
+};
+
+/**
  * 메인 화면 데이터 조회 API 호출 함수
  * 백엔드 API와 통신하여 사용자의 캐릭터 정보를 조회
  * 

@@ -4,6 +4,7 @@ import { configureStore } from '@reduxjs/toolkit';
 import loginReducer from '../features/login/loginSlice';
 import emotionReducer from '../features/emotion/emotionSlice';
 import recommendationReducer from '../features/recommendation/recommendationSlice';
+import mainReducer from '../features/main/mainSlice';
 
 /**
  * 전체 애플리케이션에서 사용할 Redux store 생성
@@ -17,7 +18,8 @@ export const store = configureStore({
     // => state.auth.isLoggedIn, state.auth.user, state.auth.token 등으로 접근
     auth: loginReducer,
     emotion: emotionReducer,
-    recommendation: recommendationReducer
+    recommendation: recommendationReducer,
+    main: mainReducer
   },
   
   // 개발 환경에서 Redux DevTools 활성화

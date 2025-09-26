@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useSelector, useDispatch } from 'react-redux';
 import styled, { keyframes } from 'styled-components';
 
 // 이미지 import
@@ -13,9 +14,11 @@ import emotion3 from '../../../shared/assets/images/emotion3.svg';
 import emotion4 from '../../../shared/assets/images/emotion4.svg';
 import emotion5 from '../../../shared/assets/images/emotion5.svg';
 
-
 // API import
 import { getMainScreenData, getTodayMissions, completeMission, getEmotionRecord } from '../api/mainAPI';
+
+// Redux import
+import { getMainPageData, selectMainData, selectMainStatus, selectMainError } from '../mainSlice';
 
 // 상수
 const EMOTION_IMAGES = {
@@ -75,14 +78,19 @@ const renderMissionList = (missions, handleMissionComplete) => {
  */
 const MainPage = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [speechBubbleVisible, setSpeechBubbleVisible] = useState(false);
   const [characterPromptVisible, setCharacterPromptVisible] = useState(true);
   const [statsVisible, setStatsVisible] = useState(true);
   
-  // API 데이터 상태
-  const [mainData, setMainData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  // Redux 상태 가져오기
+  const mainData = useSelector(selectMainData);
+  const mainStatus = useSelector(selectMainStatus);
+  const mainError = useSelector(selectMainError);
+  const loading = mainStatus === 'loading';
+  const error = mainError;
+  
+  // 로컬 상태
   const [emotionRecord, setEmotionRecord] = useState(null);
 
   // 컴포넌트 마운트 시 메인 데이터 로드 및 body 배경색 설정
@@ -93,7 +101,8 @@ const MainPage = () => {
     // body 배경색 제거
     document.body.style.backgroundColor = 'transparent';
     
-    loadMainData();
+    // Redux 액션으로 메인 데이터 로드
+    dispatch(getMainPageData());
     loadTodayMissions();
     loadTodayEmotion();
     
@@ -101,7 +110,7 @@ const MainPage = () => {
     return () => {
       document.body.style.backgroundColor = originalBackground;
     };
-  }, []);
+  }, [dispatch]);
 
   const loadTodayEmotion = async () => {
     try {
@@ -109,42 +118,27 @@ const MainPage = () => {
       const emotionData = await getEmotionRecord(today);
       setEmotionRecord(emotionData);
     } catch (err) {
-      console.error('감정 기록 로드 실패:', err);
       setEmotionRecord(null);
     }
   }
 
-
-  const loadMainData = async () => {
-    try {
-      setLoading(true);
-      const data = await getMainScreenData();
-      setMainData(data);
-      setError(null);
-    } catch (err) {
-      console.error('메인 데이터 로드 실패:', err);
-      setError(err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const loadTodayMissions = async () => {
     try {
       const missions = await getTodayMissions();
-      setMainData(prev => prev ? { ...prev, daily_missions: missions } : null);
+      // Redux 상태를 직접 수정하지 않고 API 호출로 데이터를 가져옴
+      // mainSlice에 미션 업데이트를 위한 액션을 추가할 수도 있음
     } catch (err) {
-      console.error('오늘의 미션 로드 실패:', err);
+      // 에러 처리
     }
   };
 
   const handleMissionComplete = async (missionId) => {
     try {
       await completeMission(missionId);
-      // 미션 완료 후 데이터 새로고침
-      loadTodayMissions();
+      // 미션 완료 후 메인 데이터 새로고침
+      dispatch(getMainPageData()); // Redux 액션으로 전체 데이터 다시 로드
     } catch (err) {
-      console.error('미션 완료 실패:', err);
+      // 에러 처리
     }
   };
 
@@ -166,7 +160,6 @@ const MainPage = () => {
       }, 100);
     }, 6000);
   };
-
 
   // 로딩 중일 때
   if (loading) {
@@ -190,7 +183,7 @@ const MainPage = () => {
         <MobileContainer>
           <MainContent>
             <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-              데이터를 불러오는데 실패했습니다.
+              {typeof error === 'string' ? error : '데이터를 불러오는데 실패했습니다.'}
             </div>
           </MainContent>
         </MobileContainer>
@@ -201,25 +194,42 @@ const MainPage = () => {
   // 데이터가 없을 때
   if (!mainData) return null;
 
+  // API 응답을 UI 구조에 맞게 변환
+  const uiData = {
+    nickname: mainData.nickname,
+    character_status: mainData.characterInfo ? {
+      type: mainData.characterInfo.characterType,
+      level: mainData.characterInfo.level,
+      exp: mainData.characterInfo.experience,
+      exp_to_next_level: 1000 // 임의의 값 설정 또는 API에서 받아와야 함
+    } : null,
+    daily_missions: mainData.todayMissions?.map(mission => ({
+      mission_id: mission.userDailyMissionId,
+      title: mission.content,
+      theme: mission.theme,
+      theory: mission.theory,
+      is_completed: mission.status === 'COMPLETED'
+    })) || [],
+    recent_record: mainData.recentRecord
+  };
+
   return (
     <AppWrapper>
       <MobileContainer>
         <MainContent>
-        <Header>
-          <Greeting>
-            <GreetingText>
-              <Name>{mainData?.character_status?.type || '사용자'}</Name>
-              <Message>님, 안녕하세요!</Message>
-            </GreetingText>
-          </Greeting>
-          <Character onClick={greetCharacter}>
-            <CharacterCircle onClick={greetCharacter}>
-              <CharacterSvg src={mony1} alt="캐릭터" />
-            </CharacterCircle>
-          </Character>
-        </Header>
-
-        <StatsContainer>
+          <Header>
+            <Greeting>
+              <GreetingText>
+                <n>{uiData.nickname || '사용자'}</n>
+                <Message>님, 안녕하세요!</Message>
+              </GreetingText>
+            </Greeting>
+            <Character onClick={greetCharacter}>
+              <CharacterCircle onClick={greetCharacter}>
+                <CharacterSvg src={mony1} alt="캐릭터" />
+              </CharacterCircle>
+            </Character>
+          </Header>                  <StatsContainer>
           <StatsRow>
             {speechBubbleVisible && (
               <SpeechBubble>
@@ -232,19 +242,19 @@ const MainPage = () => {
               <ProgressBar>
                 <ProgressFill $progress={
                   calculateProgress(
-                    mainData?.character_status?.exp,
-                    mainData?.character_status?.exp_to_next_level
+                    uiData?.character_status?.exp,
+                    uiData?.character_status?.exp_to_next_level
                   )
                 } />
               </ProgressBar>
             </StatItem>
             <StatItem className="points" $visible={statsVisible}>
               <StatIcon>P</StatIcon>
-              <StatValue>{mainData?.character_status?.exp || 0}P</StatValue>
+              <StatValue>{uiData?.character_status?.exp || 0}P</StatValue>
             </StatItem>
             <StatItem className="level" $visible={statsVisible}>
               <StatIcon className="level">LV</StatIcon>
-              <StatValue className="level">{String(mainData?.character_status?.level || 1).padStart(2, '0')}</StatValue>
+              <StatValue className="level">{String(uiData?.character_status?.level || 1).padStart(2, '0')}</StatValue>
             </StatItem>
             <CharacterPrompt $visible={characterPromptVisible}>
               <PromptText>캐릭터를<br />눌러보세요</PromptText>
@@ -265,7 +275,7 @@ const MainPage = () => {
         <MissionSection>
           <SectionTitle>오늘의 미션 목록</SectionTitle>
           <MissionList>
-            {renderMissionList(mainData?.daily_missions, handleMissionComplete)}
+            {renderMissionList(uiData?.daily_missions, handleMissionComplete)}
           </MissionList>
         </MissionSection>
 
