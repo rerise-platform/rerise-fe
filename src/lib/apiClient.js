@@ -15,14 +15,18 @@ api.interceptors.request.use(
     if (!isAuthRequest) {
       const token = localStorage.getItem("accessToken");
       console.log("🔍 API 요청:", config.url, config.method?.toUpperCase());
+      console.log("📝 요청 데이터:", config.data);
       console.log(
         "🔑 토큰 상태:",
         token ? "있음" : "없음",
         token ? token.substring(0, 20) + "..." : "undefined"
       );
+      console.log("📋 현재 헤더:", config.headers);
+      
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
         console.log("✅ Authorization 헤더 추가됨");
+        console.log("📋 최종 헤더:", config.headers);
       } else {
         console.log("❌ 토큰이 없어서 Authorization 헤더 추가 안됨");
       }

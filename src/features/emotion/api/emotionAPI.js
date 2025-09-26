@@ -26,19 +26,25 @@ export const createOrUpdateRecord = async (recordData) => {
     }
 
     console.log('🚀 [API] 일기 기록 요청 시작');
-    console.log('📤 [API] 요청 데이터:', {
+    
+    // 토큰 확인
+    const token = localStorage.getItem('accessToken');
+    console.log('� [API] 토큰 상태:', token ? '존재함' : '없음');
+    if (token) {
+      console.log('🔑 [API] 토큰 앞부분:', token.substring(0, 20) + '...');
+    }
+    
+    const requestPayload = {
       emotion_level: recordData.emotion_level,
       keywords: keywords,
       memo: recordData.memo,
       recordedAt: recordData.recordedAt
-    });
+    };
+    
+    console.log('📤 [API] 요청 데이터:', requestPayload);
+    console.log('📤 [API] JSON 문자열:', JSON.stringify(requestPayload, null, 2));
 
-    const response = await api.post('/api/v1/records', {
-      emotion_level: recordData.emotion_level,
-      keywords: keywords, // 배열 형태로 전송
-      memo: recordData.memo,
-      recordedAt: recordData.recordedAt
-    });
+    const response = await api.post('/api/v1/records', requestPayload);
     
     console.log('✅ [API] 일기 기록 성공:', response.data);
     return response.data;
@@ -65,6 +71,38 @@ export const getRecordByDate = async (date) => {
       return null;
     }
     throw error.response?.data || error.message;
+  }
+};
+
+/**
+ * 테스트용 최소 데이터 일기 생성 함수
+ * 403 에러 디버깅을 위한 단순한 테스트 데이터
+ */
+export const testMinimalRecord = async () => {
+  try {
+    console.log('🧪 [TEST] 최소 데이터 테스트 시작');
+    
+    const minimalData = {
+      emotion_level: 5,
+      keywords: ["테스트"],
+      memo: "테스트",
+      recordedAt: "2025-09-27"
+    };
+    
+    console.log('🧪 [TEST] 테스트 데이터:', JSON.stringify(minimalData, null, 2));
+    
+    const response = await api.post('/api/v1/records', minimalData);
+    
+    console.log('✅ [TEST] 성공!', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('❌ [TEST] 실패:', {
+      status: error.response?.status,
+      data: error.response?.data,
+      headers: error.response?.headers,
+      config: error.config
+    });
+    throw error;
   }
 };
 

@@ -32,15 +32,40 @@ export const getMainScreenData = async () => {
     // 백엔드 API 응답을 프론트엔드에서 사용하는 구조로 변환
     const data = response.data;
     console.log('🔍 원본 API 데이터:', data);
+    console.log('🔍 닉네임 필드:', data.nickname);
+    console.log('🔍 캐릭터타입 필드:', data.characterType);
+    console.log('🔍 캐릭터단계 필드:', data.characterStage);
     
     // 온보딩 완료 여부 확인 (characterType이 있는지 확인)
     const isOnboardingComplete = data.characterType !== null && 
                                 data.characterType !== undefined;
     
-    return {
+    // MainPage.jsx에서 직접 접근할 수 있도록 플랫 구조로 변환
+    const transformedData = {
+      // 기본 사용자 정보 (MainPage에서 mainData?.nickname으로 접근)
       userId: data.userId || data.id,
       nickname: data.nickname,
+      
+      // 캐릭터 정보 (MainPage에서 mainData?.characterType으로 접근)  
+      characterType: data.characterType || 'mony',
+      characterStage: data.characterStage || 1,
+      characterName: data.characterName || '모니',
+      
+      // 레벨/경험치 정보
+      level: data.level || 1,
+      exp: data.experience || 0,
+      exp_to_next_level: 1000,
+      
+      // 온보딩 상태
       isOnboardingComplete,
+      
+      // 미션 데이터
+      daily_missions: data.todayMissions || data.missions || [],
+      
+      // 최근 기록
+      recent_record: data.recentRecord || null,
+      
+      // 레거시 지원을 위한 중첩 구조 (기존 코드 호환성)
       character_status: isOnboardingComplete ? {
         nickname: data.nickname,
         level: data.level || 1,
@@ -50,10 +75,13 @@ export const getMainScreenData = async () => {
         character_stage: data.characterStage || 1,
         character_image: getCharacterImage(data.characterType || 'mony', data.characterStage || 1),
         character_name: data.characterName || '모니'
-      } : null,
-      daily_missions: data.todayMissions || data.missions || [],
-      recent_record: data.recentRecord || null
+      } : null
     };
+    
+    console.log('✅ 변환된 데이터:', transformedData);
+    console.log('✅ 최종 닉네임:', transformedData.nickname);
+    
+    return transformedData;
   } catch (error) {
     console.error('메인 화면 데이터 조회 실패:', error);
     throw error.response?.data || error.message;

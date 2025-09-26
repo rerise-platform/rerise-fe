@@ -107,18 +107,22 @@ const MainPage = () => {
 
   const loadMainData = async () => {
     try {
-      console.log('🔍 메인 데이터 로드 시작');
+      console.log('🔍 [MAIN PAGE] 메인 데이터 로드 시작');
       setLoading(true);
       const data = await getMainScreenData();
-      console.log('✅ 메인 데이터 로드 성공:', data);
-      console.log('👤 닉네임:', data?.nickname);
-      console.log('🎭 캐릭터 타입:', data?.characterType);
-      console.log('⭐ 캐릭터 단계:', data?.characterStage);
+      
+      console.log('✅ [MAIN PAGE] 메인 데이터 로드 성공:', data);
+      console.log('👤 [MAIN PAGE] 닉네임 확인:', data?.nickname);
+      console.log('🎭 [MAIN PAGE] 캐릭터 타입:', data?.characterType);
+      console.log('⭐ [MAIN PAGE] 캐릭터 단계:', data?.characterStage);
+      console.log('📊 [MAIN PAGE] 온보딩 완료:', data?.isOnboardingComplete);
+      console.log('🏠 [MAIN PAGE] 전체 데이터 구조:', JSON.stringify(data, null, 2));
       
       setMainData(data);
       setError(null);
     } catch (err) {
-      console.error('❌ 메인 데이터 로드 실패:', err);
+      console.error('❌ [MAIN PAGE] 메인 데이터 로드 실패:', err);
+      console.error('❌ [MAIN PAGE] 에러 상세:', err.response || err);
       setError(err);
     } finally {
       setLoading(false);
@@ -197,13 +201,20 @@ const MainPage = () => {
   console.log('🎨 [RENDER] 표시될 닉네임:', mainData?.nickname);
   console.log('🎨 [RENDER] 캐릭터 이미지 소스:', getCharacterImage(mainData?.characterType, mainData?.characterStage));
 
+  // 사용자 닉네임 결정 (여러 경로에서 시도)
+  const displayNickname = mainData?.nickname || 
+                         mainData?.character_status?.nickname || 
+                         '사용자';
+  
+  console.log('🎨 [RENDER] 최종 표시될 닉네임:', displayNickname);
+
   return (
     <ElementEXP>
       <MainContent>
         <Header>
           <Greeting>
             <GreetingText>
-              <Name>{mainData?.nickname || '사용자'}</Name>
+              <Name>{displayNickname}</Name>
               <Message>님, 안녕하세요!</Message>
             </GreetingText>
           </Greeting>
