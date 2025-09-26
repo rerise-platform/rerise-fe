@@ -64,11 +64,25 @@ function App() {
 
   // 인증 필요한 경로에 접근 시 로그인 페이지로 리다이렉트하는 래퍼 컴포넌트
   const PrivateRoute = ({ children }) => {
+    console.log('🛡️ [PRIVATE ROUTE] 인증 체크:', { 
+      DEVELOPMENT_MODE, 
+      isAuthenticated, 
+      currentPath: location.pathname 
+    });
+    
     // 개발 모드에서는 인증 체크를 우회합니다
     if (DEVELOPMENT_MODE) {
+      console.log('🚧 [PRIVATE ROUTE] 개발 모드 - 인증 체크 우회');
       return children;
     }
-    return isAuthenticated ? children : <Navigate to="/login" replace />;
+    
+    if (isAuthenticated) {
+      console.log('✅ [PRIVATE ROUTE] 인증됨 - 컴포넌트 렌더링');
+      return children;
+    } else {
+      console.log('❌ [PRIVATE ROUTE] 인증 실패 - 로그인으로 리다이렉트');
+      return <Navigate to="/login" replace />;
+    }
   };
   
   // 로그인 상태에서 접근하면 리다이렉트하는 래퍼 컴포넌트
@@ -101,8 +115,11 @@ function App() {
   };
   
   if (loading) {
+    console.log('⏳ [APP] 앱 로딩 중...');
     return <div>로딩 중...</div>;
   }
+  
+  console.log('🚀 [APP] 앱 렌더링 시작 - 라우트 결정');
   
   return (
     <ErrorBoundary>
