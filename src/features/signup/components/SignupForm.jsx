@@ -10,7 +10,6 @@ export default function SignupForm() {
   const [passwordError, setPasswordError] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const passwordRef = useRef(null);
-  const [isShowPwChecked, setShowPwChecked] = useState(false);
 
   const [nickname, setNickname] = useState("");
 
@@ -47,13 +46,6 @@ export default function SignupForm() {
     const updated = { ...terms, [name]: !terms[name] };
     setTerms(updated);
     setAllChecked(Object.values(updated).every(Boolean));
-  };
-
-  const handleShowPwChecked = () => {
-    const password = passwordRef.current;
-    if (!password) return;
-    setShowPwChecked(!isShowPwChecked);
-    password.type = isShowPwChecked ? "password" : "text";
   };
 
   const handleSubmitClick = async () => {
@@ -144,14 +136,7 @@ export default function SignupForm() {
             display: "flex",
             alignItems: "center",
           }}
-        >
-          <input
-            type="checkbox"
-            onChange={handleShowPwChecked}
-            style={{ marginRight: 4 }}
-          />
-          비밀번호 보기
-        </label>
+        ></label>
       </div>
       {passwordError && <p style={{ color: "#e54848" }}>{passwordError}</p>}
 
