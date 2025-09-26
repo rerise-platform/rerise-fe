@@ -150,22 +150,12 @@ const CardContainer = styled.div`
   background: #FEFFF5;
   border-radius: 20px;
   padding: 24px 20px;
-  margin: 16px;
+  margin: 0 0 16px 0;
   border: 1px solid #D9D9D9;
   position: relative;
-  max-width: 680px;
-  margin-left: auto;
-  margin-right: auto;
-
-  @media (max-width: 768px) {
-    margin: 16px;
-  }
-
-  @media (min-width: 768px) {
-    max-width: 680px;
-    margin-left: auto;
-    margin-right: auto;
-  }
+  width: 100%;
+  max-width: 340px;
+  box-sizing: border-box;
 
   @media (max-width: 360px) {
     padding: 20px 16px;

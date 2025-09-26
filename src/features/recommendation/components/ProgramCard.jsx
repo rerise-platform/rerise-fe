@@ -40,6 +40,9 @@ const CardContainer = styled.div`
   padding: 20px;
   margin-bottom: 16px;
   position: relative;
+  width: 100%;
+  max-width: 340px;
+  box-sizing: border-box;
 
   @media (max-width: 360px) {
     padding: 16px;

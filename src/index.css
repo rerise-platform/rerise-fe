@@ -1,2 +1,6 @@
-body { margin : 0 }
-div { box-sizing : border-box }
+body { 
+  margin: 0;
+  background-color: #ffffff;
+  overflow-x: hidden;
+}
+div { box-sizing: border-box }
