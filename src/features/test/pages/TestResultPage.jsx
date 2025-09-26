@@ -178,7 +178,15 @@ export default function TestResultPage() {
         </div>
 
         <div className="sticky-bottom" style={{ marginTop: 0 }}>
-          <button className="primary-btn" onClick={() => nav("/main")}>
+          <button 
+            className="primary-btn" 
+            onClick={() => {
+              // 테스트 완료 상태 저장
+              localStorage.setItem('testCompleted', 'true');
+              // 메인 페이지로 이동
+              nav("/main");
+            }}
+          >
             다음
           </button>
         </div>

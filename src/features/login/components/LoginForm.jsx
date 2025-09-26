@@ -3,11 +3,13 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
 import { loginThunk } from '../loginSlice';
+import mainLogo from '../../../shared/assets/images/mainlogo.svg';
 
 // ===== Styled Components =====
 // 입력 박스 스타일
 const InputBox = styled.div`
-  width: 296px;
+  width: 100%;
+  max-width: 350px;
   height: 58px;
   border: 1px solid #40EA87;
   background-color: rgba(255,255,255,0.2);
@@ -41,7 +43,8 @@ const Input = styled.input`
 
 // 로그인 버튼
 const LoginButton = styled.button`
-  width: 304px;
+  width: 100%;
+  max-width: 350px;
   height: 68px;
   background: #40EA87;
   border: none;
@@ -136,8 +139,34 @@ const LoginForm = () => {
     }));
   };
 
-  return (
-    <form onSubmit={handleSubmit}>
+  // 로고 컨테이너 스타일
+  const LogoContainer = styled.div`
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    margin-bottom: 30px;
+  `;
+
+  const Logo = styled.img`
+    width: 180px;
+    height: auto;
+  `;
+
+  const FormContainer = styled.form`
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 0; // 상단 여백 제거
+`;
+
+return (
+    <FormContainer onSubmit={handleSubmit}>
+      {/* 로고 */}
+      <LogoContainer>
+        <Logo src={mainLogo} alt="ReRise Logo" />
+      </LogoContainer>
+
       {/* 입력 필드들 */}
       <InputBox>
         <Input
@@ -174,7 +203,7 @@ const LoginForm = () => {
         <span className="ask">아직 회원이 아니신가요?</span>
         <Link to="/signup">회원가입</Link>
       </SignupPrompt>
-    </form>
+    </FormContainer>
   );
 };
 
