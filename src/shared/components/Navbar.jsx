@@ -14,7 +14,8 @@ const BottomNav = styled.nav`
   bottom: 0;
   left: 50%;
   transform: translateX(-50%);
-  width: 100vw;
+  width: 430px;
+  max-width: 430px;
   height: 75px;
   background: white;
   border-top: 1px solid #e8e8e8;
@@ -27,7 +28,8 @@ const BottomNav = styled.nav`
   z-index: 1000;
 
   /* 작은 화면 (iPhone SE 등) */
-  @media (max-width: 375px) {
+  @media (max-width: 430px) {
+    width: 100%;
     height: 65px;
     padding-top: 8px;
     padding-bottom: 12px;
@@ -38,27 +40,6 @@ const BottomNav = styled.nav`
     height: 60px;
     padding-top: 6px;
     padding-bottom: 10px;
-  }
-
-  /* 모바일 크기 제한 (430px까지만 max-width 적용) */
-  @media (max-width: 430px) {
-    max-width: 430px;
-  }
-
-  /* 큰 화면 */
-  @media (min-width: 431px) {
-    max-width: 100%;
-    border-radius: 0;
-    height: 80px;
-    padding-top: 12px;
-    padding-bottom: 18px;
-  }
-
-  /* 태블릿 및 데스크톱 */
-  @media (min-width: 768px) {
-    height: 85px;
-    padding-top: 15px;
-    padding-bottom: 20px;
   }
 `;
 
@@ -86,17 +67,6 @@ const NavItem = styled.div`
   @media (max-width: 320px) {
     width: 45px;
     height: 40px;
-  }
-
-  /* 큰 화면 조정 */
-  @media (min-width: 431px) {
-    width: 65px;
-    height: 55px;
-  }
-
-  @media (min-width: 768px) {
-    width: 70px;
-    height: 60px;
   }
 `;
 
@@ -126,16 +96,6 @@ const NavIcon = styled.img`
   @media (max-width: 320px) {
     width: 24px;
     height: 24px;
-  }
-
-  @media (min-width: 431px) {
-    width: 36px;
-    height: 36px;
-  }
-
-  @media (min-width: 768px) {
-    width: 40px;
-    height: 40px;
   }
 `;
 

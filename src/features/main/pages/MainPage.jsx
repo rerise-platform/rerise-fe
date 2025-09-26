@@ -85,11 +85,22 @@ const MainPage = () => {
   const [error, setError] = useState(null);
   const [emotionRecord, setEmotionRecord] = useState(null);
 
-  // 컴포넌트 마운트 시 메인 데이터 로드
+  // 컴포넌트 마운트 시 메인 데이터 로드 및 body 배경색 설정
   useEffect(() => {
+    // 원래의 배경색 저장
+    const originalBackground = document.body.style.backgroundColor;
+    
+    // body 배경색 제거
+    document.body.style.backgroundColor = 'transparent';
+    
     loadMainData();
     loadTodayMissions();
     loadTodayEmotion();
+    
+    // 언마운트 시 원래 배경색 복원
+    return () => {
+      document.body.style.backgroundColor = originalBackground;
+    };
   }, []);
 
   const loadTodayEmotion = async () => {
@@ -160,26 +171,30 @@ const MainPage = () => {
   // 로딩 중일 때
   if (loading) {
     return (
-      <ElementEXP>
-        <MainContent>
-          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-            로딩 중...
-          </div>
-        </MainContent>
-      </ElementEXP>
+      <AppWrapper>
+        <MobileContainer>
+          <MainContent>
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+              로딩 중...
+            </div>
+          </MainContent>
+        </MobileContainer>
+      </AppWrapper>
     );
   }
 
   // 에러 발생 시
   if (error) {
     return (
-      <ElementEXP>
-        <MainContent>
-          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-            데이터를 불러오는데 실패했습니다.
-          </div>
-        </MainContent>
-      </ElementEXP>
+      <AppWrapper>
+        <MobileContainer>
+          <MainContent>
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+              데이터를 불러오는데 실패했습니다.
+            </div>
+          </MainContent>
+        </MobileContainer>
+      </AppWrapper>
     );
   }
 
@@ -187,8 +202,9 @@ const MainPage = () => {
   if (!mainData) return null;
 
   return (
-    <ElementEXP>
-      <MainContent>
+    <AppWrapper>
+      <MobileContainer>
+        <MainContent>
         <Header>
           <Greeting>
             <GreetingText>
@@ -265,7 +281,8 @@ const MainPage = () => {
           </EmotionContent>
         </EmotionSection>
       </MainContent>
-    </ElementEXP>
+      </MobileContainer>
+    </AppWrapper>
   );
 }
 
@@ -282,81 +299,69 @@ const fadeInUp = keyframes`
 `;
 
 // 스타일 컴포넌트들
-const ElementEXP = styled.div`
-  background-color: #fefff5;
-  display: grid;
-  justify-items: center;
-  align-items: start;
-  width: 100vw;
+// 전체 화면을 감싸는 컨테이너
+const AppWrapper = styled.div`
+  width: 100%;
+  height: 100%;
   min-height: 100vh;
+  display: flex;
+  justify-content: center;
+`;
+
+// 모바일 앱 컨테이너
+const MobileContainer = styled.div`
+  width: 430px;
+  max-width: 430px;
+  min-height: 100vh;
+  background-color: #FEFFF5;
+  position: relative;
+  overflow-x: hidden;
+  box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+
+  @media (max-width: 430px) {
+    width: 100%;
+    box-shadow: none;
+  }
 `;
 
 const MainContent = styled.div`
-  width: 100vw;
+  width: 100%;
   min-height: 100vh;
   background-color: #fefff5;
   position: relative;
   overflow-x: hidden;
-  margin-top: 1.875vh; /* 15px / 800px * 100 */
-
-  /* 모든 화면에서 비율 유지 */
-  padding: 0 4.65vw; /* 20px / 430px * 100 */
-
-  @media (min-width: 768px) {
-    padding: 0 5.2vw; /* 40px / 768px * 100 */
-  }
-
-  @media (min-width: 1024px) {
-    max-width: 1200px;
-    margin: 1.875vh auto 0 auto;
-    padding: 0 5vw; /* 60px / 1200px * 100 */
+  padding: 20px 20px 40px;
+  box-sizing: border-box;
+  
+  @media (max-width: 430px) {
+    padding: 15px 15px 40px;
   }
 `;
 
 const Header = styled.header`
   position: relative;
   padding: 0;
-  height: 40.375vh; /* 323px / 800px * 100 */
+  height: 200px;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
   background-color: #fefff5;
-  max-width: 100%;
+  width: 100%;
   margin: 0 auto;
-
-  @media (min-width: 431px) {
-    max-width: 116.3vw; /* 500px / 430px * 100 */
-  }
-
-  @media (min-width: 768px) {
-    max-width: 78.1vw; /* 600px / 768px * 100 */
-  }
-
-  @media (min-width: 1024px) {
-    max-width: 50vw; /* 600px / 1200px * 100 */
-  }
 `;
 
 const Greeting = styled.div`
-  margin-top: 7.875vh; /* 63px / 800px * 100 */
+  margin-top: 40px;
   z-index: 2;
 `;
 
 const GreetingText = styled.h1`
-  font-size: 4.65vw; /* 20px / 430px * 100 */
+  font-size: 20px;
   font-weight: 400;
   color: #111111;
   line-height: 1.4;
   margin: 0;
-
-  @media (min-width: 768px) {
-    font-size: 2.6vw; /* 20px / 768px * 100 */
-  }
-
-  @media (min-width: 1024px) {
-    font-size: 1.67vw; /* 20px / 1200px * 100 */
-  }
 `;
 
 const Name = styled.span`
@@ -371,24 +376,20 @@ const Message = styled.span`
 
 const Character = styled.div`
   position: absolute;
-  top: 21.625vh; /* 173px / 800px * 100 */
-  right: 4.65vw; /* 20px / 430px * 100 */
+  top: 80px;
+  right: 20px;
   z-index: 100;
   cursor: pointer;
-  width: 43.95vw; /* 189px / 430px * 100 */
-  height: 21.34vh; /* 170.7px / 800px * 100 */
+  width: 150px;
+  height: 170px;
   display: flex;
   align-items: center;
   justify-content: center;
-
-  @media (min-width: 768px) {
-    right: 2.6vw; /* 20px / 768px * 100 */
-    width: 24.6vw; /* 189px / 768px * 100 */
-  }
-
-  @media (min-width: 1024px) {
-    right: 1.67vw; /* 20px / 1200px * 100 */
-    width: 15.75vw; /* 189px / 1200px * 100 */
+  
+  @media (max-width: 430px) {
+    width: 130px;
+    height: 150px;
+    right: 10px;
   }
 `;
 
@@ -416,62 +417,33 @@ const CharacterSvg = styled.img`
 
 const StatsContainer = styled.div`
   position: absolute;
-  top: 15.375vh; /* 123px / 800px * 100 */
-  left: 4.65vw; /* 20px / 430px * 100 */
-  right: 4.65vw; /* 20px / 430px * 100 */
+  top: 80px;
+  left: 20px;
+  right: 20px;
   display: flex;
   flex-direction: column;
-  gap: 4vh; /* 32px / 800px * 100 */
+  gap: 20px;
   z-index: 2;
-
-  /* 431px 이상에서는 중앙 정렬 */
-  @media (min-width: 431px) {
-    left: 50%;
-    right: auto;
-    transform: translateX(-50%);
-    width: 107vw; /* 460px / 430px * 100 */
-    gap: 5vh; /* 40px / 800px * 100 */
-  }
-
-  @media (min-width: 768px) {
-    width: 72.9vw; /* 560px / 768px * 100 */
-    gap: 5.5vh; /* 44px / 800px * 100 */
-  }
-
-  @media (min-width: 1024px) {
-    width: 46.7vw; /* 560px / 1200px * 100 */
+  
+  @media (max-width: 430px) {
+    left: 15px;
+    right: 15px;
   }
 `;
 
 const StatsRow = styled.div`
   display: flex;
-  gap: 1.86vw; /* 8px / 430px * 100 */
+  gap: 8px;
   align-items: center;
   position: relative;
-
-  @media (min-width: 768px) {
-    gap: 1.04vw; /* 8px / 768px * 100 */
-  }
-
-  @media (min-width: 1024px) {
-    gap: 0.67vw; /* 8px / 1200px * 100 */
-  }
 `;
 
 const SecondRow = styled.div`
   display: flex;
-  gap: 1.86vw; /* 8px / 430px * 100 */
+  gap: 8px;
   align-items: flex-start;
   justify-content: flex-start;
   position: relative;
-
-  @media (min-width: 768px) {
-    gap: 1.04vw; /* 8px / 768px * 100 */
-  }
-
-  @media (min-width: 1024px) {
-    gap: 0.67vw; /* 8px / 1200px * 100 */
-  }
 `;
 
 const SpeechBubble = styled.div`
@@ -516,12 +488,12 @@ const BubbleText = styled.div`
 const StatItem = styled.div`
   background: rgba(255, 255, 255, 0.9);
   border: 1px solid #40ea87;
-  border-radius: 4.19vw; /* 18px / 430px * 100 */
-  padding: 1.86vw 1.4vw; /* 8px 6px / 430px * 100 */
-  height: 8.84vw; /* 38px / 430px * 100 */
+  border-radius: 18px;
+  padding: 8px 6px;
+  height: 38px;
   display: flex;
   align-items: center;
-  gap: 1.4vw; /* 6px / 430px * 100 */
+  gap: 6px;
   backdrop-filter: blur(10px);
   box-shadow: 0 2px 10px rgba(64, 234, 135, 0.1);
   transition: opacity 0.6s ease, transform 0.6s ease;
@@ -530,69 +502,29 @@ const StatItem = styled.div`
   pointer-events: ${props => props.$visible ? 'auto' : 'none'};
 
   &.growth {
-    width: 25.58vw; /* 110px / 430px * 100 */
-    gap: 1.86vw; /* 8px / 430px * 100 */
+    width: 110px;
+    gap: 8px;
   }
 
   &.points {
-    width: 16.28vw; /* 70px / 430px * 100 */
+    width: 70px;
   }
 
   &.level {
-    width: 13.95vw; /* 60px / 430px * 100 */
-  }
-
-  @media (min-width: 768px) {
-    border-radius: 2.34vw; /* 18px / 768px * 100 */
-    padding: 1.04vw 0.78vw; /* 8px 6px / 768px * 100 */
-    height: 4.95vw; /* 38px / 768px * 100 */
-    gap: 0.78vw; /* 6px / 768px * 100 */
-
-    &.growth {
-      width: 14.32vw; /* 110px / 768px * 100 */
-      gap: 1.04vw; /* 8px / 768px * 100 */
-    }
-
-    &.points {
-      width: 9.11vw; /* 70px / 768px * 100 */
-    }
-
-    &.level {
-      width: 7.81vw; /* 60px / 768px * 100 */
-    }
-  }
-
-  @media (min-width: 1024px) {
-    border-radius: 1.5vw; /* 18px / 1200px * 100 */
-    padding: 0.67vw 0.5vw; /* 8px 6px / 1200px * 100 */
-    height: 3.17vw; /* 38px / 1200px * 100 */
-    gap: 0.5vw; /* 6px / 1200px * 100 */
-
-    &.growth {
-      width: 9.17vw; /* 110px / 1200px * 100 */
-      gap: 0.67vw; /* 8px / 1200px * 100 */
-    }
-
-    &.points {
-      width: 5.83vw; /* 70px / 1200px * 100 */
-    }
-
-    &.level {
-      width: 5vw; /* 60px / 1200px * 100 */
-    }
+    width: 60px;
   }
 `;
 
 const StatIcon = styled.div`
-  width: 5.12vw; /* 22px / 430px * 100 */
-  height: 5.12vw; /* 22px / 430px * 100 */
+  width: 22px;
+  height: 22px;
   background: #40ea87;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   color: white;
-  font-size: 2.09vw; /* 9px / 430px * 100 */
+  font-size: 9px;
   font-weight: 900;
   box-shadow: 0 2px 8px rgba(64, 234, 135, 0.3);
   flex-shrink: 0;
@@ -601,50 +533,22 @@ const StatIcon = styled.div`
     background: #ffcd6a;
     box-shadow: 0 2px 8px rgba(255, 205, 106, 0.3);
   }
-
-  @media (min-width: 768px) {
-    width: 2.86vw; /* 22px / 768px * 100 */
-    height: 2.86vw; /* 22px / 768px * 100 */
-    font-size: 1.17vw; /* 9px / 768px * 100 */
-  }
-
-  @media (min-width: 1024px) {
-    width: 1.83vw; /* 22px / 1200px * 100 */
-    height: 1.83vw; /* 22px / 1200px * 100 */
-    font-size: 0.75vw; /* 9px / 1200px * 100 */
-  }
 `;
 
 const StatValue = styled.span`
-  font-size: 3.02vw; /* 13px / 430px * 100 */
+  font-size: 13px;
   font-weight: 900;
   color: #40ea87;
 
   &.level {
     color: #ffcd6a;
   }
-
-  @media (min-width: 768px) {
-    font-size: 1.69vw; /* 13px / 768px * 100 */
-  }
-
-  @media (min-width: 1024px) {
-    font-size: 1.08vw; /* 13px / 1200px * 100 */
-  }
 `;
 
 const StatLabel = styled.span`
-  font-size: 2.79vw; /* 12px / 430px * 100 */
+  font-size: 12px;
   font-weight: 600;
   color: #2ad948;
-
-  @media (min-width: 768px) {
-    font-size: 1.56vw; /* 12px / 768px * 100 */
-  }
-
-  @media (min-width: 1024px) {
-    font-size: 1vw; /* 12px / 1200px * 100 */
-  }
 `;
 
 const ProgressBar = styled.div`
@@ -663,15 +567,15 @@ const ProgressFill = styled.div`
 `;
 
 const DayCard = styled.div`
-  width: 27.91vw; /* 120px / 430px * 100 */
-  height: 27.91vw; /* 정사각형 유지 */
+  width: 120px;
+  height: 120px; /* 정사각형 유지 */
   background: white;
-  border-radius: 3.49vw; /* 15px / 430px * 100 */
+  border-radius: 15px;
   display: flex;
   flex-direction: column;
   justify-content: ${props => props.$hasEmotion ? 'center' : 'space-between'};
   align-items: center;
-  padding: 3.49vw 2.79vw; /* 15px 12px을 vw로 통일 */
+  padding: 15px 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   cursor: pointer;
   transition: transform 0.2s ease;
@@ -679,78 +583,38 @@ const DayCard = styled.div`
   &:hover {
     transform: translateY(-2px);
   }
-
-  @media (min-width: 768px) {
-    width: 15.63vw; /* 120px / 768px * 100 */
-    height: 15.63vw; /* 정사각형 유지 */
-    border-radius: 1.95vw; /* 15px / 768px * 100 */
-    padding: 1.95vw 1.56vw; /* 15px 12px을 vw로 통일 */
-  }
-
-  @media (min-width: 1024px) {
-    width: 10vw; /* 120px / 1200px * 100 */
-    height: 10vw; /* 정사각형 유지 */
-    border-radius: 1.25vw; /* 15px / 1200px * 100 */
-    padding: 1.25vw 1vw; /* 15px 12px을 vw로 통일 */
-  }
 `;
 
 const DayEmoji = styled.div`
-  font-size: 2.79vw; /* 12px / 430px * 100 */
+  font-size: 12px;
   font-weight: 600;
   color: #333;
-  margin-bottom: 1.4vw; /* 6px / 430px * 100 */
+  margin-bottom: 6px;
   text-align: center;
   line-height: 1.2;
-
-  @media (min-width: 768px) {
-    font-size: 1.56vw; /* 12px / 768px * 100 */
-    margin-bottom: 0.78vw; /* 6px / 768px * 100 */
-  }
-
-  @media (min-width: 1024px) {
-    font-size: 1vw; /* 12px / 1200px * 100 */
-    margin-bottom: 0.5vw; /* 6px / 1200px * 100 */
-  }
 `;
 
 const DayText = styled.img`
-  width: 9.3vw; /* 40px / 430px * 100 */
-  height: 5vh; /* 40px / 800px * 100 */
+  width: 40px;
+  height: 40px;
   flex-shrink: 0;
-
-  @media (min-width: 768px) {
-    width: 5.21vw; /* 40px / 768px * 100 */
-  }
-
-  @media (min-width: 1024px) {
-    width: 3.33vw; /* 40px / 1200px * 100 */
-  }
 `;
 
 const DayDescription = styled.p`
-  font-size: 1.86vw; /* 8px / 430px * 100 */
+  font-size: 10px;
   font-weight: 500;
   color: #666666;
   margin: 0;
   line-height: 1.2;
   text-align: center;
-
-  @media (min-width: 768px) {
-    font-size: 1.04vw; /* 8px / 768px * 100 */
-  }
-
-  @media (min-width: 1024px) {
-    font-size: 0.67vw; /* 8px / 1200px * 100 */
-  }
 `;
 
 const CharacterPrompt = styled.div`
   background: rgba(255, 255, 255, 0.9);
   border: 1px solid #40ea87;
-  border-radius: 4.19vw; /* 18px / 430px * 100 */
-  padding: 1.86vw 2.79vw; /* 상하 패딩을 레벨박스와 동일하게 설정 */
-  height: 8.84vw; /* 38px / 430px * 100 - 레벨박스와 동일한 높이 */
+  border-radius: 18px;
+  padding: 8px 12px;
+  height: 38px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -762,78 +626,33 @@ const CharacterPrompt = styled.div`
   opacity: ${props => props.$visible ? 1 : 0};
   transform: translateY(${props => props.$visible ? 0 : 20}px);
   pointer-events: ${props => props.$visible ? 'auto' : 'none'};
-
-  @media (min-width: 768px) {
-    border-radius: 2.34vw; /* 18px / 768px * 100 */
-    padding: 1.04vw 1.56vw; /* 상하 패딩을 레벨박스와 동일하게 설정 */
-    height: 4.95vw; /* 38px / 768px * 100 - 레벨박스와 동일한 높이 */
-  }
-
-  @media (min-width: 1024px) {
-    border-radius: 1.5vw; /* 18px / 1200px * 100 */
-    padding: 0.67vw 1vw; /* 상하 패딩을 레벨박스와 동일하게 설정 */
-    height: 3.17vw; /* 38px / 1200px * 100 - 레벨박스와 동일한 높이 */
-  }
 `;
 
 const PromptText = styled.span`
-  font-size: 2.79vw; /* 12px / 430px * 100 */
+  font-size: 12px;
   font-weight: 500;
   color: #40ea87;
   white-space: nowrap;
   text-align: center;
   line-height: 1.2;
-
-  @media (min-width: 768px) {
-    font-size: 1.56vw; /* 12px / 768px * 100 */
-  }
-
-  @media (min-width: 1024px) {
-    font-size: 1vw; /* 12px / 1200px * 100 */
-  }
 `;
 
 const MissionSection = styled.section`
   padding: 0;
-  margin-top: 2.5vh; /* 20px / 800px * 100 */
+  margin-top: 20px;
   position: relative;
   z-index: 1;
-  max-width: 100%;
+  width: 100%;
   margin-left: auto;
   margin-right: auto;
-
-  /* 431px 이상에서는 중앙 정렬하고 최대 너비 제한 */
-  @media (min-width: 431px) {
-    margin-top: 3.125vh; /* 25px / 800px * 100 */
-    max-width: 116.3vw; /* 500px / 430px * 100 */
-  }
-
-  @media (min-width: 768px) {
-    margin-top: 3.75vh; /* 30px / 800px * 100 */
-    max-width: 78.1vw; /* 600px / 768px * 100 */
-  }
-
-  @media (min-width: 1024px) {
-    max-width: 50vw; /* 600px / 1200px * 100 */
-  }
 `;
 
 const SectionTitle = styled.h2`
-  font-size: 4.65vw; /* 20px / 430px * 100 */
+  font-size: 20px;
   font-weight: 600;
   color: #41604c;
-  margin-bottom: 3.72vw; /* 16px / 430px * 100 */
+  margin-bottom: 16px;
   text-align: left;
-
-  @media (min-width: 768px) {
-    font-size: 2.6vw; /* 20px / 768px * 100 */
-    margin-bottom: 2.08vw; /* 16px / 768px * 100 */
-  }
-
-  @media (min-width: 1024px) {
-    font-size: 1.67vw; /* 20px / 1200px * 100 */
-    margin-bottom: 1.33vw; /* 16px / 1200px * 100 */
-  }
 `;
 
 const MissionList = styled.div`
@@ -911,28 +730,13 @@ const MissionCheck = styled.div`
 
 const EmotionSection = styled.section`
   padding: 0;
-  margin-top: 2.5vh; /* 20px / 800px * 100 */
+  margin-top: 20px;
   margin-bottom: 100px;
   position: relative;
   z-index: 1;
-  max-width: 100%;
+  width: 100%;
   margin-left: auto;
   margin-right: auto;
-
-  /* 431px 이상에서는 중앙 정렬하고 최대 너비 제한 */
-  @media (min-width: 431px) {
-    margin-top: 3.125vh; /* 25px / 800px * 100 */
-    max-width: 116.3vw; /* 500px / 430px * 100 */
-  }
-
-  @media (min-width: 768px) {
-    margin-top: 3.75vh; /* 30px / 800px * 100 */
-    max-width: 78.1vw; /* 600px / 768px * 100 */
-  }
-
-  @media (min-width: 1024px) {
-    max-width: 50vw; /* 600px / 1200px * 100 */
-  }
 `;
 
 const EmotionContent = styled.div`
