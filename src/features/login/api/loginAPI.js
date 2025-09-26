@@ -12,7 +12,7 @@ import api from '../../../lib/apiClient';
 export const loginAPI = async (email, password) => {
   try {
     // POST 요청으로 로그인 API 엔드포인트 호출
-    const response = await api.post('/api/v1/auth/login', {
+    const response = await api.post('/api/v1/login', {
       email,
       password
     });
