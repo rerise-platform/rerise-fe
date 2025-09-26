@@ -49,13 +49,24 @@ function App() {
     setLoading(false);
   }, []);
   
+  // 개발 모드 플래그 - 인증 체크를 우회하기 위한 변수
+  const DEVELOPMENT_MODE = true; // true로 설정하면 인증 체크를 우회합니다
+
   // 인증 필요한 경로에 접근 시 로그인 페이지로 리다이렉트하는 래퍼 컴포넌트
   const PrivateRoute = ({ children }) => {
+    // 개발 모드에서는 인증 체크를 우회합니다
+    if (DEVELOPMENT_MODE) {
+      return children;
+    }
     return isAuthenticated ? children : <Navigate to="/login" replace />;
   };
   
   // 로그인 상태에서 접근하면 리다이렉트하는 래퍼 컴포넌트
   const AuthRoute = ({ children }) => {
+    // 개발 모드에서는 인증 체크를 우회합니다
+    if (DEVELOPMENT_MODE) {
+      return children;
+    }
     // 로그인 상태이면 테스트 완료 여부에 따라 다른 페이지로 리다이렉트
     if (isAuthenticated) {
       if (hasCompletedTest) {
@@ -70,6 +81,10 @@ function App() {
   
   // 테스트 완료 여부에 따라 처리하는 래퍼 컴포넌트
   const TestRoute = ({ children }) => {
+    // 개발 모드에서는 인증 체크를 우회합니다
+    if (DEVELOPMENT_MODE) {
+      return children;
+    }
     return isAuthenticated ? 
       (hasCompletedTest ? <Navigate to="/main" replace /> : children) :
       <Navigate to="/login" replace />;

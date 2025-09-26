@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback, memo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
@@ -98,6 +98,53 @@ const ErrorMessage = styled.div`
   margin: 10px 0;
 `;
 
+// 로고 컨테이너 스타일
+const LogoContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  margin-bottom: 30px;
+`;
+
+const Logo = styled.img`
+  width: 180px;
+  height: auto;
+`;
+
+const FormContainer = styled.form`
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 0; // 상단 여백 제거
+`;
+
+// 최적화된 입력 필드 컴포넌트 
+// React.memo를 사용하여 불필요한 리렌더링 방지
+const OptimizedInput = memo(({ type, name, placeholder, value, onChange, required }) => {
+  // 디버깅 코드는 나중에 제거
+  // console.log(`Input rendering: ${name}`);
+  
+  // 이벤트 핸들러도 메모이제이션
+  const handleInputChange = useCallback((e) => {
+    onChange(e);
+  }, [onChange]);
+  
+  return (
+    <InputBox isPassword={type === 'password'}>
+      <Input
+        type={type}
+        name={name}
+        placeholder={placeholder}
+        value={value}
+        onChange={handleInputChange}
+        required={required}
+        autoComplete={type === 'password' ? 'current-password' : 'username'}
+      />
+    </InputBox>
+  );
+});
+
 /**
  * 로그인 폼 컴포넌트
  * 사용자 인증 정보를 입력받고 Redux를 통해 로그인 처리를 담당
@@ -114,22 +161,22 @@ const LoginForm = () => {
   });
 
   /**
-   * 입력 필드 값 변경 핸들러
+   * 입력 필드 값 변경 핸들러 - 메모이제이션 적용
    * @param {Event} e - 이벤트 객체
    */
-  const handleChange = (e) => {
+  const handleChange = useCallback((e) => {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
       [name]: value
     }));
-  };
+  }, []);
 
   /**
    * 폼 제출 핸들러
    * @param {Event} e - 이벤트 객체
    */
-  const handleSubmit = (e) => {
+  const handleSubmit = useCallback((e) => {
     e.preventDefault(); // 기본 폼 제출 동작 방지
     
     // Redux thunk를 통해 로그인 액션 dispatch
@@ -137,28 +184,9 @@ const LoginForm = () => {
       email: formData.email,
       password: formData.password
     }));
-  };
+  }, [dispatch, formData.email, formData.password]);
 
-  // 로고 컨테이너 스타일
-  const LogoContainer = styled.div`
-    display: flex;
-    justify-content: center;
-    width: 100%;
-    margin-bottom: 30px;
-  `;
-
-  const Logo = styled.img`
-    width: 180px;
-    height: auto;
-  `;
-
-  const FormContainer = styled.form`
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-top: 0; // 상단 여백 제거
-`;
+    // 이벤트 핸들러들은 함수 내부에 유지
 
 return (
     <FormContainer onSubmit={handleSubmit}>
@@ -167,28 +195,24 @@ return (
         <Logo src={mainLogo} alt="ReRise Logo" />
       </LogoContainer>
 
-      {/* 입력 필드들 */}
-      <InputBox>
-        <Input
-          type="email"
-          name="email"
-          placeholder="이메일"
-          value={formData.email}
-          onChange={handleChange}
-          required
-        />
-      </InputBox>
+      {/* 최적화된 입력 필드들 */}
+      <OptimizedInput 
+        type="email"
+        name="email"
+        placeholder="이메일"
+        value={formData.email}
+        onChange={handleChange}
+        required
+      />
       
-      <InputBox isPassword>
-        <Input
-          type="password"
-          name="password"
-          placeholder="비밀번호"
-          value={formData.password}
-          onChange={handleChange}
-          required
-        />
-      </InputBox>
+      <OptimizedInput
+        type="password"
+        name="password"
+        placeholder="비밀번호"
+        value={formData.password}
+        onChange={handleChange}
+        required
+      />
 
       {/* 에러 메시지 표시 */}
       {error && <ErrorMessage>{error}</ErrorMessage>}
