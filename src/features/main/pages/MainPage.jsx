@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useSelector, useDispatch } from 'react-redux';
 import styled, { keyframes } from 'styled-components';
 
 // 이미지 import
@@ -13,9 +14,11 @@ import emotion3 from '../../../shared/assets/images/emotion3.svg';
 import emotion4 from '../../../shared/assets/images/emotion4.svg';
 import emotion5 from '../../../shared/assets/images/emotion5.svg';
 
-
 // API import
-import { getMainScreenData, getTodayMissions, completeMission, getEmotionRecord } from '../api/mainAPI';
+import { completeMission, getEmotionRecord } from '../api/mainAPI';
+
+// Redux import
+import { getMainPageData, selectMainData, selectMainStatus, selectMainError } from '../mainSlice';
 
 // 상수
 const EMOTION_IMAGES = {
@@ -79,63 +82,59 @@ const MainPage = () => {
   const [characterPromptVisible, setCharacterPromptVisible] = useState(true);
   const [statsVisible, setStatsVisible] = useState(true);
   
-  // API 데이터 상태
-  const [mainData, setMainData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const dispatch = useDispatch();
+  
+  // Redux 상태 가져오기
+  const mainData = useSelector(selectMainData);
+  const mainStatus = useSelector(selectMainStatus);
+  const mainError = useSelector(selectMainError);
+  const loading = mainStatus === 'loading';
+  const error = mainError;
+  
+  // 로컬 상태
   const [emotionRecord, setEmotionRecord] = useState(null);
 
-  // 컴포넌트 마운트 시 메인 데이터 로드
-  useEffect(() => {
-    loadMainData();
-    loadTodayMissions();
-    loadTodayEmotion();
-  }, []);
-
-  const loadTodayEmotion = async () => {
+  // 감정 기록 로드 함수 - useCallback으로 감싸서 의존성 문제 해결
+  const loadTodayEmotion = React.useCallback(async () => {
     try {
       const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD 형식
       const emotionData = await getEmotionRecord(today);
       setEmotionRecord(emotionData);
     } catch (err) {
-      console.error('감정 기록 로드 실패:', err);
       setEmotionRecord(null);
     }
-  }
+  }, []);
 
 
-  const loadMainData = async () => {
-    try {
-      setLoading(true);
-      const data = await getMainScreenData();
-      setMainData(data);
-      setError(null);
-    } catch (err) {
-      console.error('메인 데이터 로드 실패:', err);
-      setError(err);
-    } finally {
-      setLoading(false);
-    }
-  };
 
-  const loadTodayMissions = async () => {
-    try {
-      const missions = await getTodayMissions();
-      setMainData(prev => prev ? { ...prev, daily_missions: missions } : null);
-    } catch (err) {
-      console.error('오늘의 미션 로드 실패:', err);
-    }
-  };
+  // 컴포넌트 마운트 시 메인 데이터 로드 및 body 배경색 설정
+  useEffect(() => {
+    // 원래의 배경색 저장
+    const originalBackground = document.body.style.backgroundColor;
+    
+    // body 배경색 제거
+    document.body.style.backgroundColor = 'transparent';
+    
+    // Redux 액션으로 메인 데이터 로드
+    dispatch(getMainPageData());
+    loadTodayEmotion();
+    
+    // 언마운트 시 원래 배경색 복원
+    return () => {
+      document.body.style.backgroundColor = originalBackground;
+    };
+  }, [dispatch, loadTodayEmotion]);
 
-  const handleMissionComplete = async (missionId) => {
+  // 미션 완료 처리 함수 - useCallback으로 감싸서 의존성 문제 해결
+  const handleMissionComplete = React.useCallback(async (missionId) => {
     try {
       await completeMission(missionId);
       // 미션 완료 후 데이터 새로고침
-      loadTodayMissions();
+      dispatch(getMainPageData());
     } catch (err) {
       console.error('미션 완료 실패:', err);
     }
-  };
+  }, [dispatch]);
 
   const greetCharacter = () => {
     if (speechBubbleVisible) {
