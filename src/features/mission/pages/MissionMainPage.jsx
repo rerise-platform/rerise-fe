@@ -8,6 +8,14 @@ import {
   completeDailyMission,
 } from "../api/missionAPI";
 
+// ✅ 캐릭터 이미지 매핑 추가
+const CHAR_IMG = {
+  모니: "/images/char1.png",
+  토리: "/images/tory.png",
+  포리: "/images/pory.png",
+  코코: "/images/koko.png",
+};
+
 const MissionMainPage = () => {
   // ===== 주간(로드맵) =====
   const [roadmapMissions, setRoadmapMissions] = useState([]);
@@ -19,7 +27,12 @@ const MissionMainPage = () => {
 
   // 추가: 주간 요약 말풍선용 상태
   const [weeklySummary, setWeeklySummary] = useState("");
-  const [summaryOpenId, setSummaryOpenId] = useState(null);
+
+  // ✅ 캐릭터 이름: 로컬에서 바로 읽기(경고/에러 방지)
+  const characterName =
+    typeof window !== "undefined"
+      ? localStorage.getItem("characterName")
+      : null;
 
   // ===== 데일리 =====
   const [dailyMissions, setDailyMissions] = useState([]);
@@ -69,12 +82,8 @@ const MissionMainPage = () => {
     })();
   }, []);
 
-  // ===== 로드맵: 헤더 클릭 (말풍선 토글 + 작성 영역 토글) =====
+  // ===== 로드맵: 헤더 클릭 (후기 입력 영역 토글만 유지) =====
   const handleClickMission = (id) => {
-    // 말풍선은 상태와 무관하게 토글
-    setSummaryOpenId((prev) => (prev === id ? null : id));
-
-    // 후기 입력 영역은 'none' 상태에서만 토글
     const m = roadmapMissions.find((x) => x.id === id);
     if (!m) return;
     if (m.status !== "none") return;
@@ -177,7 +186,6 @@ const MissionMainPage = () => {
       if (e.key === "Escape") {
         setConfirmId(null);
         setConfirmRoadmapId(null);
-        setSummaryOpenId(null);
       }
     };
     window.addEventListener("keydown", onKey);
@@ -262,10 +270,25 @@ const MissionMainPage = () => {
           </div>
         </h3>
 
+        {/* ✅ 요약 말풍선: 항상 표시 (캐릭터 이미지 + 왼쪽 꼬리 말풍선) */}
+        {!!weeklySummary && (
+          <div className="summary-row">
+            {characterName && (
+              <img
+                className="summary-char"
+                src={CHAR_IMG[characterName] || "/images/char1.png"}
+                alt={characterName}
+              />
+            )}
+            <div className="summary-bubble" role="status" aria-live="polite">
+              {weeklySummary}
+            </div>
+          </div>
+        )}
+
         <ul className="roadmap-list">
           {roadmapMissions.map((m) => {
             const isActive = activeFeedbackId === m.id && m.status === "none";
-            const showSummary = !!weeklySummary && summaryOpenId === m.id;
             const previews = photoPreviewById[m.id] || [];
 
             return (
@@ -277,17 +300,6 @@ const MissionMainPage = () => {
                     isActive ? "active" : "",
                   ].join(" ")}
                 >
-                  {/* 요약 말풍선: 헤더 바로 위에 표시 */}
-                  {showSummary && (
-                    <div
-                      className="summary-bubble"
-                      role="status"
-                      aria-live="polite"
-                    >
-                      {weeklySummary}
-                    </div>
-                  )}
-
                   <button
                     type="button"
                     className="roadmap-head"
