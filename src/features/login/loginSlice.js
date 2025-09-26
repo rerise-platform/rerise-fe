@@ -6,7 +6,6 @@ import { loginAPI } from './api/loginAPI';
  * @param {Object} credentials - 사용자 인증 정보
  * @param {string} credentials.email - 사용자 이메일
  * @param {string} credentials.password - 사용자 비밀번호
- * @param {Object} thunkAPI - Redux Toolkit의 thunk API
  * @returns {Promise} API 응답 데이터 또는 에러
  */
 export const loginThunk = createAsyncThunk(
@@ -25,70 +24,69 @@ export const loginThunk = createAsyncThunk(
 
 // 초기 상태 정의
 const initialState = {
-  isLoggedIn: false,    // 로그인 상태
-  user_id: null,        // 사용자 ID (백엔드에서 반환)
-  token: null,          // 인증 토큰
-  error: null,          // 에러 메시지
-  loading: false        // 로딩 상태
+  isLoggedIn: false,     // 로그인 상태
+  userId: null,          // 사용자 ID
+  accessToken: null,     // 액세스 토큰
+  refreshToken: null,    // 리프레시 토큰
+  error: null,           // 에러 메시지
+  loading: false         // 로딩 상태
 };
 
 /**
  * 로그인 관련 상태를 관리하는 Redux slice
- * 동기 액션과 비동기 thunk 액션을 모두 처리
  */
 export const loginSlice = createSlice({
-  name: 'auth', // slice의 이름
+  name: 'auth',
   initialState,
-  // 동기 액션들을 정의하는 reducers
   reducers: {
-    // 로그인 시작 시 호출되는 액션
-    loginStart: (state) => {
-      state.loading = true;
-      state.error = null;
-    },
-    // 로그인 성공 시 호출되는 액션
-    loginSuccess: (state, action) => {
-      state.loading = false;
-      state.isLoggedIn = true;
-      state.user = action.payload.user;
-      state.token = action.payload.token;
-      state.error = null;
-    },
-    // 로그인 실패 시 호출되는 액션
-    loginFailure: (state, action) => {
-      state.loading = false;
-      state.error = action.payload;
-    },
-    // 로그아웃 시 호출되는 액션
+    // 로그아웃 액션
     logout: (state) => {
       // localStorage에서 토큰 제거
       localStorage.removeItem('accessToken');
+      localStorage.removeItem('refreshToken');
       return initialState; // 초기 상태로 리셋
+    },
+    // 토큰 갱신 액션
+    refreshTokenSuccess: (state, action) => {
+      state.accessToken = action.payload.accessToken;
+      localStorage.setItem('accessToken', action.payload.accessToken);
     },
   },
   // 비동기 thunk 액션들을 처리하는 extraReducers
   extraReducers: (builder) => {
     builder
-      // loginThunk.pending: 로그인 요청 시작
+      // 로그인 요청 시작
       .addCase(loginThunk.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      // loginThunk.fulfilled: 로그인 요청 성공
+      // 로그인 요청 성공
       .addCase(loginThunk.fulfilled, (state, action) => {
         state.loading = false;
         state.isLoggedIn = true;
-        state.user_id = action.payload.user_id;  // 백엔드 응답에서 user_id 추출
-        state.token = action.payload.token;      // 백엔드 응답에서 token 추출
+        state.userId = action.payload.userId;
+        state.accessToken = action.payload.accessToken;
+        state.refreshToken = action.payload.refreshToken;
         state.error = null;
         
         // JWT 토큰을 localStorage에 저장
-        localStorage.setItem('accessToken', action.payload.token);
+        localStorage.setItem('accessToken', action.payload.accessToken);
+        localStorage.setItem('refreshToken', action.payload.refreshToken);
         
-        // 로그인 성공 시 메인 페이지로 이동
-        window.location.href = '/main';
+        // 테스트 완료 여부 확인 (서버로부터 받은 정보로 설정)
+        const testCompleted = action.payload.hasCompletedTest;
+        localStorage.setItem('testCompleted', String(testCompleted));
+        
+        // 테스트 완료 여부에 따라 다른 페이지로 리다이렉트
+        if (testCompleted) {
+          // 테스트를 완료한 사용자는 메인 페이지로 이동
+          window.location.href = '/main';
+        } else {
+          // 테스트를 완료하지 않은 사용자는 테스트 페이지로 이동
+          window.location.href = '/test';
+        }
       })
-      // loginThunk.rejected: 로그인 요청 실패
+      // 로그인 요청 실패
       .addCase(loginThunk.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
@@ -96,8 +94,8 @@ export const loginSlice = createSlice({
   },
 });
 
-// 액션 생성자들을 export
-export const { loginStart, loginSuccess, loginFailure, logout } = loginSlice.actions;
+// 액션 생성자 export
+export const { logout, refreshTokenSuccess } = loginSlice.actions;
 
-// reducer를 export
+// reducer export
 export default loginSlice.reducer;
