@@ -106,12 +106,14 @@ const MainPage = () => {
 
   const loadMainData = async () => {
     try {
+      console.log('🔍 메인 데이터 로드 시작');
       setLoading(true);
       const data = await getMainScreenData();
+      console.log('✅ 메인 데이터 로드 성공:', data);
       setMainData(data);
       setError(null);
     } catch (err) {
-      console.error('메인 데이터 로드 실패:', err);
+      console.error('❌ 메인 데이터 로드 실패:', err);
       setError(err);
     } finally {
       setLoading(false);

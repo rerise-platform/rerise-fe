@@ -16,8 +16,9 @@ export const loginThunk = createAsyncThunk(
       const response = await loginAPI(email, password);
       return response;
     } catch (error) {
-      // 에러 발생 시 rejectWithValue를 사용하여 에러 정보를 action.payload로 전달
-      return rejectWithValue(error);
+      // 에러 발생 시 Error 객체의 message를 문자열로 변환하여 전달
+      const errorMessage = error?.message || '로그인에 실패했습니다.';
+      return rejectWithValue(errorMessage);
     }
   }
 );
@@ -89,7 +90,8 @@ export const loginSlice = createSlice({
       // 로그인 요청 실패
       .addCase(loginThunk.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.payload;
+        // 이미 문자열로 변환된 에러 메시지를 저장
+        state.error = action.payload || '로그인에 실패했습니다.';
       });
   },
 });

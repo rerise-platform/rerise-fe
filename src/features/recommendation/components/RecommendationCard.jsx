@@ -33,12 +33,11 @@ const RecommendationCard = ({ onRefresh }) => {
   const fetchTodayRecord = async () => {
     try {
       const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD 형식
-      const token = localStorage.getItem('token'); // JWT 토큰 가져오기
       
       const response = await fetch(`/api/v1/records/date/${today}`, {
         method: 'GET',
         headers: {
-          'Authorization': `Bearer ${token}`,
+          'Authorization': `Bearer ${localStorage.getItem('accessToken')}`,
           'Content-Type': 'application/json',
         },
       });

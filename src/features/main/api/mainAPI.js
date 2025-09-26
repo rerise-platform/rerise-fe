@@ -25,43 +25,34 @@ export const getMainScreenData = async () => {
     }
 
     // 실제 API 호출 모드
+    console.log('🔍 메인 API 호출 시작: /api/v1/main');
     const response = await api.get('/api/v1/main');
+    console.log('✅ 메인 API 응답:', response.data);
     
     // 백엔드 API 응답을 프론트엔드에서 사용하는 구조로 변환
     const data = response.data;
+    console.log('🔍 원본 API 데이터:', data);
     
-    // 온보딩 완료 여부 확인 (characterInfo가 있는지 확인)
-    const isOnboardingComplete = data.characterInfo !== null && 
-                                data.characterInfo.characterType !== null;
+    // 온보딩 완료 여부 확인 (characterType이 있는지 확인)
+    const isOnboardingComplete = data.characterType !== null && 
+                                data.characterType !== undefined;
     
     return {
-      userId: data.userId,
+      userId: data.userId || data.id,
       nickname: data.nickname,
       isOnboardingComplete,
       character_status: isOnboardingComplete ? {
         nickname: data.nickname,
-        level: data.characterInfo.level,
-        exp: data.characterInfo.experience,
+        level: data.level || 1,
+        exp: data.experience || 0,
         exp_to_next_level: 1000,
-        character_type: data.characterInfo.characterType,
-        character_stage: data.characterInfo.stage,
-        character_image: getCharacterImage(data.characterInfo.characterType, data.characterInfo.stage),
-        character_name: data.characterInfo.characterName
+        character_type: data.characterType || 'mony',
+        character_stage: data.characterStage || 1,
+        character_image: getCharacterImage(data.characterType || 'mony', data.characterStage || 1),
+        character_name: data.characterName || '모니'
       } : null,
-      daily_missions: data.todayMissions ? data.todayMissions.map(mission => ({
-        mission_id: mission.userDailyMissionId,
-        title: mission.content,
-        theme: mission.theme,
-        theory: mission.theory,
-        is_completed: mission.status === 'COMPLETED'
-      })) : [],
-      recent_record: data.recentRecord ? {
-        record_id: data.recentRecord.recordId,
-        emotion_level: data.recentRecord.emotionLevel,
-        keywords: data.recentRecord.keywords,
-        memo: data.recentRecord.memo,
-        recorded_at: data.recentRecord.recordedAt
-      } : null
+      daily_missions: data.todayMissions || data.missions || [],
+      recent_record: data.recentRecord || null
     };
   } catch (error) {
     console.error('메인 화면 데이터 조회 실패:', error);

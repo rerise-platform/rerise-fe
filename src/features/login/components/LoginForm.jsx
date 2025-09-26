@@ -16,8 +16,8 @@ const InputBox = styled.div`
   border-radius: 28px;
   margin-bottom: 20px;
   position: relative;
-  backdrop-filter: ${props => props.isPassword ? 'blur(7.5px)' : 'blur(12px)'};
-  -webkit-backdrop-filter: ${props => props.isPassword ? 'blur(7.5px)' : 'blur(12px)'};
+  backdrop-filter: ${props => props.$isPassword ? 'blur(7.5px)' : 'blur(12px)'};
+  -webkit-backdrop-filter: ${props => props.$isPassword ? 'blur(7.5px)' : 'blur(12px)'};
 `;
 
 // 입력 필드 스타일
@@ -131,7 +131,7 @@ const OptimizedInput = memo(({ type, name, placeholder, value, onChange, require
   }, [onChange]);
   
   return (
-    <InputBox isPassword={type === 'password'}>
+  <InputBox $isPassword={type === 'password'}>
       <Input
         type={type}
         name={name}
