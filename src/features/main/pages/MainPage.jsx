@@ -75,6 +75,8 @@ const renderMissionList = (missions, handleMissionComplete) => {
  * 메인 페이지 컴포넌트
  */
 const MainPage = () => {
+  console.log('🔄 [MAIN PAGE] 컴포넌트 렌더링 시작');
+  
   const navigate = useNavigate();
   const [speechBubbleVisible, setSpeechBubbleVisible] = useState(false);
   const [characterPromptVisible, setCharacterPromptVisible] = useState(true);
@@ -85,6 +87,13 @@ const MainPage = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [emotionRecord, setEmotionRecord] = useState(null);
+  
+  console.log('🔄 [MAIN PAGE] 현재 상태:', { 
+    hasMainData: !!mainData, 
+    loading, 
+    hasError: !!error,
+    nickname: mainData?.nickname 
+  });
 
   // 컴포넌트 마운트 시 데이터 로드
   useEffect(() => {
@@ -125,8 +134,13 @@ const MainPage = () => {
       console.log('📊 [MAIN PAGE] 온보딩 완료:', data?.isOnboardingComplete);
       console.log('🏠 [MAIN PAGE] 전체 데이터 구조:', JSON.stringify(data, null, 2));
       
+      console.log('📝 [MAIN PAGE] setMainData 호출 전');
       setMainData(data);
+      console.log('📝 [MAIN PAGE] setMainData 호출 후');
+      
+      console.log('📝 [MAIN PAGE] setError(null) 호출 전');
       setError(null);
+      console.log('📝 [MAIN PAGE] setError(null) 호출 후');
     } catch (err) {
       console.error('❌ [MAIN PAGE] 메인 데이터 로드 실패:', err);
       console.error('❌ [MAIN PAGE] 에러 상세:', err.response || err);
@@ -178,7 +192,11 @@ const MainPage = () => {
   };
 
 
-  // 로딩 중일 때 (mainData가 있으면 로딩 중이어도 표시)
+  // 강제 렌더링 테스트: 로딩 조건을 우회하고 바로 렌더링
+  console.log('🧪 [RENDER] 강제 렌더링 테스트 - 로딩 조건 우회');
+  
+  // 임시로 로딩 조건을 주석 처리
+  /*
   if (loading && !mainData) {
     console.log('⏳ [RENDER] 로딩 중 상태 (데이터 없음)');
     return (
@@ -191,6 +209,7 @@ const MainPage = () => {
       </ElementEXP>
     );
   }
+  */
 
   // 에러 발생 시
   if (error) {
@@ -205,11 +224,13 @@ const MainPage = () => {
     );
   }
 
-  // 데이터가 없을 때 (로딩 중이 아닌 경우에만)
+  // 임시로 데이터 없음 조건도 우회
+  /*
   if (!mainData && !loading) {
     console.log('⚠️ [RENDER] mainData가 없고 로딩도 완료됨');
     return null;
   }
+  */
 
   // 로딩 중일 때도 기본 UI 표시
   console.log('🎨 [RENDER] 렌더링 시점의 상태:', { 
