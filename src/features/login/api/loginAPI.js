@@ -11,6 +11,12 @@ import api from '../../../lib/apiClient';
  */
 export const loginAPI = async (email, password) => {
   try {
+    console.log('🚀 [LOGIN API] 로그인 요청 시작');
+    console.log('📧 [LOGIN API] 이메일:', email);
+    console.log('🔑 [LOGIN API] 비밀번호 길이:', password?.length || 0);
+    console.log('🌐 [LOGIN API] 요청 URL:', '/api/v1/login');
+    console.log('📡 [LOGIN API] POST 요청 전송 중...');
+    
     // POST 요청으로 로그인 API 엔드포인트 호출
     const response = await api.post('/api/v1/login', {
       email,
@@ -18,9 +24,11 @@ export const loginAPI = async (email, password) => {
     });
     
     // 디버깅을 위한 로그 추가
-    console.log('🔍 서버 응답 전체:', response);
-    console.log('🔍 응답 데이터:', response.data);
-    console.log('🔍 응답 상태:', response.status);
+    console.log('✅ [LOGIN API] 서버 응답 수신!');
+    console.log('🔍 [LOGIN API] 서버 응답 전체:', response);
+    console.log('🔍 [LOGIN API] 응답 데이터:', response.data);
+    console.log('🔍 [LOGIN API] 응답 상태:', response.status);
+    console.log('🔍 [LOGIN API] 응답 헤더:', response.headers);
     
     // 백엔드 응답은 단순한 JWT 토큰 문자열 (text/plain)
     const token = response.data;

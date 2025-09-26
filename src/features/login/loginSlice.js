@@ -12,10 +12,20 @@ export const loginThunk = createAsyncThunk(
   'auth/login',
   async ({ email, password }, { rejectWithValue }) => {
     try {
+      console.log('⚡ [LOGIN THUNK] 로그인 thunk 시작');
+      console.log('📧 [LOGIN THUNK] 이메일:', email);
+      console.log('🔑 [LOGIN THUNK] 비밀번호 있음:', !!password);
+      
       // loginAPI 함수를 호출하여 서버에 로그인 요청
       const response = await loginAPI(email, password);
+      
+      console.log('✅ [LOGIN THUNK] API 응답 받음:', response);
       return response;
     } catch (error) {
+      console.error('❌ [LOGIN THUNK] 에러 발생:', error);
+      console.error('❌ [LOGIN THUNK] 에러 메시지:', error?.message);
+      console.error('❌ [LOGIN THUNK] 전체 에러 객체:', error);
+      
       // 에러 발생 시 Error 객체의 message를 문자열로 변환하여 전달
       const errorMessage = error?.message || '로그인에 실패했습니다.';
       return rejectWithValue(errorMessage);

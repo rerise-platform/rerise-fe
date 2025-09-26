@@ -10,15 +10,15 @@ const api = axios.create({
 api.interceptors.request.use(
   (config) => {
     // 로그인과 회원가입 요청에는 토큰을 첨부하지 않음
-    const isAuthRequest = config.url?.includes('/login') || config.url?.includes('/signup');
+    const isAuthRequest = config.url?.includes('/login') || config.url?.includes('/signup') || config.url?.includes('/health');
     
     if (!isAuthRequest) {
       const token = localStorage.getItem("accessToken");
-      console.log("🔍 API 요청:", config.url);
+      console.log("🔍 API 요청:", config.url, config.method?.toUpperCase());
       console.log(
         "🔑 토큰 상태:",
         token ? "있음" : "없음",
-        token?.substring(0, 20) + "..."
+        token ? token.substring(0, 20) + "..." : "undefined"
       );
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
@@ -27,7 +27,8 @@ api.interceptors.request.use(
         console.log("❌ 토큰이 없어서 Authorization 헤더 추가 안됨");
       }
     } else {
-      console.log("🔍 인증 요청 (토큰 첨부 안함):", config.url);
+      console.log("🔍 인증 요청 (토큰 첨부 안함):", config.url, config.method?.toUpperCase());
+      console.log("📝 요청 데이터:", config.data);
     }
     return config;
   },
