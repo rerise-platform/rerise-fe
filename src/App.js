@@ -11,6 +11,7 @@ import TutorialPage from "./features/mission/pages/TutorialPage.jsx";
 import RecommendationPage from "./features/recommendation/pages/RecommendationPage";
 import MyPage from "./features/mypage/pages/MyPage.jsx";
 import Navbar from "./shared/components/Navbar";
+import ErrorBoundary from "./shared/components/ErrorBoundary";
 import "./App.css";
 import TestPage from "./features/test/pages/TestPage.jsx";
 import TestIntroPage from "./features/test/pages/TestIntroPage.jsx";
@@ -41,17 +42,25 @@ function App() {
   
   // 컴포넌트 마운트 시 인증 상태와 테스트 완료 여부 확인
   useEffect(() => {
+    console.log('🔍 [APP] 인증 상태 확인 중...');
+    
     // localStorage에서 토큰 및 테스트 완료 여부 확인
     const accessToken = localStorage.getItem('accessToken');
     const testCompleted = localStorage.getItem('testCompleted');
     
+    console.log('🔑 [APP] AccessToken:', accessToken ? `있음 (${accessToken.substring(0, 20)}...)` : '없음');
+    console.log('🧪 [APP] TestCompleted:', testCompleted);
+    console.log('📍 [APP] 현재 경로:', location.pathname);
+    
     setIsAuthenticated(!!accessToken);
     setHasCompletedTest(testCompleted === 'true');
     setLoading(false);
-  }, []);
+    
+    console.log('✅ [APP] 인증 상태 설정 완료 - isAuthenticated:', !!accessToken, 'hasCompletedTest:', testCompleted === 'true');
+  }, [location.pathname]);
   
   // 개발 모드 플래그 - 인증 체크를 우회하기 위한 변수
-  const DEVELOPMENT_MODE = true; // true로 설정하면 인증 체크를 우회합니다
+  const DEVELOPMENT_MODE = false; // 배포 환경에서는 false로 설정
 
   // 인증 필요한 경로에 접근 시 로그인 페이지로 리다이렉트하는 래퍼 컴포넌트
   const PrivateRoute = ({ children }) => {
@@ -96,31 +105,33 @@ function App() {
   }
   
   return (
-    <div className="app">
-      <Routes>
-        {/* 로그인 관련 라우트 */}
-        <Route path="/" element={<Navigate to="/login" replace />} />
-        <Route path="/login" element={<AuthRoute><LoginPage /></AuthRoute>} />
-        <Route path="/signup" element={<AuthRoute><SignupPage /></AuthRoute>} />
+    <ErrorBoundary>
+      <div className="app">
+        <Routes>
+          {/* 로그인 관련 라우트 */}
+          <Route path="/" element={<Navigate to="/login" replace />} />
+          <Route path="/login" element={<AuthRoute><LoginPage /></AuthRoute>} />
+          <Route path="/signup" element={<AuthRoute><SignupPage /></AuthRoute>} />
+          
+          {/* 테스트 관련 라우트 */}
+          <Route path="/test" element={<TestRoute><TestIntroPage /></TestRoute>} />
+          <Route path="/test/q" element={<TestRoute><TestPage /></TestRoute>} />
+          <Route path="/test/loading" element={<TestRoute><TestLoadingPage /></TestRoute>} />
+          <Route path="/test/result" element={<TestRoute><TestResultPage /></TestRoute>} />
+          
+          {/* 인증 필요 라우트 */}
+          <Route path="/main" element={<PrivateRoute><MainPage /></PrivateRoute>} />
+          <Route path="/emotion" element={<PrivateRoute><EmotionPage /></PrivateRoute>} />
+          <Route path="/tutorial" element={<PrivateRoute><TutorialPage /></PrivateRoute>} />
+          <Route path="/mission" element={<PrivateRoute><MissionMainPage /></PrivateRoute>} />
+          <Route path="/admin" element={<PrivateRoute><AdminPage /></PrivateRoute>} />
+          <Route path="/recommendation" element={<PrivateRoute><RecommendationPage /></PrivateRoute>} />
+          <Route path="/mypage" element={<PrivateRoute><MyPage /></PrivateRoute>} />
+        </Routes>
         
-        {/* 테스트 관련 라우트 */}
-        <Route path="/test" element={<TestRoute><TestIntroPage /></TestRoute>} />
-        <Route path="/test/q" element={<TestRoute><TestPage /></TestRoute>} />
-        <Route path="/test/loading" element={<TestRoute><TestLoadingPage /></TestRoute>} />
-        <Route path="/test/result" element={<TestRoute><TestResultPage /></TestRoute>} />
-        
-        {/* 인증 필요 라우트 */}
-        <Route path="/main" element={<PrivateRoute><MainPage /></PrivateRoute>} />
-        <Route path="/emotion" element={<PrivateRoute><EmotionPage /></PrivateRoute>} />
-        <Route path="/tutorial" element={<PrivateRoute><TutorialPage /></PrivateRoute>} />
-        <Route path="/mission" element={<PrivateRoute><MissionMainPage /></PrivateRoute>} />
-        <Route path="/admin" element={<PrivateRoute><AdminPage /></PrivateRoute>} />
-        <Route path="/recommendation" element={<PrivateRoute><RecommendationPage /></PrivateRoute>} />
-        <Route path="/mypage" element={<PrivateRoute><MyPage /></PrivateRoute>} />
-      </Routes>
-      
-      {shouldShowNavbar && <Navbar />}
-    </div>
+        {shouldShowNavbar && <Navbar />}
+      </div>
+    </ErrorBoundary>
   );
 }
 

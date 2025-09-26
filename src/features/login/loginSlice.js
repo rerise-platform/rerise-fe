@@ -82,6 +82,9 @@ export const loginSlice = createSlice({
       })
       // 로그인 요청 성공
       .addCase(loginThunk.fulfilled, (state, action) => {
+        console.log('🎉 [LOGIN SLICE] 로그인 성공!');
+        console.log('📄 [LOGIN SLICE] 받은 페이로드:', action.payload);
+        
         state.loading = false;
         state.isLoggedIn = true;
         state.userId = action.payload.userId;
@@ -92,16 +95,24 @@ export const loginSlice = createSlice({
         // JWT 토큰을 localStorage에 저장
         localStorage.setItem('accessToken', action.payload.accessToken);
         localStorage.setItem('refreshToken', action.payload.refreshToken);
+        console.log('💾 [LOGIN SLICE] 토큰 localStorage에 저장 완료');
         
         // 테스트 완료 여부 확인 (서버로부터 받은 정보로 설정)
         const testCompleted = action.payload.hasCompletedTest;
         localStorage.setItem('testCompleted', String(testCompleted));
+        console.log('🧪 [LOGIN SLICE] 테스트 완료 여부:', testCompleted);
+        
+        // 리다이렉트 전 현재 상태 로그
+        console.log('🔄 [LOGIN SLICE] 리다이렉트 준비 중...');
+        console.log('📍 [LOGIN SLICE] 현재 URL:', window.location.href);
         
         // 테스트 완료 여부에 따라 다른 페이지로 리다이렉트
         if (testCompleted) {
+          console.log('➡️ [LOGIN SLICE] 메인 페이지로 이동');
           // 테스트를 완료한 사용자는 메인 페이지로 이동
           window.location.href = '/main';
         } else {
+          console.log('➡️ [LOGIN SLICE] 테스트 페이지로 이동');
           // 테스트를 완료하지 않은 사용자는 테스트 페이지로 이동
           window.location.href = '/test';
         }
