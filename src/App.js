@@ -9,6 +9,7 @@ import MissionMainPage from "./features/mission/pages/MissionMainPage.jsx";
 import AdminPage from "./features/admin/pages/AdminPage.jsx";
 import TutorialPage from "./features/mission/pages/TutorialPage.jsx";
 import RecommendationPage from "./features/recommendation/pages/RecommendationPage";
+import MyPage from "./features/mypage/pages/MyPage.jsx";
 import Navbar from "./shared/components/Navbar";
 import "./App.css";
 import TestPage from "./features/test/pages/TestPage.jsx";
@@ -115,7 +116,7 @@ function App() {
         <Route path="/mission" element={<PrivateRoute><MissionMainPage /></PrivateRoute>} />
         <Route path="/admin" element={<PrivateRoute><AdminPage /></PrivateRoute>} />
         <Route path="/recommendation" element={<PrivateRoute><RecommendationPage /></PrivateRoute>} />
-        <Route path="/mypage" element={<PrivateRoute><div>마이 페이지 (준비중)</div></PrivateRoute>} />
+        <Route path="/mypage" element={<PrivateRoute><MyPage /></PrivateRoute>} />
       </Routes>
       
       {shouldShowNavbar && <Navbar />}
