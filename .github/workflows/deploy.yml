@@ -1,0 +1,33 @@
+name: Deploy FE to EC2
+
+on:
+  workflow_run:
+    workflows: ["FE CI - Build & Push to GHCR (CRA)"]
+    types: [completed]
+  workflow_dispatch: {}
+
+jobs:
+  deploy:
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: SSH into EC2 & Deploy (frontend only)
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.EC2_HOST }}       
+          username: ${{ secrets.EC2_USER }}   # ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}     # 개인키
+          script_stop: true
+          script: |
+            set -e
+            cd /home/ubuntu/deploy
+
+            # GHCR 로그인 (EC2에서 pull → PAT 필요)
+            echo "${{ secrets.GHCR_PAT }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+
+            # frontend만 갱신
+            docker compose pull frontend
+            docker compose up -d frontend
+
+            # 상태 확인
+            docker compose ps
