@@ -1,6 +1,5 @@
 import api from '../../../lib/apiClient';
 import { mockMainData, updateMockMissionStatus, mockEmotionRecords, mockEmptyEmotionRecord } from './mockData.js';
-import { getCharacterImage } from '../../../shared/utils/characterImageMapper.js';
 
 // 개발 모드 설정 (true: Mock 데이터 사용, false: 실제 API 사용)
 const USE_MOCK_DATA = false;
@@ -44,7 +43,7 @@ export const fetchMainPageData = async () => {
   try {
     // Mock 데이터 사용 모드
     if (USE_MOCK_DATA) {
-      console.log('🧪 Mock 데이터 사용 중... (fetchMainPageData)');
+      console.log('🧪 Mock 데이터 사용 중...');
       
       // 실제 API 호출처럼 약간의 지연 시간 추가
       await new Promise(resolve => setTimeout(resolve, 500));
@@ -53,43 +52,74 @@ export const fetchMainPageData = async () => {
       return {
         userId: mockMainData.userId || 1,
         nickname: mockMainData.nickname || mockMainData.character_status?.nickname,
-        characterInfo: {
-          characterId: 1,
-          characterName: mockMainData.character_status?.character_name || "캐릭터",
-          characterType: mockMainData.character_status?.character_type || "mony",
+        character_status: mockMainData.character_status ? {
+          id: mockMainData.character_status.id || 1,
+          nickname: mockMainData.nickname || mockMainData.character_status?.nickname,
+          type: mockMainData.character_status?.character_type || "mony",
           level: mockMainData.character_status?.level || 1,
-          experience: mockMainData.character_status?.exp || 0,
-          stage: mockMainData.character_status?.character_stage || 1
-        },
-        recentRecord: mockMainData.recent_record ? {
-          recordId: mockMainData.recent_record.record_id,
-          emotionLevel: mockMainData.recent_record.emotion_level,
-          keywords: mockMainData.recent_record.keywords,
-          memo: mockMainData.recent_record.memo,
-          recordedAt: mockMainData.recent_record.recorded_at
+          exp: mockMainData.character_status?.exp || 0,
+          exp_to_next_level: 1000, // 백엔드에서 제공되지 않는 정보는 기본값 설정
+          character_type: mockMainData.character_status?.character_type || "mony",
+          character_stage: mockMainData.character_status?.character_stage || 1,
+          character_name: mockMainData.character_status?.character_name || "캐릭터"
         } : null,
-        todayMissions: mockMainData.daily_missions ? mockMainData.daily_missions.map(mission => ({
-          userDailyMissionId: mission.mission_id,
-          missionId: mission.mission_id,
-          content: mission.title,
+        daily_missions: mockMainData.daily_missions ? mockMainData.daily_missions.map(mission => ({
+          mission_id: mission.mission_id,
+          title: mission.title,
           theme: mission.theme,
           theory: mission.theory,
-          status: mission.is_completed ? 'COMPLETED' : 'PENDING'
-        })) : []
+          is_completed: mission.is_completed || false
+        })) : [],
+        recent_record: mockMainData.recent_record ? {
+          record_id: mockMainData.recent_record.record_id,
+          emotion_level: mockMainData.recent_record.emotion_level,
+          keywords: mockMainData.recent_record.keywords,
+          memo: mockMainData.recent_record.memo,
+          recorded_at: mockMainData.recent_record.recorded_at
+        } : null
       };
     }
-
-    // JWT 토큰 가져오기
-    const token = localStorage.getItem('authToken');
+    
+    // JWT 토큰 가져오기 (apiClient.js의 interceptors에서 처리)
+    const token = localStorage.getItem('accessToken');
     if (!token) {
       throw new Error('인증 정보가 없습니다. 다시 로그인해주세요.');
     }
     
     // 실제 API 호출
     const response = await api.get('/api/v1/main');
+    const responseData = response.data;
     
-    // 응답 데이터 반환
-    return response.data;
+    // 백엔드 응답을 프론트엔드에서 사용하는 형식으로 변환
+    return {
+      userId: responseData.userId,
+      nickname: responseData.nickname,
+      character_status: responseData.characterInfo ? {
+        id: responseData.characterInfo.characterId,
+        nickname: responseData.nickname,
+        type: responseData.characterInfo.characterType,
+        level: responseData.characterInfo.level,
+        exp: responseData.characterInfo.experience,
+        exp_to_next_level: 1000, // 백엔드에서 제공되지 않는 정보는 기본값 설정
+        character_type: responseData.characterInfo.characterType,
+        character_stage: responseData.characterInfo.stage,
+        character_name: responseData.characterInfo.characterName
+      } : null,
+      daily_missions: responseData.todayMissions ? responseData.todayMissions.map(mission => ({
+        mission_id: mission.userDailyMissionId,
+        title: mission.content,
+        theme: mission.theme,
+        theory: mission.theory,
+        is_completed: mission.status === 'COMPLETED'
+      })) : [],
+      recent_record: responseData.recentRecord ? {
+        record_id: responseData.recentRecord.recordId,
+        emotion_level: responseData.recentRecord.emotionLevel,
+        keywords: responseData.recentRecord.keywords,
+        memo: responseData.recentRecord.memo,
+        recorded_at: responseData.recentRecord.recordedAt
+      } : null
+    };
   } catch (error) {
     // 에러가 발생하면 예외를 던져 createAsyncThunk에서 처리할 수 있게 합니다.
     if (error.response) {
@@ -111,61 +141,16 @@ export const fetchMainPageData = async () => {
  * 
  * @returns {Promise<Object>} 메인 화면 데이터 (nickname, characterType, characterStage, level, growthRate)
  * @throws {Error} API 호출 실패 시 에러 객체
+ * 
+ * @deprecated getMainScreenData는 더 이상 사용되지 않습니다. fetchMainPageData를 사용하세요.
  */
 export const getMainScreenData = async () => {
+  console.warn('getMainScreenData는 더 이상 사용되지 않습니다. fetchMainPageData를 사용하세요.');
   try {
-    // Mock 데이터 사용 모드
-    if (USE_MOCK_DATA) {
-      console.log('🧪 Mock 데이터 사용 중...');
-      
-      // 실제 API 호출처럼 약간의 지연 시간 추가
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
-      return mockMainData;
-    }
-
-    // 실제 API 호출 모드
-    const response = await api.get('/api/v1/main');
-    
-    // 백엔드 API 응답을 프론트엔드에서 사용하는 구조로 변환
-    const data = response.data;
-    
-    // 온보딩 완료 여부 확인 (characterInfo가 있는지 확인)
-    const isOnboardingComplete = data.characterInfo !== null && 
-                                data.characterInfo.characterType !== null;
-    
-    return {
-      userId: data.userId,
-      nickname: data.nickname,
-      isOnboardingComplete,
-      character_status: isOnboardingComplete ? {
-        nickname: data.nickname,
-        level: data.characterInfo.level,
-        exp: data.characterInfo.experience,
-        exp_to_next_level: 1000,
-        character_type: data.characterInfo.characterType,
-        character_stage: data.characterInfo.stage,
-        character_image: getCharacterImage(data.characterInfo.characterType, data.characterInfo.stage),
-        character_name: data.characterInfo.characterName
-      } : null,
-      daily_missions: data.todayMissions ? data.todayMissions.map(mission => ({
-        mission_id: mission.userDailyMissionId,
-        title: mission.content,
-        theme: mission.theme,
-        theory: mission.theory,
-        is_completed: mission.status === 'COMPLETED'
-      })) : [],
-      recent_record: data.recentRecord ? {
-        record_id: data.recentRecord.recordId,
-        emotion_level: data.recentRecord.emotionLevel,
-        keywords: data.recentRecord.keywords,
-        memo: data.recentRecord.memo,
-        recorded_at: data.recentRecord.recordedAt
-      } : null
-    };
+    return await fetchMainPageData();
   } catch (error) {
     console.error('메인 화면 데이터 조회 실패:', error);
-    throw error.response?.data || error.message;
+    throw error;
   }
 };
 
@@ -188,9 +173,14 @@ export const getTodayMissions = async () => {
       // Mock 데이터에서 미션 목록 반환
       return mockMainData.daily_missions || [];
     }
+    
+    // JWT 토큰 확인 (apiClient.js의 interceptors에서 처리)
+    const token = localStorage.getItem('accessToken');
+    if (!token) {
+      throw new Error('인증 정보가 없습니다. 다시 로그인해주세요.');
+    }
 
     // 실제 API 호출 모드 - 메인 API에서 미션 데이터도 함께 제공됨
-    // 별도 미션 API가 필요한 경우에만 사용
     const response = await api.get('/api/v1/main');
     
     // API 응답에서 미션 데이터만 추출하여 변환
@@ -237,9 +227,15 @@ export const completeMission = async (userDailyMissionId) => {
         };
       }
     }
+    
+    // JWT 토큰 확인 (apiClient.js의 interceptors에서 처리)
+    const token = localStorage.getItem('accessToken');
+    if (!token) {
+      throw new Error('인증 정보가 없습니다. 다시 로그인해주세요.');
+    }
 
-    // 실제 API 호출 모드
-    const response = await api.post('/api/missions/complete', {
+    // 실제 API 호출 모드 - 백엔드 API 명세 기준으로 업데이트
+    const response = await api.post('/api/v1/missions/complete', {
       userDailyMissionId: userDailyMissionId
     });
     
@@ -249,7 +245,7 @@ export const completeMission = async (userDailyMissionId) => {
       success: true,
       mission_id: mission.userDailyMissionId,
       title: mission.content,
-      reward_exp: mission.rewardExp,
+      reward_exp: mission.rewardExp || 0,
       status: mission.status,
       completed_date: mission.completedDate
     };
@@ -277,6 +273,12 @@ export const getEmotionRecord = async (date) => {
       
       // 해당 날짜의 감정 기록이 있으면 반환, 없으면 빈 데이터 반환
       return mockEmotionRecords[date] || mockEmptyEmotionRecord;
+    }
+    
+    // JWT 토큰 확인 (apiClient.js의 interceptors에서 처리)
+    const token = localStorage.getItem('accessToken');
+    if (!token) {
+      throw new Error('인증 정보가 없습니다. 다시 로그인해주세요.');
     }
 
     // 실제 API 호출 모드

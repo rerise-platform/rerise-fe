@@ -15,7 +15,7 @@ import emotion4 from '../../../shared/assets/images/emotion4.svg';
 import emotion5 from '../../../shared/assets/images/emotion5.svg';
 
 // API import
-import { getMainScreenData, getTodayMissions, completeMission, getEmotionRecord } from '../api/mainAPI';
+import { completeMission, getEmotionRecord } from '../api/mainAPI';
 
 // Redux import
 import { getMainPageData, selectMainData, selectMainStatus, selectMainError } from '../mainSlice';
@@ -101,6 +101,34 @@ const MainPage = () => {
     // body 배경색 제거
     document.body.style.backgroundColor = 'transparent';
     
+    // 오늘 감정 기록을 로드하는 함수
+    const loadTodayEmotion = async () => {
+      try {
+        // 오늘 날짜를 YYYY-MM-DD 형식으로 가져옴
+        const today = new Date().toISOString().split('T')[0]; // 실제 날짜 사용
+        
+        // 오늘의 감정 기록 가져오기
+        const emotionData = await getEmotionRecord(today);
+        setEmotionRecord(emotionData);
+        console.log("오늘의 감정 상태 로드됨:", emotionData);
+      } catch (err) {
+        console.error("오늘의 감정 상태 로드 실패:", err);
+        setEmotionRecord(null);
+      }
+    };
+
+    // 오늘의 미션을 로드하는 함수
+    const loadTodayMissions = async () => {
+      try {
+        // 전체 메인 페이지 데이터를 다시 로드하는 방식으로 변경
+        // (개별 미션만 업데이트하는 대신 전체 데이터 갱신)
+        await dispatch(getMainPageData());
+        console.log("오늘의 미션 및 메인 데이터 로드됨");
+      } catch (err) {
+        console.error("미션 로드 실패:", err);
+      }
+    };
+    
     // Redux 액션으로 메인 데이터 로드
     dispatch(getMainPageData());
     loadTodayMissions();
@@ -112,39 +140,14 @@ const MainPage = () => {
     };
   }, [dispatch]);
 
-  const loadTodayEmotion = async () => {
-    try {
-      // 오늘 날짜를 YYYY-MM-DD 형식으로 가져옴
-      const today = "2025-09-27"; // 현재는 테스트를 위해 고정 날짜 사용
-      // const today = new Date().toISOString().split('T')[0]; // 실제 환경에서는 이것을 사용
-      
-      // 오늘의 감정 기록 가져오기
-      const emotionData = await getEmotionRecord(today);
-      setEmotionRecord(emotionData);
-      console.log("오늘의 감정 상태 로드됨:", emotionData);
-    } catch (err) {
-      console.error("오늘의 감정 상태 로드 실패:", err);
-      setEmotionRecord(null);
-    }
-  }
-
-  const loadTodayMissions = async () => {
-    try {
-      const missions = await getTodayMissions();
-      // Redux 상태를 직접 수정하지 않고 API 호출로 데이터를 가져옴
-      // mainSlice에 미션 업데이트를 위한 액션을 추가할 수도 있음
-    } catch (err) {
-      // 에러 처리
-    }
-  };
-
   const handleMissionComplete = async (missionId) => {
     try {
       await completeMission(missionId);
       // 미션 완료 후 메인 데이터 새로고침
       dispatch(getMainPageData()); // Redux 액션으로 전체 데이터 다시 로드
+      console.log("미션 완료 처리됨:", missionId);
     } catch (err) {
-      // 에러 처리
+      console.error("미션 완료 처리 실패:", err);
     }
   };
 
@@ -226,7 +229,7 @@ const MainPage = () => {
           <Header>
             <Greeting>
               <GreetingText>
-                <n>{uiData.nickname || '사용자'}</n>
+                <strong style={{ fontWeight: 600, color: '#2d4a3a' }}>{uiData.nickname || '사용자'}</strong>
                 <Message>님, 안녕하세요!</Message>
               </GreetingText>
             </Greeting>
@@ -382,10 +385,7 @@ const GreetingText = styled.h1`
   margin: 0;
 `;
 
-const Name = styled.span`
-  font-weight: 600;
-  color: #2d4a3a;
-`;
+// 스타일 컴포넌트 사용 대신 인라인 스타일로 대체함
 
 const Message = styled.span`
   font-weight: 400;

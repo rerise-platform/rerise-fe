@@ -33,13 +33,15 @@ const EmotionForm = ({ onSubmit, onCancel, initialData = null }) => {
     setIsSubmitting(true);
     
     try {
+      // 백엔드 API 명세에 맞는 데이터 형식으로 변환
       const emotionData = {
         emotion_level: selectedEmotion,
         keywords: keywords ? keywords.split(',').map(k => k.trim()).filter(k => k) : [],
         memo,
-        date: new Date().toISOString().split('T')[0]
+        recordedAt: new Date().toISOString().split('T')[0] // recordedAt 필드명 사용
       };
       
+      console.log('감정 데이터 전송:', emotionData);
       await onSubmit(emotionData);
     } catch (error) {
       console.error('감정 기록 저장 실패:', error);
