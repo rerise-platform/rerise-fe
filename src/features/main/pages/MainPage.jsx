@@ -125,6 +125,7 @@ const MainPage = () => {
       console.error('❌ [MAIN PAGE] 에러 상세:', err.response || err);
       setError(err);
     } finally {
+      console.log('🏁 [MAIN PAGE] 로딩 완료 - setLoading(false) 호출');
       setLoading(false);
     }
   };
@@ -168,8 +169,9 @@ const MainPage = () => {
   };
 
 
-  // 로딩 중일 때
-  if (loading) {
+  // 로딩 중일 때 (mainData가 있으면 로딩 중이어도 표시)
+  if (loading && !mainData) {
+    console.log('⏳ [RENDER] 로딩 중 상태 (데이터 없음)');
     return (
       <ElementEXP>
         <MainContent>
