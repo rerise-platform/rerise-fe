@@ -194,12 +194,24 @@ const MainPage = () => {
     );
   }
 
-  // 데이터가 없을 때
-  if (!mainData) return null;
+  // 데이터가 없을 때 (로딩 중이 아닌 경우에만)
+  if (!mainData && !loading) {
+    console.log('⚠️ [RENDER] mainData가 없고 로딩도 완료됨');
+    return null;
+  }
 
-  console.log('🎨 [RENDER] 렌더링 시점의 mainData:', mainData);
-  console.log('🎨 [RENDER] 표시될 닉네임:', mainData?.nickname);
-  console.log('🎨 [RENDER] 캐릭터 이미지 소스:', getCharacterImage(mainData?.characterType, mainData?.characterStage));
+  // 로딩 중일 때도 기본 UI 표시
+  console.log('🎨 [RENDER] 렌더링 시점의 상태:', { 
+    hasMainData: !!mainData, 
+    loading, 
+    nickname: mainData?.nickname 
+  });
+  
+  if (mainData) {
+    console.log('🎨 [RENDER] 렌더링 시점의 mainData:', mainData);
+    console.log('🎨 [RENDER] 표시될 닉네임:', mainData?.nickname);
+    console.log('🎨 [RENDER] 캐릭터 이미지 소스:', getCharacterImage(mainData?.characterType, mainData?.characterStage));
+  }
 
   // 사용자 닉네임 결정 (여러 경로에서 시도)
   const displayNickname = mainData?.nickname || 
