@@ -282,12 +282,17 @@ const MainPage = () => {
     console.log('🎨 [RENDER] 캐릭터 이미지 소스:', getCharacterImage(mainData?.characterType, mainData?.characterStage));
   }
 
-  // 사용자 닉네임 결정 (여러 경로에서 시도)
-  console.log('🎨 [RENDER DEBUG] 렌더링 시점 상태 체크:', {
+  // 렌더링 시점 모든 데이터 체크
+  console.log('🎨 [RENDER DEBUG] 렌더링 시점 전체 상태:', {
     mainDataExists: !!mainData,
-    mainDataNickname: mainData?.nickname,
-    characterStatusNickname: mainData?.character_status?.nickname,
+    nickname: mainData?.nickname,
     displayNickname: displayNickname,
+    level: mainData?.level,
+    exp: mainData?.exp,
+    growthRate: mainData?.growthRate,
+    characterType: mainData?.characterType,
+    characterStage: mainData?.characterStage,
+    dailyMissions: mainData?.daily_missions?.length || 0,
     loading,
     error: !!error
   });
@@ -326,19 +331,19 @@ const MainPage = () => {
                 <ProgressFill $progress={
                   calculateProgress(
                     mainData?.growthRate,
-                    mainData?.character_status?.exp,
-                    mainData?.character_status?.exp_to_next_level
+                    mainData?.exp,
+                    mainData?.exp_to_next_level
                   )
                 } />
               </ProgressBar>
             </StatItem>
             <StatItem className="points" $visible={statsVisible}>
               <StatIcon>P</StatIcon>
-              <StatValue>{mainData?.character_status?.exp || 0}P</StatValue>
+              <StatValue>{mainData?.exp || 0}P</StatValue>
             </StatItem>
             <StatItem className="level" $visible={statsVisible}>
               <StatIcon className="level">LV</StatIcon>
-              <StatValue className="level">{String(mainData?.character_status?.level || 1).padStart(2, '0')}</StatValue>
+              <StatValue className="level">{String(mainData?.level || 1).padStart(2, '0')}</StatValue>
             </StatItem>
             <CharacterPrompt $visible={characterPromptVisible}>
               <PromptText>캐릭터를<br />눌러보세요</PromptText>
