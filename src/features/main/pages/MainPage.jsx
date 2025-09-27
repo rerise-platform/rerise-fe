@@ -84,6 +84,7 @@ const MainPage = () => {
   
   // API 데이터 상태
   const [mainData, setMainData] = useState(null);
+  const [displayNickname, setDisplayNickname] = useState('사용자');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [emotionRecord, setEmotionRecord] = useState(null);
@@ -152,6 +153,14 @@ const MainPage = () => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (mainData?.nickname) {
+      setDisplayNickname(mainData.nickname);
+    } else if (mainData?.character_status?.nickname) {
+      setDisplayNickname(mainData.character_status.nickname);
+    }
+  }, [mainData]);
 
   const loadTodayMissions = async () => {
     try {
@@ -258,10 +267,6 @@ const MainPage = () => {
   }
 
   // 사용자 닉네임 결정 (여러 경로에서 시도)
-  const displayNickname = mainData?.nickname || 
-                         mainData?.character_status?.nickname || 
-                         '사용자';
-  
   console.log('🎨 [RENDER] 최종 표시될 닉네임:', displayNickname);
 
   return (
