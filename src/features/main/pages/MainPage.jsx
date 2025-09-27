@@ -15,7 +15,7 @@ import emotion5 from '../../../shared/assets/images/emotion5.svg';
 
 
 // API import
-import { getMainScreenData, getTodayMissions, completeMission, getEmotionRecord } from '../api/mainAPI';
+import { getMainScreenData, completeMission, getEmotionRecord } from '../api/mainAPI';
 import { getCharacterImage } from '../../../shared/utils/characterImageMapper';
 
 // 상수
@@ -118,11 +118,10 @@ const MainPage = () => {
   useEffect(() => {
     console.log('🚀 [MAIN PAGE] useEffect 시작 - 모든 데이터 로드');
     
-    // 메인 데이터 로드 (로딩 상태 관리)
+    // 메인 데이터 로드 (미션 데이터 포함)
     loadMainData();
     
-    // 추가 데이터들은 비동기로 백그라운드에서 로드 (로딩 상태에 영향 안 줌)
-    loadTodayMissions().catch(err => console.error('미션 로드 에러:', err));
+    // 감정 데이터는 별도로 로드
     loadTodayEmotion().catch(err => console.error('감정 로드 에러:', err));
   }, []);
 
@@ -200,32 +199,23 @@ const MainPage = () => {
     }
   }, [mainData]);
 
-  const loadTodayMissions = async () => {
+  const refreshMissions = async () => {
     try {
-      console.log('🎯 [MISSIONS] 오늘의 미션 로드 시작');
-      const missions = await getTodayMissions();
-      console.log('✅ [MISSIONS] 오늘의 미션 로드 완료:', missions);
-      setMainData(prev => {
-        if (!prev) {
-          console.warn('⚠️ [MISSIONS] mainData가 아직 설정되지 않아 미션 데이터를 병합하지 않음');
-          return prev;
-        }
-
-        return {
-          ...prev,
-          daily_missions: missions ?? prev.daily_missions ?? []
-        };
-      });
+      console.log('🎯 [MISSIONS] 미션 상태 새로고침 시작');
+      // 메인 데이터 전체를 다시 로드하여 최신 미션 상태 반영
+      const data = await getMainScreenData();
+      setMainData(data);
+      console.log('✅ [MISSIONS] 미션 상태 새로고침 완료');
     } catch (err) {
-      console.error('❌ [MISSIONS] 오늘의 미션 로드 실패:', err);
+      console.error('❌ [MISSIONS] 미션 상태 새로고침 실패:', err);
     }
   };
 
   const handleMissionComplete = async (missionId) => {
     try {
       await completeMission(missionId);
-      // 미션 완료 후 데이터 새로고침
-      loadTodayMissions();
+      // 미션 완료 후 전체 데이터 새로고침
+      refreshMissions();
     } catch (err) {
       console.error('미션 완료 실패:', err);
     }
