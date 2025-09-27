@@ -140,6 +140,11 @@ const MainPage = () => {
       console.log('📊 [MAIN PAGE DEBUG] 온보딩 완료:', data?.isOnboardingComplete);
       console.log('🏠 [MAIN PAGE DEBUG] character_status:', data?.character_status);
       
+      // 실서비스 긴급 디버깅 - 데이터를 alert으로 표시
+      if (!data?.nickname || data.nickname === '사용자') {
+        alert(`🚨 긴급 디버깅\n닉네임: ${data?.nickname}\n캐릭터타입: ${data?.characterType}\n레벨: ${data?.level}\n전체데이터: ${JSON.stringify(data, null, 2).substring(0, 500)}`);
+      }
+      
       console.log('📝 [MAIN PAGE] setMainData 호출 전');
       setMainData(data);
       // 디버깅용 전역 변수로 노출
@@ -152,6 +157,10 @@ const MainPage = () => {
     } catch (err) {
       console.error('❌ [MAIN PAGE] 메인 데이터 로드 실패:', err);
       console.error('❌ [MAIN PAGE] 에러 상세:', err.response || err);
+      
+      // 실서비스 긴급 디버깅 - API 실패를 alert으로 표시
+      alert(`🚨 API 실패 디버깅\n에러: ${err.message}\n상태: ${err.response?.status}\n응답: ${JSON.stringify(err.response?.data, null, 2)?.substring(0, 300)}`);
+      
       setError(err);
     } finally {
       console.log('🏁 [MAIN PAGE] 로딩 완료 - setLoading(false) 호출');
@@ -300,6 +309,13 @@ const MainPage = () => {
   return (
     <ElementEXP>
       <MainContent>
+        {process.env.NODE_ENV !== 'production' && (
+          <DebugOverlay>
+            <strong>DEBUG</strong>
+            <div>displayNickname: {displayNickname}</div>
+            <pre>{JSON.stringify(mainData, null, 2)}</pre>
+          </DebugOverlay>
+        )}
         <Header>
           <Greeting>
             <GreetingText>
@@ -1091,6 +1107,21 @@ const EmotionChart = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
+`;
+
+const DebugOverlay = styled.div`
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  z-index: 9999;
+  background: rgba(0,0,0,0.7);
+  color: #fff;
+  padding: 8px;
+  border-radius: 6px;
+  max-width: 320px;
+  max-height: 60vh;
+  overflow: auto;
+  font-size: 12px;
 `;
 
 export default MainPage;

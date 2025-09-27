@@ -122,20 +122,22 @@ const FormContainer = styled.form`
 // 최적화된 입력 필드 컴포넌트 
 // React.memo를 사용하여 불필요한 리렌더링 방지
 const OptimizedInput = memo(({ type, name, placeholder, value, onChange, required }) => {
+  // 이벤트 핸들러도 메모이제이션 (Hook은 최상단에서 호출)
+  const handleInputChange = useCallback((e) => {
+    try {
+      if (onChange) {
+        onChange(e);
+      }
+    } catch (error) {
+      console.error('Input change 에러:', error);
+    }
+  }, [onChange]);
+
   // 안전장치: props 유효성 검사
   if (!name || !onChange) {
     console.error('OptimizedInput: name과 onChange는 필수입니다');
     return null;
   }
-  
-  // 이벤트 핸들러도 메모이제이션
-  const handleInputChange = useCallback((e) => {
-    try {
-      onChange(e);
-    } catch (error) {
-      console.error('Input change 에러:', error);
-    }
-  }, [onChange]);
   
   return (
   <InputBox $isPassword={type === 'password'}>
