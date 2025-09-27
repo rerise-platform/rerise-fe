@@ -32,7 +32,7 @@ function TutorialPage() {
     deltaX.current = 0;
   };
 
-  const goTest = () => navigate("/test");
+  const goTest = () => navigate("/main");
 
   return (
     <div
