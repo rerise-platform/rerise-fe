@@ -40,6 +40,7 @@ export const getMainScreenData = async () => {
       growthRate: apiData.growthRate
     });
     console.log('🎯 [API DEBUG] 미션 개수:', apiData.dailyMissions?.length || 0);
+    console.log('🎯 [API DEBUG] 미션 원본 배열:', apiData.dailyMissions);
 
     // 실서비스 긴급 디버깅 - API 응답 직접 확인
     if (typeof window !== 'undefined') {
@@ -58,14 +59,14 @@ export const getMainScreenData = async () => {
     const expToNextLevel = baseExp;
 
     // 미션 데이터 정규화
+    console.log('🎯 [MISSION DEBUG] 미션 데이터 처리 시작');
+    console.log('🎯 [MISSION DEBUG] dailyMissions 타입:', typeof apiData.dailyMissions);
+    console.log('🎯 [MISSION DEBUG] dailyMissions 배열 여부:', Array.isArray(apiData.dailyMissions));
+    console.log('🎯 [MISSION DEBUG] dailyMissions 내용:', apiData.dailyMissions);
+
     const normalizedMissions = Array.isArray(apiData.dailyMissions) 
       ? apiData.dailyMissions.map(mission => {
-          console.log('🎯 [MISSION DEBUG] 미션 정규화:', {
-            userDailyMissionId: mission.userDailyMissionId,
-            content: mission.content,
-            status: mission.status,
-            isCompleted: mission.status === 'COMPLETED'
-          });
+          console.log('🎯 [MISSION DEBUG] 개별 미션 정규화:', mission);
           
           return {
             mission_id: mission.userDailyMissionId,
@@ -76,6 +77,8 @@ export const getMainScreenData = async () => {
           };
         })
       : [];
+
+    console.log('🎯 [MISSION DEBUG] 정규화된 미션들:', normalizedMissions);
 
     // API 응답을 MainPage에서 사용하는 형식으로 변환
     const transformedData = {
