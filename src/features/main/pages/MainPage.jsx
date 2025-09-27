@@ -50,8 +50,13 @@ const getEmotionImageByLevel = (emotionLevel) => {
   return EMOTION_IMAGES[emotionLevel] || questionMark;
 };
 
-const calculateProgress = (exp, expToNextLevel) => {
-  return exp && expToNextLevel ? (exp / expToNextLevel) * 100 : 75;
+const calculateProgress = (growthRate, fallbackExp, fallbackExpToNextLevel) => {
+  // API에서 growthRate를 직접 제공하는 경우 그대로 사용
+  if (growthRate !== undefined && growthRate !== null) {
+    return growthRate;
+  }
+  // 폴백: 기존 경험치 계산 방식
+  return fallbackExp && fallbackExpToNextLevel ? (fallbackExp / fallbackExpToNextLevel) * 100 : 75;
 };
 
 const renderMissionList = (missions, handleMissionComplete) => {
@@ -128,12 +133,12 @@ const MainPage = () => {
       setLoading(true);
       const data = await getMainScreenData();
       
-      console.log('✅ [MAIN PAGE] 메인 데이터 로드 성공:', data);
-      console.log('👤 [MAIN PAGE] 닉네임 확인:', data?.nickname);
-      console.log('🎭 [MAIN PAGE] 캐릭터 타입:', data?.characterType);
-      console.log('⭐ [MAIN PAGE] 캐릭터 단계:', data?.characterStage);
-      console.log('📊 [MAIN PAGE] 온보딩 완료:', data?.isOnboardingComplete);
-      console.log('🏠 [MAIN PAGE] 전체 데이터 구조:', JSON.stringify(data, null, 2));
+      console.log('✅ [MAIN PAGE DEBUG] 메인 데이터 로드 성공:', JSON.stringify(data, null, 2));
+      console.log('👤 [MAIN PAGE DEBUG] 닉네임 확인:', data?.nickname);
+      console.log('🎭 [MAIN PAGE DEBUG] 캐릭터 타입:', data?.characterType);
+      console.log('⭐ [MAIN PAGE DEBUG] 캐릭터 단계:', data?.characterStage);
+      console.log('📊 [MAIN PAGE DEBUG] 온보딩 완료:', data?.isOnboardingComplete);
+      console.log('🏠 [MAIN PAGE DEBUG] character_status:', data?.character_status);
       
       console.log('📝 [MAIN PAGE] setMainData 호출 전');
       setMainData(data);
@@ -155,10 +160,21 @@ const MainPage = () => {
   };
 
   useEffect(() => {
+    console.log('🎭 [NICKNAME DEBUG] useEffect 트리거됨:', {
+      hasMainData: !!mainData,
+      mainDataNickname: mainData?.nickname,
+      characterStatusNickname: mainData?.character_status?.nickname,
+      currentDisplayNickname: displayNickname
+    });
+    
     if (mainData?.nickname) {
+      console.log('✅ [NICKNAME DEBUG] mainData.nickname 사용:', mainData.nickname);
       setDisplayNickname(mainData.nickname);
     } else if (mainData?.character_status?.nickname) {
+      console.log('✅ [NICKNAME DEBUG] character_status.nickname 사용:', mainData.character_status.nickname);
       setDisplayNickname(mainData.character_status.nickname);
+    } else {
+      console.log('⚠️ [NICKNAME DEBUG] 닉네임을 찾을 수 없음, 기본값 유지:', displayNickname);
     }
   }, [mainData]);
 
@@ -267,7 +283,14 @@ const MainPage = () => {
   }
 
   // 사용자 닉네임 결정 (여러 경로에서 시도)
-  console.log('🎨 [RENDER] 최종 표시될 닉네임:', displayNickname);
+  console.log('🎨 [RENDER DEBUG] 렌더링 시점 상태 체크:', {
+    mainDataExists: !!mainData,
+    mainDataNickname: mainData?.nickname,
+    characterStatusNickname: mainData?.character_status?.nickname,
+    displayNickname: displayNickname,
+    loading,
+    error: !!error
+  });
 
   return (
     <ElementEXP>
@@ -302,6 +325,7 @@ const MainPage = () => {
               <ProgressBar>
                 <ProgressFill $progress={
                   calculateProgress(
+                    mainData?.growthRate,
                     mainData?.character_status?.exp,
                     mainData?.character_status?.exp_to_next_level
                   )

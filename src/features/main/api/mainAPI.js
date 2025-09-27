@@ -1,5 +1,20 @@
-import api from '../../../lib/apiClient';
-import { mockMainData, updateMockMissionStatus, mockEmotionRecords, mockEmptyEmotionRecord } from './mockData.js';
+import api from '../../../lib    const rawResponse = response.data;
+    console.log('✅ [API DEBUG] 원본 응답 전체:', JSON.stringify(rawResponse, null, 2));
+    console.log('✅ [API DEBUG] 응답 타입:', typeof rawResponse);
+    console.log('✅ [API DEBUG] 응답 키들:', Object.keys(rawResponse || {}));
+
+    // 백엔드 응답 형태가 { data: {...} } 혹은 바로 데이터 객체일 수 있음
+    const data = rawResponse?.data && typeof rawResponse.data === 'object' && !Array.isArray(rawResponse.data)
+      ? rawResponse.data
+      : rawResponse;
+
+    const fallbackData = data?.result && typeof data.result === 'object' && !Array.isArray(data.result)
+      ? data.result
+      : data;
+
+    const safeData = fallbackData || {};
+    console.log('🔍 [API DEBUG] 최종 파싱된 데이터:', JSON.stringify(safeData, null, 2));
+    console.log('🔍 [API DEBUG] 파싱된 데이터 키들:', Object.keys(safeData));import { mockMainData, updateMockMissionStatus, mockEmotionRecords, mockEmptyEmotionRecord } from './mockData.js';
 import { getCharacterImage } from '../../../shared/utils/characterImageMapper.js';
 
 // 개발 모드 설정 (true: Mock 데이터 사용, false: 실제 API 사용)
@@ -27,133 +42,89 @@ export const getMainScreenData = async () => {
     // 실제 API 호출 모드
     console.log('🔍 메인 API 호출 시작: /api/v1/main');
     const response = await api.get('/api/v1/main');
-    const rawResponse = response.data;
-    console.log('✅ 메인 API 응답:', rawResponse);
-
-    // 백엔드 응답 형태가 { data: {...} } 혹은 바로 데이터 객체일 수 있음
-    const data = rawResponse?.data && typeof rawResponse.data === 'object' && !Array.isArray(rawResponse.data)
-      ? rawResponse.data
-      : rawResponse;
-
-    const fallbackData = data?.result && typeof data.result === 'object' && !Array.isArray(data.result)
-      ? data.result
-      : data;
-
-    const safeData = fallbackData || {};
-  console.log('🔍 원본 API 데이터:', safeData);
-    console.log('🔍 닉네임 필드 후보:', {
-      nickname: safeData.nickname,
-      userNickname: safeData.userNickname,
-      memberNickname: safeData.memberNickname,
-      member: safeData.member,
-      user: safeData.user,
-      characterStatusNickname: safeData.character_status?.nickname,
-    });
-    console.log('🔍 캐릭터타입 필드 후보:', {
-      characterType: safeData.characterType,
-      character_type: safeData.character_type,
-      character: safeData.character,
-    });
-    console.log('🔍 캐릭터단계 필드 후보:', {
-      characterStage: safeData.characterStage,
-      character_stage: safeData.character_stage,
-      character: safeData.character,
-    });
+    const apiData = response.data;
     
-    // 온보딩 완료 여부 확인 (characterType이 있는지 확인)
-    const resolvedCharacterType = safeData.characterType ?? safeData.character_type ?? safeData.character?.type;
-    const resolvedCharacterStage = safeData.characterStage ?? safeData.character_stage ?? safeData.character?.stage;
-    const isOnboardingComplete = resolvedCharacterType !== null && 
-                                resolvedCharacterType !== undefined;
+    console.log('✅ [API DEBUG] 원본 API 응답:', JSON.stringify(apiData, null, 2));
+    console.log('👤 [API DEBUG] 닉네임 직접 확인:', apiData.nickname);
+    console.log('🎭 [API DEBUG] 캐릭터 정보:', {
+      type: apiData.characterType,
+      stage: apiData.characterStage
+    });
+    console.log('� [API DEBUG] 레벨/성장률:', {
+      level: apiData.level,
+      growthRate: apiData.growthRate
+    });
+    console.log('🎯 [API DEBUG] 미션 개수:', apiData.dailyMissions?.length || 0);
 
-    const resolvedNickname = safeData.nickname
-      ?? safeData.userNickname
-      ?? safeData.memberNickname
-      ?? safeData.profileNickname
-      ?? safeData.member?.nickname
-      ?? safeData.user?.nickname
-      ?? safeData.character_status?.nickname
-      ?? safeData.characterStatus?.nickname;
+    // API 응답이 이미 올바른 형식이므로 직접 사용
+    // 온보딩 완료 여부 확인
+    const isOnboardingComplete = apiData.characterType !== null && 
+                                apiData.characterType !== undefined;
 
-    const resolvedCharacterName = safeData.characterName
-      ?? safeData.character_name
-      ?? safeData.character?.name
-      ?? '모니';
+    // growthRate를 백분율에서 경험치로 변환 (임시 계산)
+    const baseExp = 1000; // 기본 경험치
+    const calculatedExp = Math.floor((apiData.growthRate || 0) * baseExp / 100);
+    const expToNextLevel = baseExp;
 
-    const resolvedLevel = safeData.level ?? safeData.character_status?.level ?? safeData.characterStatus?.level;
-    const resolvedExp = safeData.experience ?? safeData.exp ?? safeData.character_status?.exp ?? safeData.characterStatus?.exp;
-    const resolvedExpToNextLevel = safeData.exp_to_next_level ?? safeData.expToNextLevel ?? 1000;
-
-    const resolvedTodayMissions = safeData.todayMissions
-      ?? safeData.missions
-      ?? safeData.todayMissionResponses
-      ?? safeData.dailyMissions
-      ?? [];
-
-    const normalizeMission = (mission) => {
-      if (!mission || typeof mission !== 'object') {
-        return null;
-      }
-
-      const missionId = mission.mission_id
-        ?? mission.userDailyMissionId
-        ?? mission.dailyMissionId
-        ?? mission.id
-        ?? mission.missionId;
-
-      return {
-        mission_id: missionId,
-        title: mission.title ?? mission.content ?? mission.missionTitle ?? mission.missionContent ?? '미션',
-        theme: mission.theme ?? mission.category ?? null,
-        theory: mission.theory ?? mission.description ?? null,
-        is_completed: mission.is_completed ?? mission.completed ?? mission.status === 'COMPLETED'
-      };
-    };
-
-    const normalizedMissions = Array.isArray(resolvedTodayMissions)
-      ? resolvedTodayMissions.map(normalizeMission).filter(Boolean)
+    // 미션 데이터 정규화
+    const normalizedMissions = Array.isArray(apiData.dailyMissions) 
+      ? apiData.dailyMissions.map(mission => {
+          console.log('🎯 [MISSION DEBUG] 미션 정규화:', {
+            userDailyMissionId: mission.userDailyMissionId,
+            content: mission.content,
+            status: mission.status,
+            isCompleted: mission.status === 'COMPLETED'
+          });
+          
+          return {
+            mission_id: mission.userDailyMissionId,
+            title: mission.content,
+            theme: mission.theme,
+            theory: mission.theory,
+            is_completed: mission.status === 'COMPLETED'
+          };
+        })
       : [];
-    
-    // MainPage.jsx에서 직접 접근할 수 있도록 플랫 구조로 변환
+
+    // API 응답을 MainPage에서 사용하는 형식으로 변환
     const transformedData = {
-      // 기본 사용자 정보 (MainPage에서 mainData?.nickname으로 접근)
-      userId: safeData.userId || safeData.id,
-      nickname: resolvedNickname,
+      // 기본 사용자 정보 - API 응답 그대로 사용
+      nickname: apiData.nickname,
       
-      // 캐릭터 정보 (MainPage에서 mainData?.characterType으로 접근)  
-      characterType: resolvedCharacterType || 'mony',
-      characterStage: resolvedCharacterStage || 1,
-      characterName: resolvedCharacterName,
+      // 캐릭터 정보 - API 응답 그대로 사용
+      characterType: apiData.characterType || 'mony',
+      characterStage: apiData.characterStage || 1,
+      characterName: apiData.characterName || '모니',
       
       // 레벨/경험치 정보
-      level: resolvedLevel || 1,
-      exp: resolvedExp || 0,
-      exp_to_next_level: resolvedExpToNextLevel,
+      level: apiData.level || 1,
+      exp: calculatedExp,
+      exp_to_next_level: expToNextLevel,
+      growthRate: apiData.growthRate,
       
       // 온보딩 상태
       isOnboardingComplete,
       
       // 미션 데이터
-  daily_missions: normalizedMissions,
-      
-      // 최근 기록
-      recent_record: safeData.recentRecord || null,
+      daily_missions: normalizedMissions,
       
       // 레거시 지원을 위한 중첩 구조 (기존 코드 호환성)
       character_status: isOnboardingComplete ? {
-        nickname: resolvedNickname,
-        level: resolvedLevel || 1,
-        exp: resolvedExp || 0,
-        exp_to_next_level: resolvedExpToNextLevel,
-        character_type: resolvedCharacterType || 'mony',
-        character_stage: resolvedCharacterStage || 1,
-        character_image: getCharacterImage(resolvedCharacterType || 'mony', resolvedCharacterStage || 1),
-        character_name: resolvedCharacterName
+        nickname: apiData.nickname,
+        level: apiData.level || 1,
+        exp: calculatedExp,
+        exp_to_next_level: expToNextLevel,
+        character_type: apiData.characterType || 'mony',
+        character_stage: apiData.characterStage || 1,
+        character_image: getCharacterImage(apiData.characterType || 'mony', apiData.characterStage || 1),
+        character_name: apiData.characterName || '모니'
       } : null
-    };
-    
-    console.log('✅ 변환된 데이터:', transformedData);
-    console.log('✅ 최종 닉네임:', transformedData.nickname);
+    };    console.log('✅ [TRANSFORM DEBUG] 최종 변환 데이터:', JSON.stringify(transformedData, null, 2));
+    console.log('✅ [TRANSFORM DEBUG] 닉네임 매핑 확인:', {
+      'API응답 nickname': apiData.nickname,
+      '변환후 nickname': transformedData.nickname,
+      '변환후 character_status.nickname': transformedData.character_status?.nickname
+    });
     
     return transformedData;
   } catch (error) {
