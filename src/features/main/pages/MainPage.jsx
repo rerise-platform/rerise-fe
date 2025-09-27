@@ -74,6 +74,17 @@ const renderMissionList = (missions, handleMissionComplete) => {
       </MissionItem>
     ));
   }
+  
+  // 미션이 없을 때 표시할 메시지
+  return (
+    <MissionItem key="empty" $delay={0.1}>
+      <MissionEmoji>📅</MissionEmoji>
+      <MissionText>오늘의 미션이 아직 준비되지 않았습니다.</MissionText>
+      <MissionCheck $completed={false}>
+        ⏳
+      </MissionCheck>
+    </MissionItem>
+  );
 };
 
 /**
@@ -101,12 +112,7 @@ const MainPage = () => {
     nickname: mainData?.nickname 
   });
 
-  // 🚨 긴급 디버깅: 렌더링마다 상태 체크
-  useEffect(() => {
-    console.log('🚨 [EMERGENCY] 강제 렌더링 체크');
-    console.log('🚨 [EMERGENCY] mainData:', mainData);
-    console.log('🚨 [EMERGENCY] displayNickname:', displayNickname);
-  });
+
 
   // 컴포넌트 마운트 시 데이터 로드
   useEffect(() => {
@@ -316,14 +322,7 @@ const MainPage = () => {
   return (
     <ElementEXP>
       <MainContent>
-        {/* 🚨 긴급 디버그 오버레이 - 항상 표시 */}
-        <div style={{position: 'fixed', top: 0, left: 0, background: 'red', color: 'white', padding: '10px', zIndex: 9999, fontSize: '12px'}}>
-          <strong>🚨 EMERGENCY DEBUG</strong><br/>
-          mainData.nickname: {mainData?.nickname || 'null'}<br/>
-          displayNickname: {displayNickname}<br/>
-          loading: {loading ? 'true' : 'false'}<br/>
-          hasMainData: {mainData ? 'true' : 'false'}
-        </div>
+
         
         {process.env.NODE_ENV !== 'production' && (
           <DebugOverlay>

@@ -64,7 +64,7 @@ export const getMainScreenData = async () => {
     console.log('🎯 [MISSION DEBUG] dailyMissions 배열 여부:', Array.isArray(apiData.dailyMissions));
     console.log('🎯 [MISSION DEBUG] dailyMissions 내용:', apiData.dailyMissions);
 
-    const normalizedMissions = Array.isArray(apiData.dailyMissions) 
+    const normalizedMissions = (Array.isArray(apiData.dailyMissions) && apiData.dailyMissions.length > 0) 
       ? apiData.dailyMissions.map(mission => {
           console.log('🎯 [MISSION DEBUG] 개별 미션 정규화:', mission);
           
@@ -76,7 +76,7 @@ export const getMainScreenData = async () => {
             is_completed: mission.status === 'COMPLETED'
           };
         })
-      : [];
+      : []; // null이나 빈 배열인 경우 빈 배열 반환
 
     console.log('🎯 [MISSION DEBUG] 정규화된 미션들:', normalizedMissions);
 
