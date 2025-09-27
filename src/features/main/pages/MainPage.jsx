@@ -136,6 +136,8 @@ const MainPage = () => {
       
       console.log('📝 [MAIN PAGE] setMainData 호출 전');
       setMainData(data);
+      // 디버깅용 전역 변수로 노출
+      window.__debugMainData = data;
       console.log('📝 [MAIN PAGE] setMainData 호출 후');
       
       console.log('📝 [MAIN PAGE] setError(null) 호출 전');
@@ -156,7 +158,17 @@ const MainPage = () => {
       console.log('🎯 [MISSIONS] 오늘의 미션 로드 시작');
       const missions = await getTodayMissions();
       console.log('✅ [MISSIONS] 오늘의 미션 로드 완료:', missions);
-      setMainData(prev => prev ? { ...prev, daily_missions: missions } : null);
+      setMainData(prev => {
+        if (!prev) {
+          console.warn('⚠️ [MISSIONS] mainData가 아직 설정되지 않아 미션 데이터를 병합하지 않음');
+          return prev;
+        }
+
+        return {
+          ...prev,
+          daily_missions: missions ?? prev.daily_missions ?? []
+        };
+      });
     } catch (err) {
       console.error('❌ [MISSIONS] 오늘의 미션 로드 실패:', err);
     }
