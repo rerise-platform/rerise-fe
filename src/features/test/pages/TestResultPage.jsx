@@ -143,7 +143,7 @@ export default function TestResultPage() {
           ))}
         </div>
 
-        <div style={{ marginTop: "clamp(6px 1vw 20px)" }}>
+        <div style={{ marginTop: "clamp(6px, 1vw, 20px)" }}>
           {gaugeOrder.map((axis) => (
             <div
               key={axis}
