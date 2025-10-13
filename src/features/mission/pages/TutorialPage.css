@@ -2,23 +2,21 @@
 .tutorial-page {
   position: relative;
   width: 100%;
-  min-height: 100vh;
+  min-height: 100svh;
   background: rgba(254, 255, 245, 1);
   overflow: hidden;
   font-family: "Noto Sans KR", system-ui, -apple-system, Segoe UI, Roboto,
     sans-serif;
   touch-action: pan-y;
+  padding-bottom: max(12px, var(--safe-bottom));
 
   /* 글씨 크기: 화면 폭에 맞게 비율 조정 (모바일 ~ 데스크탑) */
   font-size: clamp(14px, 2.5vw, 22px);
-
+  cursor: default;
   user-select: none; /* ← 글자 드래그 방지 */
   -webkit-user-select: none; /* 사파리/모바일 */
   -ms-user-select: none; /* 구 IE 엣지 */
   -webkit-touch-callout: none; /* iOS 길게눌러 복사 메뉴 금지 */
-}
-.tutorial-page {
-  cursor: default;
 }
 
 /* 가로 슬라이더 */
@@ -30,20 +28,31 @@
 .slide {
   position: relative; /* ★ 각 슬라이드 기준 */
   flex: 0 0 100%;
-  min-height: 100vh;
+  min-height: 100svh;
   padding: 0;
   box-sizing: border-box;
   display: block;
+  margin-top: 15px;
+}
+
+@supports (min-height: 100dvh) {
+  .tutorial-page,
+  .slide {
+    min-height: 100dvh;
+  }
 }
 
 /* === 공통 위치 변수 (요소 '중심'이 해당 퍼센트에 오도록) === */
 :root {
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-top: env(safe-area-inset-top, 0px);
+  --top-gutter: 15px; /* ← 위 여백 크기(원하면 6~16px로 조절) */
+  --top-offset: max(var(--safe-top), var(--top-gutter));
   --pos-title: 12vh;
   --pos-image: 40vh;
-  --pos-desc: 68vh;
-  --pos-dots: 82vh;
-  --pos-footer: 90vh;
-
+  --pos-desc: 65vh;
+  --pos-dots: 78svh;
+  --pos-footer: 85svh;
   /* iPad Pro 가로 기준 최대 폭 */
   --stage-max: 1366px;
 
@@ -182,7 +191,7 @@
 /* 인디케이터 */
 .dots {
   position: absolute;
-  top: var(--pos-dots);
+  top: calc(var(--pos-dots) - var(--safe-bottom));
   left: 50%;
   transform: translate(-50%, -50%);
   display: flex;
@@ -203,7 +212,7 @@
 /* 하단 CTA */
 .footer {
   position: absolute;
-  top: var(--pos-footer);
+  top: calc(var(--pos-footer) - var(--safe-bottom));
   left: 50%;
   transform: translate(-50%, -50%);
 }
@@ -224,4 +233,49 @@
 .start-btn.enabled {
   background: #40ea87;
   color: #0f2a1b;
+}
+/* 컴팩트 1: 보통 소형 화면(≤780px 높이)에서 세로 간격 살짝 축소 */
+@media (max-height: 915px) {
+  :root {
+    --pos-title: 9svh;
+    --pos-image: 34svh;
+    --pos-desc: 59svh;
+    --pos-dots: 73svh;
+    --pos-footer: 83svh;
+  }
+  .image-wrap {
+    height: 32vh;
+  }
+  .title {
+    font-size: 1.3em;
+  }
+  .desc {
+    font-size: 0.85em;
+    line-height: 1.5;
+  }
+  .start-btn {
+    width: min(78vw, 420px);
+    height: 3em;
+  }
+}
+
+/* 컴팩트 2: 아주 낮은 화면(≤667px)에서 더 타이트하게 */
+@media (max-height: 667px) {
+  :root {
+    --pos-title: 8svh;
+    --pos-image: 31svh;
+    --pos-desc: 56svh;
+    --pos-dots: 70svh;
+    --pos-footer: 80svh;
+  }
+  .image-wrap {
+    height: 29vh;
+    min-height: 10.5em;
+  }
+  .char-marquee-viewport {
+    height: calc(7.5em * var(--charScale3) + 1.6em);
+  }
+  .dots {
+    gap: 0.4em;
+  }
 }
