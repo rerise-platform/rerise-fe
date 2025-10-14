@@ -34,7 +34,7 @@ export default function TestPage() {
   // ▶ index가 바뀔 때, 해당 문항의 기존 답 복원
   useEffect(() => {
     setSelected(answers[index] ?? null);
-  }, [index]); // answers가 아주 자주 바뀌면 [index, answers]로 둬도 OK
+  }, [index, answers]); // answers가 아주 자주 바뀌면 [index, answers]로 둬도 OK
 
   // ▶ 화살표 전/후: 선택 여부와 무관하게 이동
   const goPrev = () => setIndex((i) => Math.max(0, i - 1));
