@@ -2,7 +2,7 @@
 .tutorial-page {
   position: relative;
   width: 100%;
-  min-height: 100svh;
+  min-height: 600px;
   background: rgba(254, 255, 245, 1);
   overflow: hidden;
   font-family: "Noto Sans KR", system-ui, -apple-system, Segoe UI, Roboto,
@@ -32,7 +32,7 @@
   padding: 0;
   box-sizing: border-box;
   display: block;
-  margin-top: 15px;
+  margin-top: 37px;
 }
 
 @supports (min-height: 100dvh) {
@@ -240,8 +240,8 @@
     --pos-title: 9svh;
     --pos-image: 34svh;
     --pos-desc: 59svh;
-    --pos-dots: 73svh;
-    --pos-footer: 83svh;
+    --pos-dots: 75svh;
+    --pos-footer: 85svh;
   }
   .image-wrap {
     height: 32vh;
@@ -265,8 +265,8 @@
     --pos-title: 8svh;
     --pos-image: 31svh;
     --pos-desc: 56svh;
-    --pos-dots: 70svh;
-    --pos-footer: 80svh;
+    --pos-dots: 74svh;
+    --pos-footer: 84svh;
   }
   .image-wrap {
     height: 29vh;
