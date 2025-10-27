@@ -2,7 +2,8 @@
 import { configureStore } from '@reduxjs/toolkit';
 // 로그인 관련 상태(slice)를 관리하는 reducer
 import loginReducer from '../features/login/loginSlice';
-import rootReducer from './rootReducer';
+import emotionReducer from '../features/emotion/emotionSlice';
+import recommendationReducer from '../features/recommendation/recommendationSlice';
 
 /**
  * 전체 애플리케이션에서 사용할 Redux store 생성
@@ -15,7 +16,8 @@ export const store = configureStore({
     // => state.auth로 접근 가능 (예: const {token} = useSelector(state => state.auth))
     // => state.auth.isLoggedIn, state.auth.user, state.auth.token 등으로 접근
     auth: loginReducer,
-    ...rootReducer
+    emotion: emotionReducer,
+    recommendation: recommendationReducer
   },
   
   // 개발 환경에서 Redux DevTools 활성화

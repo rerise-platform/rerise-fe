@@ -133,7 +133,8 @@ p {
 
   .sg-input,
   .sg-label,
-  .sg-checkbox-item {
+  .sg-checkbox-item,
+  .sg-checkbox-all {
     font-size: clamp(16px, 3.5vw, 26px);
     padding: clamp(5px, 2vw, 26px);
   }
@@ -181,4 +182,38 @@ p {
   justify-content: center;
   align-items: center;
   z-index: 1000;
+}
+
+@media (min-width: 1025px) and (hover: hover) and (pointer: fine) {
+  .sg-form {
+    width: 430px; /* 가로 고정 */
+    max-width: 430px;
+    margin-left: auto; /* 가운데 정렬 */
+    margin-right: auto;
+    padding: 10px 16px; /* 모바일과 비슷한 여백 */
+  }
+
+  /* 데스크탑에서는 모바일 타이포/패딩 스케일로 되돌리기 */
+  .sg-title {
+    font-size: 20px;
+  }
+  .sg-label,
+  .sg-checkbox-item,
+  .sg-checkbox-all {
+    font-size: 15px;
+    padding: 0;
+  }
+  .sg-input {
+    font-size: 13px;
+  }
+
+  /* 하단 고정 버튼도 430px에 맞춰 고정 */
+  .sg-submit {
+    width: 430px;
+    max-width: 430px;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 16px;
+    font-size: 16px;
+  }
 }

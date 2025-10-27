@@ -1,9 +1,9 @@
-import axios from 'axios';
+import api from '../../../lib/apiClient';
 import { mockMainData, updateMockMissionStatus, mockEmotionRecords, mockEmptyEmotionRecord } from './mockData.js';
 import { getCharacterImage } from '../../../shared/utils/characterImageMapper.js';
 
 // 개발 모드 설정 (true: Mock 데이터 사용, false: 실제 API 사용)
-const USE_MOCK_DATA = true;
+const USE_MOCK_DATA = false;
 
 /**
  * 메인 화면 데이터 조회 API 호출 함수
@@ -25,39 +25,104 @@ export const getMainScreenData = async () => {
     }
 
     // 실제 API 호출 모드
-    const token = localStorage.getItem('authToken');
+    console.log('🔍 메인 API 호출 시작: /api/v1/main');
+    const response = await api.get('/api/v1/main');
+    const apiData = response.data;
     
-    const response = await axios.get('/api/v1/main', {
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
+    console.log('✅ [API DEBUG] 원본 API 응답:', JSON.stringify(apiData, null, 2));
+    console.log('👤 [API DEBUG] 닉네임 직접 확인:', apiData.nickname);
+    console.log('🎭 [API DEBUG] 캐릭터 정보:', {
+      type: apiData.characterType,
+      stage: apiData.characterStage
+    });
+    console.log('📊 [API DEBUG] 레벨/성장률:', {
+      level: apiData.level,
+      growthRate: apiData.growthRate
+    });
+    console.log('🎯 [API DEBUG] 미션 개수:', apiData.dailyMissions?.length || 0);
+    console.log('🎯 [API DEBUG] 미션 원본 배열:', apiData.dailyMissions);
+
+    // 실서비스 긴급 디버깅 - API 응답 직접 확인
+    if (typeof window !== 'undefined') {
+      window.__rawApiResponse = apiData;
+      console.log('🔍 [API DEBUG] window.__rawApiResponse에 원본 API 응답 저장됨');
+    }
+
+    // API 응답이 이미 올바른 형식이므로 직접 사용
+    // 온보딩 완료 여부 확인
+    const isOnboardingComplete = apiData.characterType !== null && 
+                                apiData.characterType !== undefined;
+
+    // growthRate를 백분율에서 경험치로 변환 (임시 계산)
+    const baseExp = 1000; // 기본 경험치
+    const calculatedExp = Math.floor((apiData.growthRate || 0) * baseExp / 100);
+    const expToNextLevel = baseExp;
+
+    // 미션 데이터 정규화
+    console.log('🎯 [MISSION DEBUG] 미션 데이터 처리 시작');
+    console.log('🎯 [MISSION DEBUG] dailyMissions 타입:', typeof apiData.dailyMissions);
+    console.log('🎯 [MISSION DEBUG] dailyMissions 배열 여부:', Array.isArray(apiData.dailyMissions));
+    console.log('🎯 [MISSION DEBUG] dailyMissions 내용:', apiData.dailyMissions);
+
+    const normalizedMissions = (Array.isArray(apiData.dailyMissions) && apiData.dailyMissions.length > 0) 
+      ? apiData.dailyMissions.map(mission => {
+          console.log('🎯 [MISSION DEBUG] 개별 미션 정규화:', mission);
+          
+          return {
+            mission_id: mission.userDailyMissionId,
+            title: mission.content,
+            theme: mission.theme,
+            theory: mission.theory,
+            is_completed: mission.status === 'COMPLETED'
+          };
+        })
+      : []; // null이나 빈 배열인 경우 빈 배열 반환
+
+    console.log('🎯 [MISSION DEBUG] 정규화된 미션들:', normalizedMissions);
+
+    // API 응답을 MainPage에서 사용하는 형식으로 변환
+    const transformedData = {
+      // 기본 사용자 정보 - API 응답 그대로 사용
+      nickname: apiData.nickname,
+      
+      // 캐릭터 정보 - API 응답 그대로 사용
+      characterType: apiData.characterType || 'mony',
+      characterStage: apiData.characterStage || 1,
+      characterName: apiData.characterName || '모니',
+      
+      // 레벨/경험치 정보
+      level: apiData.level || 1,
+      exp: calculatedExp,
+      exp_to_next_level: expToNextLevel,
+      growthRate: apiData.growthRate,
+      
+      // 온보딩 상태
+      isOnboardingComplete,
+      
+      // 미션 데이터
+      daily_missions: normalizedMissions,
+      
+      // 레거시 지원을 위한 중첩 구조 (기존 코드 호환성)
+      character_status: isOnboardingComplete ? {
+        nickname: apiData.nickname,
+        level: apiData.level || 1,
+        exp: calculatedExp,
+        exp_to_next_level: expToNextLevel,
+        character_type: apiData.characterType || 'mony',
+        character_stage: apiData.characterStage || 1,
+        character_image: getCharacterImage(apiData.characterType || 'mony', apiData.characterStage || 1),
+        character_name: apiData.characterName || '모니'
+      } : null
+    };
+
+    console.log('✅ [TRANSFORM DEBUG] 최종 변환 데이터:', JSON.stringify(transformedData, null, 2));
+    console.log('✅ [TRANSFORM DEBUG] 닉네임 매핑 확인:', {
+      'API응답 nickname': apiData.nickname,
+      '변환후 nickname': transformedData.nickname,
+      '변환후 character_status.nickname': transformedData.character_status?.nickname
     });
     
-    // 백엔드 API 응답을 프론트엔드에서 사용하는 구조로 변환
-    const data = response.data;
-    
-    // 온보딩 완료 여부 확인
-    const isOnboardingComplete = data.characterType !== null && 
-                                data.characterStage !== null && 
-                                data.level !== null && 
-                                data.growthRate !== null;
-    
-    return {
-      nickname: data.nickname,
-      isOnboardingComplete,
-      character_status: isOnboardingComplete ? {
-        nickname: data.nickname,
-        level: data.level,
-        exp: Math.floor(data.growthRate * 10), // growthRate를 exp로 변환 (65.5 → 655)
-        exp_to_next_level: 1000,
-        character_type: data.characterType,
-        character_stage: data.characterStage,
-        character_image: getCharacterImage(data.characterType, data.characterStage), // 이미지 매핑 추가
-        growth_rate: data.growthRate
-      } : null,
-      daily_missions: [], // 미션 데이터는 별도 API에서 가져올 예정
-      emotion_records: [] // 감정 기록도 별도 API에서 가져올 예정
-    };
+    return transformedData;
   } catch (error) {
     console.error('메인 화면 데이터 조회 실패:', error);
     throw error.response?.data || error.message;
@@ -66,6 +131,7 @@ export const getMainScreenData = async () => {
 
 /**
  * 오늘의 일일 미션 조회 API
+ * 주의: 메인 API에서 통합 제공하므로 별도 호출은 필요시에만 사용
  * 
  * @returns {Promise<Array>} 오늘의 미션 목록
  * @throws {Error} API 호출 실패 시 에러 객체
@@ -83,25 +149,18 @@ export const getTodayMissions = async () => {
       return mockMainData.daily_missions || [];
     }
 
-    // 실제 API 호출 모드
-    const token = localStorage.getItem('authToken');
+    // 실제 API 호출 모드 - 메인 API에서 미션 데이터도 함께 제공됨
+    // 별도 미션 API가 필요한 경우에만 사용
+    const response = await api.get('/api/v1/main');
     
-    const response = await axios.get('/api/missions/today', {
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
-    });
-    
-    // API 응답을 프론트엔드 형식으로 변환
-    return response.data.map(mission => ({
+    // API 응답에서 미션 데이터만 추출하여 변환
+    const missions = response.data.dailyMissions || [];
+    return missions.map(mission => ({
       mission_id: mission.userDailyMissionId,
       title: mission.content,
       theme: mission.theme,
       theory: mission.theory,
-      reward_exp: mission.rewardExp,
-      is_completed: mission.status === 'COMPLETED',
-      assigned_date: mission.assignedDate,
-      completed_date: mission.completedDate
+      is_completed: mission.status === 'COMPLETED'
     }));
   } catch (error) {
     console.error('오늘의 미션 조회 실패:', error);
@@ -140,14 +199,8 @@ export const completeMission = async (userDailyMissionId) => {
     }
 
     // 실제 API 호출 모드
-    const token = localStorage.getItem('authToken');
-    
-    const response = await axios.post('/api/missions/complete', {
+    const response = await api.post('/api/missions/complete', {
       userDailyMissionId: userDailyMissionId
-    }, {
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
     });
     
     // API 응답을 프론트엔드 형식으로 변환
@@ -187,13 +240,7 @@ export const getEmotionRecord = async (date) => {
     }
 
     // 실제 API 호출 모드
-    const token = localStorage.getItem('authToken');
-    
-    const response = await axios.get(`/api/v1/records/date/${date}`, {
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
-    });
+    const response = await api.get(`/api/v1/records/date/${date}`);
     
     return response.data;
   } catch (error) {
