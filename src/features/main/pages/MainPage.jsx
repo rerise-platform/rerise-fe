@@ -324,8 +324,8 @@ const MainPage = () => {
         <Header>
           <Greeting>
             <GreetingText>
-              <Name>{mainData?.nickname || displayNickname || '디버그: 닉네임 없음'}</Name>
-              <Message>님, 안녕하세요!</Message>
+              <Name>{displayNickname || '사용자'}</Name>
+              <Message>님, 안녕하세요! 🚀 배포테스트 {new Date().toLocaleTimeString()}</Message>
             </GreetingText>
           </Greeting>
           <Character onClick={greetCharacter}>
