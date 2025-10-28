@@ -1,45 +1,18 @@
 import api from '../../../lib/apiClient';
-import { mockMainData, mockMainPageData, updateMockMissionStatus, mockEmotionRecords, mockEmptyEmotionRecord } from './mockData.js';
+import { mockMainData, updateMockMissionStatus, mockEmotionRecords, mockEmptyEmotionRecord } from './mockData.js';
+import { getCharacterImage } from '../../../shared/utils/characterImageMapper.js';
 
 // 개발 모드 설정 (true: Mock 데이터 사용, false: 실제 API 사용)
 const USE_MOCK_DATA = false;
 
 /**
- * 메인 페이지 데이터를 조회합니다. (Redux Toolkit 용)
- * @returns {Promise} API 응답 결과
+ * 메인 화면 데이터 조회 API 호출 함수
+ * 백엔드 API와 통신하여 사용자의 캐릭터 정보를 조회
  * 
- * 응답 형식:
- * {
- *   "userId": 123,
- *   "nickname": "testuser",
- *   "characterInfo": {
- *     "characterId": 1,
- *     "characterName": "모니",
- *     "characterType": "mony",
- *     "level": 5,
- *     "experience": 120,
- *     "stage": 2
- *   },
- *   "recentRecord": {
- *     "recordId": 10,
- *     "emotionLevel": 4,
- *     "keywords": ["행복", "성취감"],
- *     "memo": "오늘은 좋은 하루였다",
- *     "recordedAt": "2024-08-24"
- *   },
- *   "todayMissions": [
- *     {
- *       "userDailyMissionId": 1,
- *       "missionId": 15,
- *       "content": "5분간 간단한 스트레칭으로 몸 풀어주기",
- *       "theme": "몸돌보기",
- *       "theory": "BEHAVIORAL_ACTIVATION",
- *       "status": "PENDING"
- *     }
- *   ]
- * }
+ * @returns {Promise<Object>} 메인 화면 데이터 (nickname, characterType, characterStage, level, growthRate)
+ * @throws {Error} API 호출 실패 시 에러 객체
  */
-export const fetchMainPageData = async () => {
+export const getMainScreenData = async () => {
   try {
     // Mock 데이터 사용 모드
     if (USE_MOCK_DATA) {
@@ -48,11 +21,7 @@ export const fetchMainPageData = async () => {
       // 실제 API 호출처럼 약간의 지연 시간 추가
       await new Promise(resolve => setTimeout(resolve, 500));
       
-      // 데이터 구조 디버깅 로그
-      console.log('📊 목데이터 구조:', mockMainPageData);
-      
-      // 목데이터를 직접 반환 (구조를 유지함)
-      return mockMainPageData;
+      return mockMainData;
     }
 
     // 실제 API 호출 모드
@@ -71,7 +40,6 @@ export const fetchMainPageData = async () => {
       growthRate: apiData.growthRate
     });
     console.log('🎯 [API DEBUG] 미션 개수:', apiData.dailyMissions?.length || 0);
-    console.log('🎯 [API DEBUG] 미션 원본 배열:', apiData.dailyMissions);
 
     // 실서비스 긴급 디버깅 - API 응답 직접 확인
     if (typeof window !== 'undefined') {
@@ -90,14 +58,14 @@ export const fetchMainPageData = async () => {
     const expToNextLevel = baseExp;
 
     // 미션 데이터 정규화
-    console.log('🎯 [MISSION DEBUG] 미션 데이터 처리 시작');
-    console.log('🎯 [MISSION DEBUG] dailyMissions 타입:', typeof apiData.dailyMissions);
-    console.log('🎯 [MISSION DEBUG] dailyMissions 배열 여부:', Array.isArray(apiData.dailyMissions));
-    console.log('🎯 [MISSION DEBUG] dailyMissions 내용:', apiData.dailyMissions);
-
-    const normalizedMissions = (Array.isArray(apiData.dailyMissions) && apiData.dailyMissions.length > 0) 
+    const normalizedMissions = Array.isArray(apiData.dailyMissions) 
       ? apiData.dailyMissions.map(mission => {
-          console.log('🎯 [MISSION DEBUG] 개별 미션 정규화:', mission);
+          console.log('🎯 [MISSION DEBUG] 미션 정규화:', {
+            userDailyMissionId: mission.userDailyMissionId,
+            content: mission.content,
+            status: mission.status,
+            isCompleted: mission.status === 'COMPLETED'
+          });
           
           return {
             mission_id: mission.userDailyMissionId,
@@ -107,9 +75,7 @@ export const fetchMainPageData = async () => {
             is_completed: mission.status === 'COMPLETED'
           };
         })
-      : []; // null이나 빈 배열인 경우 빈 배열 반환
-
-    console.log('🎯 [MISSION DEBUG] 정규화된 미션들:', normalizedMissions);
+      : [];
 
     // API 응답을 MainPage에서 사용하는 형식으로 변환
     const transformedData = {
@@ -156,7 +122,7 @@ export const fetchMainPageData = async () => {
     return transformedData;
   } catch (error) {
     console.error('메인 화면 데이터 조회 실패:', error);
-    throw error;
+    throw error.response?.data || error.message;
   }
 };
 
@@ -179,14 +145,9 @@ export const getTodayMissions = async () => {
       // Mock 데이터에서 미션 목록 반환
       return mockMainData.daily_missions || [];
     }
-    
-    // JWT 토큰 확인 (apiClient.js의 interceptors에서 처리)
-    const token = localStorage.getItem('accessToken');
-    if (!token) {
-      throw new Error('인증 정보가 없습니다. 다시 로그인해주세요.');
-    }
 
     // 실제 API 호출 모드 - 메인 API에서 미션 데이터도 함께 제공됨
+    // 별도 미션 API가 필요한 경우에만 사용
     const response = await api.get('/api/v1/main');
     
     // API 응답에서 미션 데이터만 추출하여 변환
@@ -233,15 +194,9 @@ export const completeMission = async (userDailyMissionId) => {
         };
       }
     }
-    
-    // JWT 토큰 확인 (apiClient.js의 interceptors에서 처리)
-    const token = localStorage.getItem('accessToken');
-    if (!token) {
-      throw new Error('인증 정보가 없습니다. 다시 로그인해주세요.');
-    }
 
-    // 실제 API 호출 모드 - 백엔드 API 명세 기준으로 업데이트
-    const response = await api.post('/api/v1/missions/complete', {
+    // 실제 API 호출 모드
+    const response = await api.post('/api/missions/complete', {
       userDailyMissionId: userDailyMissionId
     });
     
@@ -251,7 +206,7 @@ export const completeMission = async (userDailyMissionId) => {
       success: true,
       mission_id: mission.userDailyMissionId,
       title: mission.content,
-      reward_exp: mission.rewardExp || 0,
+      reward_exp: mission.rewardExp,
       status: mission.status,
       completed_date: mission.completedDate
     };
@@ -279,12 +234,6 @@ export const getEmotionRecord = async (date) => {
       
       // 해당 날짜의 감정 기록이 있으면 반환, 없으면 빈 데이터 반환
       return mockEmotionRecords[date] || mockEmptyEmotionRecord;
-    }
-    
-    // JWT 토큰 확인 (apiClient.js의 interceptors에서 처리)
-    const token = localStorage.getItem('accessToken');
-    if (!token) {
-      throw new Error('인증 정보가 없습니다. 다시 로그인해주세요.');
     }
 
     // 실제 API 호출 모드

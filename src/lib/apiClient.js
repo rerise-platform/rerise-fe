@@ -1,23 +1,75 @@
-// 서버랑 통신 도우미(axios)
 import axios from "axios";
 
+const API_BASE_URL =
+  process.env.REACT_APP_API_BASE_URL?.trim() ||
+  "https://rerise.store";
+
+const isDev = process.env.NODE_ENV !== "production";
+
 const api = axios.create({
-  baseURL: process.env.REACT_APP_API_BASE_URL || "https://rerise.store",
-  withCredentials: true, // 쿠키 쓰면 유지, JWT만 쓰면 있어도 무방
+  baseURL: API_BASE_URL,
+  withCredentials: false, // JWT만 쓰는 경우 false
+  headers: { "Content-Type": "application/json" },
 });
 
-// 관리자 로그인해서 받은 토큰이 있으면 자동 첨부
-api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("accessToken");
-  console.log('🔍 API 요청:', config.url);
-  console.log('🔑 토큰 상태:', token ? '있음' : '없음', token?.substring(0, 20) + '...');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-    console.log('✅ Authorization 헤더 추가됨');
-  } else {
-    console.log('❌ 토큰이 없어서 Authorization 헤더 추가 안됨');
+// 요청 인터셉터: 특정 요청을 제외하고 토큰 자동 첨부
+api.interceptors.request.use(
+  (config) => {
+    // 로그인/회원가입/헬스체크에는 토큰 미첨부
+    const url = config.url || "";
+    const isAuthRequest =
+      url.includes("/login") || url.includes("/signup") || url.includes("/health");
+
+    if (!isAuthRequest) {
+      const token = localStorage.getItem("accessToken");
+      if (token) {
+        config.headers = config.headers || {};
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+    }
+
+    if (isDev) {
+      console.log("➡️ [REQ]", config.method?.toUpperCase(), url, {
+        baseURL: config.baseURL,
+        headers: config.headers,
+        data: config.data,
+      });
+    }
+    return config;
+  },
+  (error) => {
+    if (isDev) console.error("❌ [REQ-ERR]", error);
+    return Promise.reject(error);
   }
-  return config;
-});
+);
+
+// 응답 인터셉터: 공통 로깅/에러 처리
+api.interceptors.response.use(
+  (res) => {
+    if (isDev) {
+      console.log("✅ [RES]", res.config.method?.toUpperCase(), res.config.url, {
+        status: res.status,
+        data: res.data,
+      });
+    }
+    return res;
+  },
+  (error) => {
+    if (isDev) {
+      console.error("❌ [RES-ERR]", {
+        url: error.config?.url,
+        method: error.config?.method?.toUpperCase(),
+        status: error.response?.status,
+        data: error.response?.data,
+        message: error.message,
+      });
+    }
+
+    // 예: 401이면 로그인 화면으로 보내기 등
+    // if (error.response?.status === 401) { /* handle */ }
+
+    return Promise.reject(error);
+  }
+);
 
 export default api;

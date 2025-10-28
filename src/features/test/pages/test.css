@@ -47,7 +47,7 @@
 /* 컨텐츠 카드 */
 .test-wrap {
   width: var(--container-w);
-  min-height: 0;
+  min-height: var(--pc-min-h);
   background: var(--bg);
   color: var(--ink);
   font-family: "Noto Sans KR", system-ui, -apple-system, Segoe UI, Roboto,
@@ -57,6 +57,7 @@
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
+  justify-content: center;
 }
 
 /* 페이지 타이틀 */
@@ -110,6 +111,16 @@
   cursor: pointer;
 }
 
+.primary-btn:disabled {
+  background-color: #bbf8c3; /* 흐린 회색 */
+  color: #9ca3af; /* 텍스트도 연하게 */
+  border-color: #e5e7eb;
+  cursor: not-allowed;
+  box-shadow: none;
+  opacity: 1; /* 필요시 0.6 등으로 바꿔도 OK */
+  transition: background-color 0.2s ease, color 0.2s ease, opacity 0.2s ease;
+}
+
 /* 진행 정보/제목 */
 .progress {
   display: flex;
@@ -136,7 +147,7 @@
   cursor: pointer;
 }
 .opt.selected {
-  border: 2px solid #1db672;
+  border: 1.5px solid #1db672;
   background: rgba(218, 247, 230, 1);
 }
 
@@ -229,6 +240,7 @@
 .barName {
   font-size: 14px;
 }
+
 /* =========================
    기기별 미디어 쿼리
 ========================= */
@@ -251,7 +263,7 @@
   }
 }
 
-/* iPad 포트레이트(768~1024px): 여백/폰트 보정만 */
+/* iPad 포트레이트(768~1024px): 여백/폰트 보정 */
 @media (min-width: 768px) and (max-width: 1024px) {
   .test-wrap {
     padding-top: clamp(16px, 3vh, 24px);
@@ -305,32 +317,20 @@
   }
 }
 
-/* 화면 높이 667px 이하: 문항 버튼 간격 축소 */
+/* 화면 높이 600px 이하: 더 타이트 */
 @media (max-height: 667px) {
   .progress ~ .sticky-bottom {
-    padding-top: 10px;
+    padding-top: 15px;
   }
   .progress ~ .sticky-bottom .primary-btn {
-    margin-top: 0;
-  }
-  .opt {
-    margin-bottom: 0;
-  } /* ← 중첩 제거 후 분리 */
-}
-
-/* 화면 높이 600px 이하: 더 타이트 */
-@media (max-height: 600px) {
-  .progress ~ .sticky-bottom {
-    padding-top: 6px;
-  }
-  .progress ~ .sticky-bottom .primary-btn {
-    margin-top: 6px;
+    margin-top: 15px;
   }
 }
-/* === Big screens (iPad Air/Pro & Desktop) scale-up overrides === */
 
-/* 큰 데스크톱(1440px~): 타이틀/컨테이너 상한 더 올리기 */
-@media (min-width: 819px) {
+/* =========================
+   스케일업은 '터치 큰 화면'에서만
+========================= */
+@media (min-width: 819px) and (hover: none) and (pointer: coarse) {
   .test-wrap {
     padding-top: clamp(16px, 5vh, 24px);
     padding-bottom: clamp(18px, 3.5vh, 26px);
@@ -364,8 +364,223 @@
     --illust: clamp(280px, 32vw, 520px);
     --gauge-h: clamp(30px, 2vw, 100px);
   }
-  /* 큰 화면에서는 아바타 축소 없애기 */
   .result-avatar img {
     transform: none;
   }
+}
+
+/* =========================
+   데스크탑(마우스/hover 가능) = 항상 430px 모바일 스케일
+========================= */
+@media (hover: hover) and (pointer: fine) {
+  :root {
+    --pc-min-h: 680px;
+  }
+
+  html,
+  body {
+    min-height: var(--pc-min-h);
+  }
+  .test-shell {
+    margin-top: 40px;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center;
+    min-height: var(--pc-min-h);
+  }
+  /* 430px 고정 컬럼 */
+  .test-wrap {
+    box-sizing: border-box;
+    width: 430px !important;
+    max-width: 430px !important;
+    min-width: 430px !important;
+    margin: 0 auto !important;
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+    flex: 0 0 430px !important; /* flex 늘어남 방지 */
+
+    min-height: var(--pc-min-h);
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* 세로 중앙 */
+    padding-bottom: 0 !important;
+  }
+
+  /* 내부 요소가 100vw로 커지지 않게 */
+  .test-wrap > * {
+    max-width: 100% !important;
+  }
+  .progress,
+  .pillset,
+  .result-text,
+  .test-intro-hero,
+  .test-topbar,
+  .meter {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  .progress {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+  }
+  .progress .nav {
+    background: none;
+    border: 0;
+    font-size: 22px;
+    padding: 4px 8px;
+    cursor: pointer;
+    opacity: 0.8;
+  }
+  .progress .nav:disabled {
+    opacity: 0.35;
+    cursor: default;
+  }
+
+  /* CTA 버튼 컨테이너도 430px로 중앙 고정 */
+  .sticky-bottom {
+    position: static; /* was: fixed */
+    bottom: auto;
+    left: auto;
+    transform: none;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-top: 24px; /* 문항과 버튼 사이 여유 */
+    padding-top: var(--space-sticky-top);
+  }
+  .sticky-bottom .primary-btn {
+    width: 100% !important;
+    font-size: 16px !important;
+    padding: 14px 16px !important;
+    border-radius: 12px !important;
+  }
+
+  /* 이미지 모바일 크기 */
+  .test-wrap img {
+    max-width: 100% !important;
+    height: auto !important;
+    display: block;
+  }
+  .hero-illust {
+    width: 260px !important;
+    margin: 8px auto 0 !important;
+  }
+  .result-avatar img {
+    width: 140px !important;
+    margin: 0 auto !important;
+    transform: none !important;
+  }
+  .heart {
+    width: 96px !important;
+    margin: 0 auto 8px !important;
+  }
+
+  /* 텍스트/카드 모바일 스케일 */
+  .page-title {
+    font-size: 24px !important;
+  }
+  .test-intro-sub {
+    font-size: 16px !important;
+  }
+  .test-intro-desc {
+    font-size: 14px !important;
+    line-height: 1.6 !important;
+  }
+  .q-title {
+    font-size: 18px !important;
+    line-height: 1.4 !important;
+  }
+  .progress {
+    margin: 20px 0px;
+    font-size: 18px;
+  }
+  .loading-font,
+  .result-text {
+    font-size: 14px !important;
+  }
+  .result-text {
+    line-height: 1.7 !important;
+  }
+  .opt {
+    font-size: 16px !important;
+    padding: 14px 16px !important;
+    border-radius: 14px !important;
+  }
+  .pill {
+    font-size: 12px !important;
+    padding: 6px 10px !important;
+    border-radius: 999px !important;
+  }
+  .pillset {
+    gap: 6px !important;
+  }
+  .barName {
+    font-size: 12px !important;
+  }
+  .meter {
+    height: 10px !important;
+  }
+  .meter .segments i {
+    width: 1px !important;
+  }
+
+  /* === PC(마우스/hover 가능)에서만: Intro/Test 버튼 살짝 위로, 문항 카드 간격 업 === */
+  @media (hover: hover) and (pointer: fine) {
+    /* Test 페이지 문항 카드 간격만 조금 더 넓게 */
+    .test-wrap:has(.progress) .opt {
+      margin: 20px 0 0 !important; /* ← 기존 15px → 20px */
+    }
+  }
+}
+
+/* =========================
+   결과 페이지를 '문항 페이지 스케일'로 맞춤
+   (결과 페이지는 .result-avatar 엘리먼트가 항상 존재)
+========================= */
+.test-wrap:has(.result-avatar) {
+  /* 테스트 페이지와 비슷한 타이포/스페이싱으로 다운스케일 */
+  --fs-base: clamp(14px, 1.7vw, 18px);
+  --fs-sm: clamp(11px, 1.2vw, 13px);
+  --fs-title: clamp(18px, 6vw, 22px); /* "테스트 결과" 타이틀 크기 ↓ */
+  --fs-btn: clamp(14px, 2vw, 16px);
+
+  --pad-v: clamp(12px, 5vw, 20px);
+  --pad-h: clamp(12px, 3.5vw, 20px);
+  --radius: 14px;
+
+  --space-topbar: clamp(6px, 1.4svh, 10px);
+  --space-sticky-top: clamp(10px, 3svh, 16px);
+
+  /* 캐릭터 아바타 살짝 축소 */
+  --avatar: clamp(96px, 20vw, 128px);
+}
+
+/* 결과 타이틀(상단 "테스트 결과") */
+.test-wrap:has(.result-avatar) .page-title {
+  font-size: var(--fs-title);
+  margin: 0 auto var(--space-topbar);
+}
+
+/* 결과 캐릭터 이름(h2)도 테스트 q-title 수준으로 */
+.test-wrap:has(.result-avatar) .q-title {
+  font-size: clamp(18px, 1.7vw, 20px);
+  margin-bottom: clamp(8px, 1.6svh, 12px);
+}
+
+/* 막대 이름, 본문 텍스트 축소 */
+.test-wrap:has(.result-avatar) .barName {
+  font-size: 12px;
+}
+.test-wrap:has(.result-avatar) .result-text {
+  font-size: clamp(13px, 2.2vw, 15px);
+  line-height: 1.55;
+}
+
+/* 버튼을 '본문 바로 아래'에 배치: margin-top:auto 무력화 */
+.test-wrap:has(.result-avatar) .sticky-bottom {
+  margin-top: 16px; /* ✅ auto가 아니라 고정 여백 */
+  padding-top: var(--space-sticky-top);
+  position: static; /* 혹시 fixed가 남아 있더라도 무력화 */
 }

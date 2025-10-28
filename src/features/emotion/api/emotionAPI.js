@@ -5,8 +5,8 @@ import api from '../../../lib/apiClient';
  * 서버에 감정 일기 정보를 전송하여 기록을 처리
  * 
  * @param {Object} recordData - 일기 기록 데이터
- * @param {number} recordData.emotion_level - 감정 레벨 (1-5)
- * @param {Array<string>} recordData.keywords - 감정 키워드들 배열
+ * @param {number} recordData.emotion_level - 감정 레벨 (1-10)
+ * @param {Array<string>|string} recordData.keywords - 감정 키워드들 (배열 또는 쉼표로 구분된 문자열)
  * @param {string} recordData.memo - 일기 내용
  * @param {string} recordData.recordedAt - 기록 날짜 (YYYY-MM-DD)
  * @returns {Promise<Object>} 생성된 기록 데이터
@@ -14,45 +14,43 @@ import api from '../../../lib/apiClient';
  */
 export const createOrUpdateRecord = async (recordData) => {
   try {
-    // 토큰 검증
+    // keywords를 배열로 변환 (API 명세서에 따라)
+    let keywords;
+    if (Array.isArray(recordData.keywords)) {
+      keywords = recordData.keywords;
+    } else if (typeof recordData.keywords === 'string') {
+      // 쉼표로 구분된 문자열을 배열로 변환
+      keywords = recordData.keywords.split(',').map(keyword => keyword.trim()).filter(keyword => keyword);
+    } else {
+      keywords = [];
+    }
+
+    console.log('🚀 [API] 일기 기록 요청 시작');
+    
+    // 토큰 확인
     const token = localStorage.getItem('accessToken');
-    if (!token) {
-      throw new Error('인증 정보가 없습니다. 다시 로그인해주세요.');
+    console.log('� [API] 토큰 상태:', token ? '존재함' : '없음');
+    if (token) {
+      console.log('🔑 [API] 토큰 앞부분:', token.substring(0, 20) + '...');
     }
     
-    console.log('감정 기록 전송:', recordData);
-    
-    // 백엔드 명세에 맞게 데이터 형식 확인
-    const requestData = {
+    const requestPayload = {
       emotion_level: recordData.emotion_level,
-      keywords: Array.isArray(recordData.keywords) ? recordData.keywords : [],
-      memo: recordData.memo || '',
-      recordedAt: recordData.recordedAt || new Date().toISOString().split('T')[0]
+      keywords: keywords,
+      memo: recordData.memo,
+      recordedAt: recordData.recordedAt
     };
     
-    // API 요청 전 데이터 확인
-    console.log('API 요청 데이터:', requestData);
+    console.log('📤 [API] 요청 데이터:', requestPayload);
+    console.log('📤 [API] JSON 문자열:', JSON.stringify(requestPayload, null, 2));
+
+    const response = await api.post('/api/v1/records', requestPayload);
     
-    // API 요청 - 백엔드 명세에 맞춰 키와 값을 정확히 전송
-    const response = await api.post('/api/v1/records', requestData);
-    
-    console.log('감정 기록 응답:', response.data);
-    
-    // API 응답을 그대로 반환
+    console.log('✅ [API] 일기 기록 성공:', response.data);
     return response.data;
   } catch (error) {
-    console.error('감정 기록 저장 실패:', error);
-    
-    if (error.response) {
-      // 서버에서 응답을 받았지만 2xx 범위를 벗어난 상태 코드가 반환된 경우
-      throw new Error(error.response.data?.message || '서버에서 오류가 발생했습니다.');
-    } else if (error.request) {
-      // 요청은 보냈지만 응답을 받지 못한 경우
-      throw new Error('서버에 연결할 수 없습니다. 네트워크 연결을 확인해주세요.');
-    } else {
-      // 요청 설정 중에 문제가 발생한 경우
-      throw new Error(error.message || '감정 기록 저장에 실패했습니다.');
-    }
+    console.error('❌ [API] 일기 기록 실패:', error.response?.status, error.response?.data);
+    throw error.response?.data || error.message;
   }
 };
 
@@ -93,53 +91,80 @@ export const getRecordByDate = async (date) => {
       console.log('해당 날짜의 기록이 없습니다.');
       return null;
     }
-    
-    if (error.response) {
-      // 서버에서 응답을 받았지만 2xx 범위를 벗어난 상태 코드가 반환된 경우
-      throw new Error(error.response.data?.message || '서버에서 오류가 발생했습니다.');
-    } else if (error.request) {
-      // 요청은 보냈지만 응답을 받지 못한 경우
-      throw new Error('서버에 연결할 수 없습니다. 네트워크 연결을 확인해주세요.');
-    } else {
-      // 요청 설정 중에 문제가 발생한 경우
-      throw new Error(error.message || '감정 기록 조회에 실패했습니다.');
-    }
+    throw error.response?.data || error.message;
   }
 };
 
 /**
- * 테스트 함수: 감정 기록 API 동작 테스트
- * 실제 API와 통신하여 감정 기록 추가 및 조회
+ * 테스트용 최소 데이터 일기 생성 함수
+ * 403 에러 디버깅을 위한 단순한 테스트 데이터
  */
-export const testEmotionAPI = async () => {
+export const testMinimalRecord = async () => {
   try {
-    console.log('==== 감정 기록 API 테스트 시작 ====');
+    console.log('🧪 [TEST] 최소 데이터 테스트 시작');
     
-    // 현재 날짜
-    const today = new Date().toISOString().split('T')[0];
-    
-    // 1. 오늘 날짜 기록 추가
-    const recordData = {
-      emotion_level: 4,
-      keywords: ['행복', '성취감', '만족'],
-      memo: '오늘은 프로젝트를 성공적으로 완료해서 기분이 좋았다.',
-      recordedAt: today
+    const minimalData = {
+      emotion_level: 5,
+      keywords: ["테스트"],
+      memo: "테스트",
+      recordedAt: "2025-09-27"
     };
     
-    console.log('저장할 감정 기록:', recordData);
+    console.log('🧪 [TEST] 테스트 데이터:', JSON.stringify(minimalData, null, 2));
     
-    const savedRecord = await createOrUpdateRecord(recordData);
-    console.log('저장된 감정 기록:', savedRecord);
+    const response = await api.post('/api/v1/records', minimalData);
     
-    // 2. 추가한 기록 조회
-    console.log(`${today} 날짜의 기록 조회 중...`);
-    const fetchedRecord = await getRecordByDate(today);
-    console.log('조회된 감정 기록:', fetchedRecord);
-    
-    console.log('==== 감정 기록 API 테스트 완료 ====');
-    return true;
+    console.log('✅ [TEST] 성공!', response.data);
+    return response.data;
   } catch (error) {
-    console.error('감정 기록 API 테스트 실패:', error);
+    console.error('❌ [TEST] 실패:', {
+      status: error.response?.status,
+      data: error.response?.data,
+      headers: error.response?.headers,
+      config: error.config
+    });
     throw error;
+  }
+};
+
+/**
+ * 월별 캘린더 데이터 조회 API 호출 함수
+ * 특정 연도와 월의 감정 기록 데이터를 조회
+ * 
+ * @param {number} year - 조회할 연도 (YYYY)
+ * @param {number} month - 조회할 월 (1-12)
+ * @returns {Promise<Object>} 해당 월의 캘린더 데이터
+ * @throws {Error} 조회 실패 시 에러 객체
+ */
+export const getCalendarByMonth = async (year, month) => {
+  try {
+    console.log(`🔍 [CALENDAR API] ${year}년 ${month}월 캘린더 데이터 조회 요청`);
+    
+    const response = await api.get(`/api/v1/records/calendar/${year}/${month}`);
+    
+    console.log('✅ [CALENDAR API] 캘린더 데이터 조회 성공');
+    console.log('📋 [CALENDAR API] 응답 상태:', response.status, response.statusText);
+    console.log('📄 [CALENDAR API] 응답 데이터:', response.data);
+    
+    return response.data;
+  } catch (error) {
+    console.error('❌ [CALENDAR API] 캘린더 데이터 조회 에러 발생!');
+    console.error('🚫 [CALENDAR API] 에러 타입:', error.name);
+    console.error('💥 [CALENDAR API] 에러 메시지:', error.message);
+    console.error('📡 [CALENDAR API] 응답 상태:', error.response?.status);
+    console.error('📄 [CALENDAR API] 응답 데이터:', error.response?.data);
+    
+    // 에러 발생 시 처리
+    if (error.response) {
+      // 서버 응답이 있는 경우
+      const errorMsg = error.response.data || `${year}년 ${month}월 캘린더 데이터 조회에 실패했습니다.`;
+      throw new Error(errorMsg);
+    } else if (error.request) {
+      // 요청이 전송되었지만 응답이 없는 경우
+      throw new Error('서버에 연결할 수 없습니다. 네트워크 연결을 확인하세요.');
+    } else {
+      // 그 외의 에러
+      throw new Error(error.message || '알 수 없는 오류가 발생했습니다.');
+    }
   }
 };

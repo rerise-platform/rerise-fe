@@ -16,8 +16,8 @@ const InputBox = styled.div`
   border-radius: 28px;
   margin-bottom: 20px;
   position: relative;
-  backdrop-filter: ${props => props.isPassword ? 'blur(7.5px)' : 'blur(12px)'};
-  -webkit-backdrop-filter: ${props => props.isPassword ? 'blur(7.5px)' : 'blur(12px)'};
+  backdrop-filter: ${props => props.$isPassword ? 'blur(7.5px)' : 'blur(12px)'};
+  -webkit-backdrop-filter: ${props => props.$isPassword ? 'blur(7.5px)' : 'blur(12px)'};
 `;
 
 // 입력 필드 스타일
@@ -122,16 +122,25 @@ const FormContainer = styled.form`
 // 최적화된 입력 필드 컴포넌트 
 // React.memo를 사용하여 불필요한 리렌더링 방지
 const OptimizedInput = memo(({ type, name, placeholder, value, onChange, required }) => {
-  // 디버깅 코드는 나중에 제거
-  // console.log(`Input rendering: ${name}`);
-  
-  // 이벤트 핸들러도 메모이제이션
+  // 이벤트 핸들러도 메모이제이션 (Hook은 최상단에서 호출)
   const handleInputChange = useCallback((e) => {
-    onChange(e);
+    try {
+      if (onChange) {
+        onChange(e);
+      }
+    } catch (error) {
+      console.error('Input change 에러:', error);
+    }
   }, [onChange]);
+
+  // 안전장치: props 유효성 검사
+  if (!name || !onChange) {
+    console.error('OptimizedInput: name과 onChange는 필수입니다');
+    return null;
+  }
   
   return (
-    <InputBox isPassword={type === 'password'}>
+  <InputBox $isPassword={type === 'password'}>
       <Input
         type={type}
         name={name}
@@ -150,9 +159,16 @@ const OptimizedInput = memo(({ type, name, placeholder, value, onChange, require
  * 사용자 인증 정보를 입력받고 Redux를 통해 로그인 처리를 담당
  */
 const LoginForm = () => {
-  // Redux hooks
+  // Redux hooks with error handling
   const dispatch = useDispatch(); // 액션을 dispatch하기 위한 함수
-  const { loading, error } = useSelector(state => state.auth); // Redux store에서 상태 가져오기
+  const { loading, error } = useSelector(state => {
+    // 안전장치: state.auth가 존재하는지 확인
+    if (!state || !state.auth) {
+      console.warn('Redux state.auth가 존재하지 않음');
+      return { loading: false, error: null };
+    }
+    return state.auth;
+  }); // Redux store에서 상태 가져오기
   
   // 폼 데이터 상태 관리
   const [formData, setFormData] = useState({
@@ -177,13 +193,29 @@ const LoginForm = () => {
    * @param {Event} e - 이벤트 객체
    */
   const handleSubmit = useCallback((e) => {
-    e.preventDefault(); // 기본 폼 제출 동작 방지
-    
-    // Redux thunk를 통해 로그인 액션 dispatch
-    dispatch(loginThunk({
-      email: formData.email,
-      password: formData.password
-    }));
+    try {
+      e.preventDefault(); // 기본 폼 제출 동작 방지
+      
+      console.log('🎯 [LOGIN FORM] 폼 제출 시작');
+      console.log('📧 [LOGIN FORM] 이메일:', formData.email);
+      console.log('🔑 [LOGIN FORM] 비밀번호 입력됨:', !!formData.password);
+      
+      // 입력값 유효성 검사
+      if (!formData.email || !formData.password) {
+        console.error('❌ [LOGIN FORM] 이메일 또는 비밀번호가 비어있음');
+        return;
+      }
+      
+      console.log('📤 [LOGIN FORM] Redux thunk 호출 중...');
+      
+      // Redux thunk를 통해 로그인 액션 dispatch
+      dispatch(loginThunk({
+        email: formData.email,
+        password: formData.password
+      }));
+    } catch (error) {
+      console.error('❌ [LOGIN FORM] 폼 제출 에러:', error);
+    }
   }, [dispatch, formData.email, formData.password]);
 
     // 이벤트 핸들러들은 함수 내부에 유지
