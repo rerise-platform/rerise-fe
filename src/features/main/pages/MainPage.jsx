@@ -15,7 +15,7 @@ import emotion4 from '../../../shared/assets/images/emotion4.svg';
 import emotion5 from '../../../shared/assets/images/emotion5.svg';
 
 // API import
-import { getMainScreenData, completeMission, getEmotionRecord } from '../api/mainAPI';
+import { fetchMainPageData, completeMission, getEmotionRecord } from '../api/mainAPI';
 import { getCharacterImage } from '../../../shared/utils/characterImageMapper';
 
 // 상수
@@ -144,7 +144,7 @@ const MainPage = () => {
     try {
       console.log('🔍 [MAIN PAGE] 메인 데이터 로드 시작');
       setLoading(true);
-      const data = await getMainScreenData();
+      const data = await fetchMainPageData();
       
       console.log('✅ [MAIN PAGE DEBUG] 메인 데이터 로드 성공:', JSON.stringify(data, null, 2));
       console.log('👤 [MAIN PAGE DEBUG] 닉네임 확인:', data?.nickname);
@@ -204,7 +204,7 @@ const MainPage = () => {
     try {
       console.log('🎯 [MISSIONS] 미션 상태 새로고침 시작');
       // 메인 데이터 전체를 다시 로드하여 최신 미션 상태 반영
-      const data = await getMainScreenData();
+      const data = await fetchMainPageData();
       setMainData(data);
       console.log('✅ [MISSIONS] 미션 상태 새로고침 완료');
     } catch (err) {
@@ -314,8 +314,13 @@ const MainPage = () => {
     error: !!error
   });
 
+  const uiData = {
+  daily_missions: mainData?.daily_missions || [],
+};
+
   return (
-    <ElementEXP>
+  <AppWrapper>
+    <MobileContainer>
       <MainContent>
 
         
@@ -450,6 +455,13 @@ const MobileContainer = styled.div`
     width: 100%;
     box-shadow: none;
   }
+`;
+
+const Name = styled.span`
+  font-weight: 700;
+  color: #2ad948;
+  font-size: 22px;
+  margin-right: 4px;
 `;
 
 const MainContent = styled.div`

@@ -8,7 +8,7 @@ import {
 } from "../api/emotionAPI";
 import { checkCurrentTokenStatus } from "../../../shared/utils/tokenUtils";
 import "./EmotionPage.css";
-import { getMainScreenData } from "../../main/api/mainAPI";
+import { fetchMainPageData } from "../../main/api/mainAPI";
 
 // 기본/선택 이모지
 import emotion1Default from "../../../shared/assets/images/emotion1.0.svg";
@@ -152,7 +152,7 @@ const EmotionPage = () => {
     }
     (async () => {
       try {
-        const data = await getMainScreenData();
+  const data = await fetchMainPageData();
         const name =
           data?.nickname || data?.character_status?.nickname || "사용자";
         setNickname(name);

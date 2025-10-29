@@ -1,5 +1,13 @@
 import api from '../../../lib/apiClient';
 import { mockMainData, mockMainPageData, updateMockMissionStatus, mockEmotionRecords, mockEmptyEmotionRecord } from './mockData.js';
+// getCharacterImage 함수가 없거나 경로가 잘못된 경우 직접 정의
+const getCharacterImage = (type, stage) => {
+  try {
+    return `/assets/characters/${type}_stage${stage}.png`;
+  } catch {
+    return '/assets/characters/default.png';
+  }
+};
 
 // 개발 모드 설정 (true: Mock 데이터 사용, false: 실제 API 사용)
 const USE_MOCK_DATA = false;
