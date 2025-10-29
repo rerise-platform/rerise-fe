@@ -1,93 +1,73 @@
-// 서버랑 통신 도우미(axios)
 import axios from "axios";
 
+const API_BASE_URL =
+  process.env.REACT_APP_API_BASE_URL?.trim() ||
+  "https://rerise.store";
+
+const isDev = process.env.NODE_ENV !== "production";
+
 const api = axios.create({
-  baseURL: process.env.REACT_APP_API_BASE_URL || "https://rerise.store",
-  withCredentials: false, // 쿠키 쓰면 유지, JWT만 쓰면 있어도 무방
+  baseURL: API_BASE_URL,
+  withCredentials: false, // JWT만 쓰는 경우 false
+  headers: { "Content-Type": "application/json" },
 });
 
-// 요청 인터셉터 - 토큰 자동 첨부 (로그인/회원가입 제외)
+// 요청 인터셉터: 특정 요청을 제외하고 토큰 자동 첨부
 api.interceptors.request.use(
   (config) => {
-    // 로그인과 회원가입 요청에는 토큰을 첨부하지 않음
-    const isAuthRequest = config.url?.includes('/login') || config.url?.includes('/signup') || config.url?.includes('/health');
-    
+    // 로그인/회원가입/헬스체크에는 토큰 미첨부
+    const url = config.url || "";
+    const isAuthRequest =
+      url.includes("/login") || url.includes("/signup") || url.includes("/health");
+
     if (!isAuthRequest) {
       const token = localStorage.getItem("accessToken");
-      console.log("🔍 API 요청:", config.url, config.method?.toUpperCase());
-      console.log("📝 요청 데이터:", config.data);
-      console.log(
-        "🔑 토큰 상태:",
-        token ? "있음" : "없음",
-        token ? token.substring(0, 20) + "..." : "undefined"
-      );
-      console.log("📋 현재 헤더:", config.headers);
-      
       if (token) {
+        config.headers = config.headers || {};
         config.headers.Authorization = `Bearer ${token}`;
-        console.log("✅ Authorization 헤더 추가됨");
-        console.log("📋 최종 헤더:", config.headers);
-      } else {
-        console.log("❌ 토큰이 없어서 Authorization 헤더 추가 안됨");
       }
-    } else {
-      console.log("🔍 인증 요청 (토큰 첨부 안함):", config.url, config.method?.toUpperCase());
-      console.log("📝 요청 데이터:", config.data);
+    }
+
+    if (isDev) {
+      console.log("➡️ [REQ]", config.method?.toUpperCase(), url, {
+        baseURL: config.baseURL,
+        headers: config.headers,
+        data: config.data,
+      });
     }
     return config;
   },
   (error) => {
-    console.error("❌ 요청 인터셉터 오류:", error);
+    if (isDev) console.error("❌ [REQ-ERR]", error);
     return Promise.reject(error);
   }
 );
 
-// 응답 인터셉터 - 오류 처리 개선
+// 응답 인터셉터: 공통 로깅/에러 처리
 api.interceptors.response.use(
-  (response) => {
-    console.log("✅ [API CLIENT] 응답 성공:", {
-      url: response.config.url,
-      method: response.config.method?.toUpperCase(),
-      status: response.status,
-      statusText: response.statusText,
-      headers: response.headers,
-      data: response.data,
-      timestamp: new Date().toISOString()
-    });
-    return response;
+  (res) => {
+    if (isDev) {
+      console.log("✅ [RES]", res.config.method?.toUpperCase(), res.config.url, {
+        status: res.status,
+        data: res.data,
+      });
+    }
+    return res;
   },
   (error) => {
-    console.error("❌ [API CLIENT] 응답 오류:", {
-      url: error.config?.url,
-      method: error.config?.method?.toUpperCase(),
-      status: error.response?.status,
-      statusText: error.response?.statusText,
-      responseData: error.response?.data,
-      responseHeaders: error.response?.headers,
-      message: error.message,
-      code: error.code,
-      timestamp: new Date().toISOString()
-    });
-    
-    // 401/403 오류 특별 처리
-    if (error.response?.status === 401) {
-      console.error("🚫 401 Unauthorized: 토큰이 유효하지 않습니다. 다시 로그인해주세요.");
-      // 토큰 제거 및 로그인 페이지로 리다이렉트
-      localStorage.removeItem('accessToken');
-      localStorage.removeItem('refreshToken');
-      window.location.href = '/login';
-    } else if (error.response?.status === 403) {
-      console.error("🚫 403 Forbidden: 접근 권한이 없습니다.");
-      console.error("🔍 요청 URL:", error.config?.url);
-      console.error("🔍 요청 방법:", error.config?.method);
-      console.error("🔍 현재 토큰:", localStorage.getItem('accessToken')?.substring(0, 20) + '...');
+    if (isDev) {
+      console.error("❌ [RES-ERR]", {
+        url: error.config?.url,
+        method: error.config?.method?.toUpperCase(),
+        status: error.response?.status,
+        data: error.response?.data,
+        message: error.message,
+      });
     }
-    
-    // CORS 오류 처리
-    if (error.message === 'Network Error' && !error.response) {
-      console.error("🚫 CORS 오류 또는 네트워크 연결 문제가 발생했습니다.");
-    }
-    
+
+    // 예: 401이면 로그인 화면으로 보내기 등
+    // if (error.response?.status === 401) { /* handle */ }
+
     return Promise.reject(error);
   }
 );
