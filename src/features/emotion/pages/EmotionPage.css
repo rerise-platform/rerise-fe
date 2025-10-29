@@ -295,7 +295,7 @@
   outline: 2px solid #40ea87;
   background: rgba(64, 234, 135, 0.08);
 }
-.calendar-day:not(.disabled):hover .day-number:not(.is-today)) {
+.calendar-day:not(.disabled):hover .day-number:not(.is-today) {
   outline: 2px solid #40ea87;
   background: rgba(64, 234, 135, 0.08);
 }
