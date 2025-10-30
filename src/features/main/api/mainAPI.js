@@ -10,7 +10,7 @@ const getCharacterImage = (type, stage) => {
 };
 
 // 개발 모드 설정 (true: Mock 데이터 사용, false: 실제 API 사용)
-const USE_MOCK_DATA = false;
+const USE_MOCK_DATA = true;
 
 /**
  * 메인 페이지 데이터를 조회합니다. (Redux Toolkit 용)
