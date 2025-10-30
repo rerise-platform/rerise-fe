@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import styled from 'styled-components';
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import styled from "styled-components";
 
 // 이미지 import
-import mony1 from '../../../shared/assets/images/mony1.svg';
+import mony1 from "../../../shared/assets/images/mony1.svg";
 
 /**
  * 마이페이지 컴포넌트
@@ -12,18 +12,18 @@ import mony1 from '../../../shared/assets/images/mony1.svg';
 const MyPage = () => {
   const navigate = useNavigate();
   const [userInfo, setUserInfo] = useState({
-    name: '김멋사',
-    nickname: '끝내주조',
+    name: "김멋사",
+    nickname: "끝내주조",
     level: 1,
     points: 28,
-    growthRate: 79.4
+    growthRate: 79.4,
   });
 
   // 컴포넌트 마운트 시 body 배경색 설정
   useEffect(() => {
     const originalBackground = document.body.style.backgroundColor;
-    document.body.style.backgroundColor = 'transparent';
-    
+    document.body.style.backgroundColor = "transparent";
+
     return () => {
       document.body.style.backgroundColor = originalBackground;
     };
@@ -35,12 +35,12 @@ const MyPage = () => {
 
   const handleMenuClick = () => {
     // 메뉴 클릭 로직
-    console.log('메뉴 버튼 클릭');
+    console.log("메뉴 버튼 클릭");
   };
 
   const handleCharacterCustomize = () => {
     // 캐릭터 꾸미기 로직
-    console.log('캐릭터 꾸미기 클릭');
+    console.log("캐릭터 꾸미기 클릭");
   };
 
   const handleNotificationSetting = (type) => {
@@ -60,7 +60,12 @@ const MyPage = () => {
           {/* Header */}
           <Header>
             <BackButton onClick={handleBack}>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+              >
                 <polyline points="15,18 9,12 15,6"></polyline>
               </svg>
             </BackButton>
@@ -93,19 +98,21 @@ const MyPage = () => {
                     </ProgressBar>
                   </ProgressContainer>
                 </GrowthBadge>
-                
+
                 <StatBadge>
                   <StatIcon className="points">P</StatIcon>
                   <StatText className="points">{userInfo.points}P</StatText>
                 </StatBadge>
-                
+
                 <StatBadge>
                   <StatIcon className="level">LV</StatIcon>
-                  <StatText className="level">{String(userInfo.level).padStart(2, '0')}</StatText>
+                  <StatText className="level">
+                    {String(userInfo.level).padStart(2, "0")}
+                  </StatText>
                 </StatBadge>
               </CharacterStatsInline>
             </CharacterHeader>
-            
+
             <CharacterMain>
               <CharacterAvatar>
                 <CharacterImage src={mony1} alt="캐릭터" />
@@ -127,9 +134,11 @@ const MyPage = () => {
           {/* Notification Service */}
           <NotificationSection>
             <SectionTitle>알림 서비스</SectionTitle>
-            
+
             <NotificationItems>
-              <NotificationItem onClick={() => handleNotificationSetting('activity')}>
+              <NotificationItem
+                onClick={() => handleNotificationSetting("activity")}
+              >
                 <NotificationLeft>
                   <NotificationDot />
                   <NotificationTitle>활동·미션 알림</NotificationTitle>
@@ -137,14 +146,21 @@ const MyPage = () => {
                 <NotificationRight>
                   <NotificationStatus>앱푸시</NotificationStatus>
                   <NotificationArrow>
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <svg
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                    >
                       <polyline points="9,18 15,12 9,6"></polyline>
                     </svg>
                   </NotificationArrow>
                 </NotificationRight>
               </NotificationItem>
 
-              <NotificationItem onClick={() => handleNotificationSetting('progress')}>
+              <NotificationItem
+                onClick={() => handleNotificationSetting("progress")}
+              >
                 <NotificationLeft>
                   <NotificationDot />
                   <NotificationTitle>누적 진행 상황 알림</NotificationTitle>
@@ -152,14 +168,21 @@ const MyPage = () => {
                 <NotificationRight>
                   <NotificationStatus>알림톡(SMS)</NotificationStatus>
                   <NotificationArrow>
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <svg
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                    >
                       <polyline points="9,18 15,12 9,6"></polyline>
                     </svg>
                   </NotificationArrow>
                 </NotificationRight>
               </NotificationItem>
 
-              <NotificationItem onClick={() => handleNotificationSetting('mood')}>
+              <NotificationItem
+                onClick={() => handleNotificationSetting("mood")}
+              >
                 <NotificationLeft>
                   <NotificationDot />
                   <NotificationTitle>마음 상태 체크 알림</NotificationTitle>
@@ -167,7 +190,12 @@ const MyPage = () => {
                 <NotificationRight>
                   <NotificationStatus>이용안함</NotificationStatus>
                   <NotificationArrow>
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <svg
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                    >
                       <polyline points="9,18 15,12 9,6"></polyline>
                     </svg>
                   </NotificationArrow>
@@ -182,21 +210,31 @@ const MyPage = () => {
           {/* Info Management */}
           <InfoSection>
             <SectionTitle>정보관리</SectionTitle>
-            
+
             <InfoItems>
-              <InfoItem onClick={() => handleInfoManagement('profile')}>
+              <InfoItem onClick={() => handleInfoManagement("profile")}>
                 <InfoTitle>내 정보 변경</InfoTitle>
                 <InfoArrow>
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
                     <polyline points="9,18 15,12 9,6"></polyline>
                   </svg>
                 </InfoArrow>
               </InfoItem>
 
-              <InfoItem onClick={() => handleInfoManagement('marketing')}>
+              <InfoItem onClick={() => handleInfoManagement("marketing")}>
                 <InfoTitle>마케팅 동의 설정</InfoTitle>
                 <InfoArrow>
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
                     <polyline points="9,18 15,12 9,6"></polyline>
                   </svg>
                 </InfoArrow>
@@ -216,16 +254,15 @@ const AppWrapper = styled.div`
   min-height: 100vh;
   display: flex;
   justify-content: center;
+  background-color: rgba(254, 255, 245, 1);
 `;
 
 const MobileContainer = styled.div`
   width: 430px;
   max-width: 430px;
   min-height: 100vh;
-  background-color: #FEFFF5;
   position: relative;
   overflow-x: hidden;
-  box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
 
   @media (max-width: 430px) {
     width: 100%;
@@ -238,7 +275,7 @@ const Container = styled.div`
   background-color: #fefff5;
   min-height: 100vh;
   position: relative;
-  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: "Pretendard", -apple-system, BlinkMacSystemFont, sans-serif;
   color: #1a201c;
   line-height: 1.4;
   font-size: 14px;
@@ -267,11 +304,11 @@ const BackButton = styled.button`
   display: flex;
   align-items: center;
   justify-content: center;
-  
+
   &:hover {
     opacity: 0.7;
   }
-  
+
   svg {
     width: 100%;
     height: 100%;
@@ -297,7 +334,7 @@ const MenuButton = styled.button`
   padding: 2px 0;
   background: none;
   border: none;
-  
+
   &:hover {
     opacity: 0.7;
   }
@@ -462,11 +499,11 @@ const StatIcon = styled.div`
   color: white;
   font-weight: 900;
   flex-shrink: 0;
-  
+
   &.points {
     background-color: #40ea87;
   }
-  
+
   &.level {
     background-color: #ffce6b;
   }
@@ -474,11 +511,11 @@ const StatIcon = styled.div`
 
 const StatText = styled.span`
   font-size: 7.2px;
-  
+
   &.points {
     color: #40ea87;
   }
-  
+
   &.level {
     color: #ffce6b;
   }
@@ -526,7 +563,7 @@ const ProgressFill = styled.div`
   left: 0;
   height: 100%;
   background-color: #2ad948;
-  width: ${props => props.$progress}%;
+  width: ${(props) => props.$progress}%;
   border-radius: 2.46px;
 `;
 
@@ -545,15 +582,16 @@ const CustomizeButton = styled.button`
   line-height: 140%;
   background: none;
   border: none;
-  
+
   &::after {
-    content: '';
+    content: "";
     width: 20px;
     height: 20px;
-    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%235a605b' stroke-width='2'%3E%3Cpolyline points='9,18 15,12 9,6'%3E%3C/polyline%3E%3C/svg%3E") no-repeat center;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%235a605b' stroke-width='2'%3E%3Cpolyline points='9,18 15,12 9,6'%3E%3C/polyline%3E%3C/svg%3E")
+      no-repeat center;
     background-size: contain;
   }
-  
+
   &:hover {
     background-color: rgba(64, 234, 135, 0.05);
   }
@@ -589,11 +627,11 @@ const NotificationItem = styled.div`
   position: relative;
   border-bottom: 1px solid #e0e0e0;
   cursor: pointer;
-  
+
   &:last-child {
     border-bottom: none;
   }
-  
+
   &:hover {
     background-color: rgba(64, 234, 135, 0.05);
   }
@@ -641,7 +679,7 @@ const NotificationArrow = styled.div`
   height: 20px;
   color: #ccc;
   flex-shrink: 0;
-  
+
   svg {
     width: 100%;
     height: 100%;
@@ -673,7 +711,7 @@ const InfoItem = styled.div`
   border-bottom: 1px solid #e0e0e0;
   cursor: pointer;
   background-color: transparent;
-  
+
   &:hover {
     background-color: rgba(64, 234, 135, 0.05);
   }
@@ -692,7 +730,7 @@ const InfoArrow = styled.div`
   height: 20px;
   color: #ccc;
   flex-shrink: 0;
-  
+
   svg {
     width: 100%;
     height: 100%;

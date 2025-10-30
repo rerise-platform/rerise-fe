@@ -1,22 +1,25 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import styled, { keyframes } from 'styled-components';
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import styled, { keyframes } from "styled-components";
 
 // 이미지 import
-import mony1 from '../../../shared/assets/images/mony1.svg';
-import questionMark from '../../../shared/assets/images/메인물음표.svg';
-import graph from '../../../shared/assets/images/graph.svg';
-import Rectangle from '../../../shared/assets/images/Rectangle.svg';
-import emotion1 from '../../../shared/assets/images/emotion1.svg';
-import emotion2 from '../../../shared/assets/images/emotion2.svg';
-import emotion3 from '../../../shared/assets/images/emotion3.svg';
-import emotion4 from '../../../shared/assets/images/emotion4.svg';
-import emotion5 from '../../../shared/assets/images/emotion5.svg';
-
+import mony1 from "../../../shared/assets/images/mony1.svg";
+import questionMark from "../../../shared/assets/images/메인물음표.svg";
+import graph from "../../../shared/assets/images/graph.svg";
+import Rectangle from "../../../shared/assets/images/Rectangle.svg";
+import emotion1 from "../../../shared/assets/images/emotion1.svg";
+import emotion2 from "../../../shared/assets/images/emotion2.svg";
+import emotion3 from "../../../shared/assets/images/emotion3.svg";
+import emotion4 from "../../../shared/assets/images/emotion4.svg";
+import emotion5 from "../../../shared/assets/images/emotion5.svg";
 
 // API import
-import { getMainScreenData, completeMission, getEmotionRecord } from '../api/mainAPI';
-import { getCharacterImage } from '../../../shared/utils/characterImageMapper';
+import {
+  getMainScreenData,
+  completeMission,
+  getEmotionRecord,
+} from "../api/mainAPI";
+import { getCharacterImage } from "../../../shared/utils/characterImageMapper";
 
 // 상수
 const EMOTION_IMAGES = {
@@ -24,25 +27,27 @@ const EMOTION_IMAGES = {
   2: emotion2,
   3: emotion3,
   4: emotion4,
-  5: emotion5
+  5: emotion5,
 };
 
 const ENCOURAGEMENT_MESSAGES = [
-  '괜찮아, 너의 속도대로 천천히 가도 돼. 가장 중요한 건 멈추지 않는 용기야.',
-  '세상의 모든 씨앗이 한 번에 싹을 틔우진 않아. 너만의 계절이 곧 올 거야.',
-  '큰 변화가 아니어도 괜찮아. 어제보다 딱 한 걸음만 나아갔다면, 그건 정말 대단한 일이야.',
-  '오늘도 무사히 하루를 보낸 것만으로도, 너는 충분히 너의 몫을 다한 거야. 정말 고생 많았어.',
-  '가끔은 익숙하고 안전한 곳에 머무는 용기도 필요해. 이곳에서 충분히 힘을 얻고 다시 나아가자.',
-  '충전 없이 계속 달릴 수 있는 배터리는 없어. 오늘은 잠시 쉬어가도 괜찮아, 아니, 쉬어야만 해.',
-  '번아웃은 네가 게으르다는 증거가 아니야. 그만큼 최선을 다해 달려왔다는 증거일 뿐이야.',
-  '무리하지 말자. 세상은 우리가 없어도 잘 돌아가. 잠시 나를 위한 시간을 갖는다고 큰일 나지 않아.',
-  '너의 모든 감정은 소중해. 어떤 색깔의 감정이든, 그 자체로 아름다운 너의 일부야.',
-  '방향을 잃은 것 같을 땐, 잠시 멈춰서 네 안의 나침반이 어디를 가리키는지 귀 기울여 봐.'
+  "괜찮아, 너의 속도대로 천천히 가도 돼. 가장 중요한 건 멈추지 않는 용기야.",
+  "세상의 모든 씨앗이 한 번에 싹을 틔우진 않아. 너만의 계절이 곧 올 거야.",
+  "큰 변화가 아니어도 괜찮아. 어제보다 딱 한 걸음만 나아갔다면, 그건 정말 대단한 일이야.",
+  "오늘도 무사히 하루를 보낸 것만으로도, 너는 충분히 너의 몫을 다한 거야. 정말 고생 많았어.",
+  "가끔은 익숙하고 안전한 곳에 머무는 용기도 필요해. 이곳에서 충분히 힘을 얻고 다시 나아가자.",
+  "충전 없이 계속 달릴 수 있는 배터리는 없어. 오늘은 잠시 쉬어가도 괜찮아, 아니, 쉬어야만 해.",
+  "번아웃은 네가 게으르다는 증거가 아니야. 그만큼 최선을 다해 달려왔다는 증거일 뿐이야.",
+  "무리하지 말자. 세상은 우리가 없어도 잘 돌아가. 잠시 나를 위한 시간을 갖는다고 큰일 나지 않아.",
+  "너의 모든 감정은 소중해. 어떤 색깔의 감정이든, 그 자체로 아름다운 너의 일부야.",
+  "방향을 잃은 것 같을 땐, 잠시 멈춰서 네 안의 나침반이 어디를 가리키는지 귀 기울여 봐.",
 ];
 
 // 유틸리티 함수
 const getRandomEncouragementMessage = () => {
-  return ENCOURAGEMENT_MESSAGES[Math.floor(Math.random() * ENCOURAGEMENT_MESSAGES.length)];
+  return ENCOURAGEMENT_MESSAGES[
+    Math.floor(Math.random() * ENCOURAGEMENT_MESSAGES.length)
+  ];
 };
 
 const getEmotionImageByLevel = (emotionLevel) => {
@@ -56,7 +61,9 @@ const calculateProgress = (growthRate, fallbackExp, fallbackExpToNextLevel) => {
     return growthRate;
   }
   // 폴백: 기존 경험치 계산 방식
-  return fallbackExp && fallbackExpToNextLevel ? (fallbackExp / fallbackExpToNextLevel) * 100 : 75;
+  return fallbackExp && fallbackExpToNextLevel
+    ? (fallbackExp / fallbackExpToNextLevel) * 100
+    : 75;
 };
 
 const renderMissionList = (missions, handleMissionComplete) => {
@@ -65,24 +72,24 @@ const renderMissionList = (missions, handleMissionComplete) => {
       <MissionItem key={mission.mission_id} $delay={0.1 * (index + 1)}>
         <MissionEmoji>✓</MissionEmoji>
         <MissionText>{mission.title}</MissionText>
-        <MissionCheck 
+        <MissionCheck
           $completed={mission.is_completed}
-          onClick={() => !mission.is_completed && handleMissionComplete(mission.mission_id)}
+          onClick={() =>
+            !mission.is_completed && handleMissionComplete(mission.mission_id)
+          }
         >
-          {mission.is_completed && '✓'}
+          {mission.is_completed && "✓"}
         </MissionCheck>
       </MissionItem>
     ));
   }
-  
+
   // 미션이 없을 때 표시할 메시지
   return (
     <MissionItem key="empty" $delay={0.1}>
       <MissionEmoji>📅</MissionEmoji>
       <MissionText>오늘의 미션이 아직 준비되지 않았습니다.</MissionText>
-      <MissionCheck $completed={false}>
-        ⏳
-      </MissionCheck>
+      <MissionCheck $completed={false}>⏳</MissionCheck>
     </MissionItem>
   );
 };
@@ -91,123 +98,153 @@ const renderMissionList = (missions, handleMissionComplete) => {
  * 메인 페이지 컴포넌트
  */
 const MainPage = () => {
-  console.log('🔄 [MAIN PAGE] 컴포넌트 렌더링 시작');
-  
+  console.log("🔄 [MAIN PAGE] 컴포넌트 렌더링 시작");
+
   const navigate = useNavigate();
   const [speechBubbleVisible, setSpeechBubbleVisible] = useState(false);
   const [characterPromptVisible, setCharacterPromptVisible] = useState(true);
   const [statsVisible, setStatsVisible] = useState(true);
-  
+
   // API 데이터 상태
   const [mainData, setMainData] = useState(null);
-  const [displayNickname, setDisplayNickname] = useState('사용자');
+  const [displayNickname, setDisplayNickname] = useState("사용자");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [emotionRecord, setEmotionRecord] = useState(null);
-  
-  console.log('🔄 [MAIN PAGE] 현재 상태:', { 
-    hasMainData: !!mainData, 
-    loading, 
+
+  console.log("🔄 [MAIN PAGE] 현재 상태:", {
+    hasMainData: !!mainData,
+    loading,
     hasError: !!error,
-    nickname: mainData?.nickname 
+    nickname: mainData?.nickname,
   });
-
-
 
   // 컴포넌트 마운트 시 데이터 로드
   useEffect(() => {
-    console.log('🚀 [MAIN PAGE] useEffect 시작 - 모든 데이터 로드');
-    
+    console.log("🚀 [MAIN PAGE] useEffect 시작 - 모든 데이터 로드");
+
     // 메인 데이터 로드 (미션 데이터 포함)
     loadMainData();
-    
+
     // 감정 데이터는 별도로 로드
-    loadTodayEmotion().catch(err => console.error('감정 로드 에러:', err));
+    loadTodayEmotion().catch((err) => console.error("감정 로드 에러:", err));
   }, []);
 
   const loadTodayEmotion = async () => {
     try {
-      console.log('🎭 [EMOTION] 오늘 감정 기록 로드 시작');
-      const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD 형식
+      console.log("🎭 [EMOTION] 오늘 감정 기록 로드 시작");
+      const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD 형식
       const emotionData = await getEmotionRecord(today);
-      console.log('✅ [EMOTION] 오늘 감정 기록 로드 완료:', emotionData);
+      console.log("✅ [EMOTION] 오늘 감정 기록 로드 완료:", emotionData);
       setEmotionRecord(emotionData);
     } catch (err) {
-      console.error('❌ [EMOTION] 감정 기록 로드 실패:', err);
+      console.error("❌ [EMOTION] 감정 기록 로드 실패:", err);
       setEmotionRecord(null);
     }
-  }
-
+  };
 
   const loadMainData = async () => {
     try {
-      console.log('🔍 [MAIN PAGE] 메인 데이터 로드 시작');
+      console.log("🔍 [MAIN PAGE] 메인 데이터 로드 시작");
       setLoading(true);
       const data = await getMainScreenData();
-      
-      console.log('✅ [MAIN PAGE DEBUG] 메인 데이터 로드 성공:', JSON.stringify(data, null, 2));
-      console.log('👤 [MAIN PAGE DEBUG] 닉네임 확인:', data?.nickname);
-      console.log('🎭 [MAIN PAGE DEBUG] 캐릭터 타입:', data?.characterType);
-      console.log('⭐ [MAIN PAGE DEBUG] 캐릭터 단계:', data?.characterStage);
-      console.log('📊 [MAIN PAGE DEBUG] 온보딩 완료:', data?.isOnboardingComplete);
-      console.log('🏠 [MAIN PAGE DEBUG] character_status:', data?.character_status);
-      
+
+      console.log(
+        "✅ [MAIN PAGE DEBUG] 메인 데이터 로드 성공:",
+        JSON.stringify(data, null, 2)
+      );
+      console.log("👤 [MAIN PAGE DEBUG] 닉네임 확인:", data?.nickname);
+      console.log("🎭 [MAIN PAGE DEBUG] 캐릭터 타입:", data?.characterType);
+      console.log("⭐ [MAIN PAGE DEBUG] 캐릭터 단계:", data?.characterStage);
+      console.log(
+        "📊 [MAIN PAGE DEBUG] 온보딩 완료:",
+        data?.isOnboardingComplete
+      );
+      console.log(
+        "🏠 [MAIN PAGE DEBUG] character_status:",
+        data?.character_status
+      );
+
       // 실서비스 긴급 디버깅 - 데이터를 alert으로 표시
-      if (!data?.nickname || data.nickname === '사용자') {
-        alert(`🚨 긴급 디버깅\n닉네임: ${data?.nickname}\n캐릭터타입: ${data?.characterType}\n레벨: ${data?.level}\n전체데이터: ${JSON.stringify(data, null, 2).substring(0, 500)}`);
+      if (!data?.nickname || data.nickname === "사용자") {
+        alert(
+          `🚨 긴급 디버깅\n닉네임: ${data?.nickname}\n캐릭터타입: ${
+            data?.characterType
+          }\n레벨: ${data?.level}\n전체데이터: ${JSON.stringify(
+            data,
+            null,
+            2
+          ).substring(0, 500)}`
+        );
       }
-      
-      console.log('📝 [MAIN PAGE] setMainData 호출 전');
+
+      console.log("📝 [MAIN PAGE] setMainData 호출 전");
       setMainData(data);
       // 디버깅용 전역 변수로 노출
       window.__debugMainData = data;
-      console.log('📝 [MAIN PAGE] setMainData 호출 후');
-      
-      console.log('📝 [MAIN PAGE] setError(null) 호출 전');
+      console.log("📝 [MAIN PAGE] setMainData 호출 후");
+
+      console.log("📝 [MAIN PAGE] setError(null) 호출 전");
       setError(null);
-      console.log('📝 [MAIN PAGE] setError(null) 호출 후');
+      console.log("📝 [MAIN PAGE] setError(null) 호출 후");
     } catch (err) {
-      console.error('❌ [MAIN PAGE] 메인 데이터 로드 실패:', err);
-      console.error('❌ [MAIN PAGE] 에러 상세:', err.response || err);
-      
+      console.error("❌ [MAIN PAGE] 메인 데이터 로드 실패:", err);
+      console.error("❌ [MAIN PAGE] 에러 상세:", err.response || err);
+
       // 실서비스 긴급 디버깅 - API 실패를 alert으로 표시
-      alert(`🚨 API 실패 디버깅\n에러: ${err.message}\n상태: ${err.response?.status}\n응답: ${JSON.stringify(err.response?.data, null, 2)?.substring(0, 300)}`);
-      
+      alert(
+        `🚨 API 실패 디버깅\n에러: ${err.message}\n상태: ${
+          err.response?.status
+        }\n응답: ${JSON.stringify(err.response?.data, null, 2)?.substring(
+          0,
+          300
+        )}`
+      );
+
       setError(err);
     } finally {
-      console.log('🏁 [MAIN PAGE] 로딩 완료 - setLoading(false) 호출');
+      console.log("🏁 [MAIN PAGE] 로딩 완료 - setLoading(false) 호출");
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    console.log('🎭 [NICKNAME DEBUG] useEffect 트리거됨:', {
+    console.log("🎭 [NICKNAME DEBUG] useEffect 트리거됨:", {
       hasMainData: !!mainData,
       mainDataNickname: mainData?.nickname,
       characterStatusNickname: mainData?.character_status?.nickname,
-      currentDisplayNickname: displayNickname
+      currentDisplayNickname: displayNickname,
     });
-    
+
     if (mainData?.nickname) {
-      console.log('✅ [NICKNAME DEBUG] mainData.nickname 사용:', mainData.nickname);
+      console.log(
+        "✅ [NICKNAME DEBUG] mainData.nickname 사용:",
+        mainData.nickname
+      );
       setDisplayNickname(mainData.nickname);
     } else if (mainData?.character_status?.nickname) {
-      console.log('✅ [NICKNAME DEBUG] character_status.nickname 사용:', mainData.character_status.nickname);
+      console.log(
+        "✅ [NICKNAME DEBUG] character_status.nickname 사용:",
+        mainData.character_status.nickname
+      );
       setDisplayNickname(mainData.character_status.nickname);
     } else {
-      console.log('⚠️ [NICKNAME DEBUG] 닉네임을 찾을 수 없음, 기본값 유지:', displayNickname);
+      console.log(
+        "⚠️ [NICKNAME DEBUG] 닉네임을 찾을 수 없음, 기본값 유지:",
+        displayNickname
+      );
     }
   }, [mainData]);
 
   const refreshMissions = async () => {
     try {
-      console.log('🎯 [MISSIONS] 미션 상태 새로고침 시작');
+      console.log("🎯 [MISSIONS] 미션 상태 새로고침 시작");
       // 메인 데이터 전체를 다시 로드하여 최신 미션 상태 반영
       const data = await getMainScreenData();
       setMainData(data);
-      console.log('✅ [MISSIONS] 미션 상태 새로고침 완료');
+      console.log("✅ [MISSIONS] 미션 상태 새로고침 완료");
     } catch (err) {
-      console.error('❌ [MISSIONS] 미션 상태 새로고침 실패:', err);
+      console.error("❌ [MISSIONS] 미션 상태 새로고침 실패:", err);
     }
   };
 
@@ -217,7 +254,7 @@ const MainPage = () => {
       // 미션 완료 후 전체 데이터 새로고침
       refreshMissions();
     } catch (err) {
-      console.error('미션 완료 실패:', err);
+      console.error("미션 완료 실패:", err);
     }
   };
 
@@ -240,10 +277,9 @@ const MainPage = () => {
     }, 6000);
   };
 
-
   // 강제 렌더링 테스트: 로딩 조건을 우회하고 바로 렌더링
-  console.log('🧪 [RENDER] 강제 렌더링 테스트 - 로딩 조건 우회');
-  
+  console.log("🧪 [RENDER] 강제 렌더링 테스트 - 로딩 조건 우회");
+
   // 임시로 로딩 조건을 주석 처리
   /*
   if (loading && !mainData) {
@@ -265,7 +301,14 @@ const MainPage = () => {
     return (
       <ElementEXP>
         <MainContent>
-          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              height: "100vh",
+            }}
+          >
             데이터를 불러오는데 실패했습니다.
           </div>
         </MainContent>
@@ -282,20 +325,23 @@ const MainPage = () => {
   */
 
   // 로딩 중일 때도 기본 UI 표시
-  console.log('🎨 [RENDER] 렌더링 시점의 상태:', { 
-    hasMainData: !!mainData, 
-    loading, 
-    nickname: mainData?.nickname 
+  console.log("🎨 [RENDER] 렌더링 시점의 상태:", {
+    hasMainData: !!mainData,
+    loading,
+    nickname: mainData?.nickname,
   });
-  
+
   if (mainData) {
-    console.log('🎨 [RENDER] 렌더링 시점의 mainData:', mainData);
-    console.log('🎨 [RENDER] 표시될 닉네임:', mainData?.nickname);
-    console.log('🎨 [RENDER] 캐릭터 이미지 소스:', getCharacterImage(mainData?.characterType, mainData?.characterStage));
+    console.log("🎨 [RENDER] 렌더링 시점의 mainData:", mainData);
+    console.log("🎨 [RENDER] 표시될 닉네임:", mainData?.nickname);
+    console.log(
+      "🎨 [RENDER] 캐릭터 이미지 소스:",
+      getCharacterImage(mainData?.characterType, mainData?.characterStage)
+    );
   }
 
   // 렌더링 시점 모든 데이터 체크
-  console.log('🎨 [RENDER DEBUG] 렌더링 시점 전체 상태:', {
+  console.log("🎨 [RENDER DEBUG] 렌더링 시점 전체 상태:", {
     mainDataExists: !!mainData,
     nickname: mainData?.nickname,
     displayNickname: displayNickname,
@@ -306,15 +352,13 @@ const MainPage = () => {
     characterStage: mainData?.characterStage,
     dailyMissions: mainData?.daily_missions?.length || 0,
     loading,
-    error: !!error
+    error: !!error,
   });
 
   return (
     <ElementEXP>
       <MainContent>
-
-        
-        {process.env.NODE_ENV !== 'production' && (
+        {process.env.NODE_ENV !== "production" && (
           <DebugOverlay>
             <strong>DEBUG</strong>
             <div>displayNickname: {displayNickname}</div>
@@ -324,15 +368,22 @@ const MainPage = () => {
         <Header>
           <Greeting>
             <GreetingText>
-              <Name>{mainData?.nickname || displayNickname || '디버그: 닉네임 없음'}</Name>
+              <Name>
+                {mainData?.nickname || displayNickname || "디버그: 닉네임 없음"}
+              </Name>
               <Message>님, 안녕하세요!</Message>
             </GreetingText>
           </Greeting>
           <Character onClick={greetCharacter}>
             <CharacterCircle onClick={greetCharacter}>
-              <CharacterSvg 
-                src={getCharacterImage(mainData?.characterType, mainData?.characterStage) || mony1} 
-                alt="캐릭터" 
+              <CharacterSvg
+                src={
+                  getCharacterImage(
+                    mainData?.characterType,
+                    mainData?.characterStage
+                  ) || mony1
+                }
+                alt="캐릭터"
               />
             </CharacterCircle>
           </Character>
@@ -349,13 +400,13 @@ const MainPage = () => {
             <StatItem className="growth" $visible={statsVisible}>
               <StatLabel>성장률</StatLabel>
               <ProgressBar>
-                <ProgressFill $progress={
-                  calculateProgress(
+                <ProgressFill
+                  $progress={calculateProgress(
                     mainData?.growthRate,
                     mainData?.exp,
                     mainData?.exp_to_next_level
-                  )
-                } />
+                  )}
+                />
               </ProgressBar>
             </StatItem>
             <StatItem className="points" $visible={statsVisible}>
@@ -364,19 +415,32 @@ const MainPage = () => {
             </StatItem>
             <StatItem className="level" $visible={statsVisible}>
               <StatIcon className="level">LV</StatIcon>
-              <StatValue className="level">{String(mainData?.level || 1).padStart(2, '0')}</StatValue>
+              <StatValue className="level">
+                {String(mainData?.level || 1).padStart(2, "0")}
+              </StatValue>
             </StatItem>
             <CharacterPrompt $visible={characterPromptVisible}>
-              <PromptText>캐릭터를<br />눌러보세요</PromptText>
+              <PromptText>
+                캐릭터를
+                <br />
+                눌러보세요
+              </PromptText>
             </CharacterPrompt>
           </StatsRow>
-          
+
           <SecondRow>
             <DayCard $hasEmotion={!!emotionRecord?.emotion_level}>
               <DayEmoji>오늘의 감정 상태</DayEmoji>
-              <DayText src={getEmotionImageByLevel(emotionRecord?.emotion_level)} alt="감정상태" />
+              <DayText
+                src={getEmotionImageByLevel(emotionRecord?.emotion_level)}
+                alt="감정상태"
+              />
               {!emotionRecord?.emotion_level && (
-                <DayDescription>오늘의 감정을<br />기록해 주세요!</DayDescription>
+                <DayDescription>
+                  오늘의 감정을
+                  <br />
+                  기록해 주세요!
+                </DayDescription>
               )}
             </DayCard>
           </SecondRow>
@@ -390,7 +454,7 @@ const MainPage = () => {
         </MissionSection>
 
         <EmotionSection>
-          <EmotionContent onClick={() => navigate('/emotion')}>
+          <EmotionContent onClick={() => navigate("/emotion")}>
             <EmotionText>
               <EmotionQuestion>오늘 하루 어떠셨나요?</EmotionQuestion>
               <EmotionAction>감정을 기록해보세요 ›</EmotionAction>
@@ -403,7 +467,7 @@ const MainPage = () => {
       </MainContent>
     </ElementEXP>
   );
-}
+};
 
 // 애니메이션 정의
 const fadeInUp = keyframes`
@@ -618,7 +682,7 @@ const SpeechBubble = styled.div`
   height: 70px;
   pointer-events: none;
   z-index: 10;
-  
+
   img {
     width: 100%;
     height: 100%;
@@ -636,7 +700,7 @@ const BubbleText = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   font-size: 12px;
   font-weight: 600;
   color: #1a2e1f;
@@ -661,9 +725,9 @@ const StatItem = styled.div`
   backdrop-filter: blur(10px);
   box-shadow: 0 2px 10px rgba(64, 234, 135, 0.1);
   transition: opacity 0.6s ease, transform 0.6s ease;
-  opacity: ${props => props.$visible ? 1 : 0};
-  transform: translateY(${props => props.$visible ? 0 : 20}px);
-  pointer-events: ${props => props.$visible ? 'auto' : 'none'};
+  opacity: ${(props) => (props.$visible ? 1 : 0)};
+  transform: translateY(${(props) => (props.$visible ? 0 : 20)}px);
+  pointer-events: ${(props) => (props.$visible ? "auto" : "none")};
 
   &.growth {
     width: 25.58vw; /* 110px / 430px * 100 */
@@ -792,7 +856,7 @@ const ProgressBar = styled.div`
 `;
 
 const ProgressFill = styled.div`
-  width: ${props => props.$progress || 75}%;
+  width: ${(props) => props.$progress || 75}%;
   height: 100%;
   background: #2ad948;
   border-radius: 2px;
@@ -805,7 +869,8 @@ const DayCard = styled.div`
   border-radius: 3.49vw; /* 15px / 430px * 100 */
   display: flex;
   flex-direction: column;
-  justify-content: ${props => props.$hasEmotion ? 'center' : 'space-between'};
+  justify-content: ${(props) =>
+    props.$hasEmotion ? "center" : "space-between"};
   align-items: center;
   padding: 3.49vw 2.79vw; /* 15px 12px을 vw로 통일 */
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
@@ -895,9 +960,9 @@ const CharacterPrompt = styled.div`
   width: auto;
   z-index: 10;
   transition: opacity 0.6s ease, transform 0.6s ease;
-  opacity: ${props => props.$visible ? 1 : 0};
-  transform: translateY(${props => props.$visible ? 0 : 20}px);
-  pointer-events: ${props => props.$visible ? 'auto' : 'none'};
+  opacity: ${(props) => (props.$visible ? 1 : 0)};
+  transform: translateY(${(props) => (props.$visible ? 0 : 20)}px);
+  pointer-events: ${(props) => (props.$visible ? "auto" : "none")};
 
   @media (min-width: 768px) {
     border-radius: 2.34vw; /* 18px / 768px * 100 */
@@ -988,7 +1053,7 @@ const MissionItem = styled.div`
   min-height: 60px;
   transition: all 0.2s ease;
   animation: ${fadeInUp} 0.6s ease forwards;
-  animation-delay: ${props => props.$delay}s;
+  animation-delay: ${(props) => props.$delay}s;
 
   &:first-child {
     border-top-left-radius: 8px;
@@ -1033,12 +1098,14 @@ const MissionCheck = styled.div`
   font-size: 14px;
   color: white;
   transition: all 0.2s ease;
-  background: ${props => props.$completed ? '#40ea87' : 'transparent'};
-  border-color: ${props => props.$completed ? '#40ea87' : '#e0e0e0'};
-  cursor: ${props => props.$completed ? 'default' : 'pointer'};
+  background: ${(props) => (props.$completed ? "#40ea87" : "transparent")};
+  border-color: ${(props) => (props.$completed ? "#40ea87" : "#e0e0e0")};
+  cursor: ${(props) => (props.$completed ? "default" : "pointer")};
 
   &:hover {
-    ${props => !props.$completed && `
+    ${(props) =>
+      !props.$completed &&
+      `
       border-color: #40ea87;
       background: rgba(64, 234, 135, 0.1);
     `}
@@ -1119,7 +1186,7 @@ const DebugOverlay = styled.div`
   top: 10px;
   left: 10px;
   z-index: 9999;
-  background: rgba(0,0,0,0.7);
+  background: rgba(0, 0, 0, 0.7);
   color: #fff;
   padding: 8px;
   border-radius: 6px;
