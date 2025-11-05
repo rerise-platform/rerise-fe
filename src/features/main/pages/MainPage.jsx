@@ -99,6 +99,8 @@ const renderMissionList = (missions, handleMissionComplete) => {
  */
 const MainPage = () => {
   console.log("🔄 [MAIN PAGE] 컴포넌트 렌더링 시작");
+  // 환경변수로 디버그 출력을 제어합니다. 기본값은 false
+  const ENABLE_DEBUG = process.env.REACT_APP_ENABLE_DEBUG === 'true';
 
   const navigate = useNavigate();
   const [speechBubbleVisible, setSpeechBubbleVisible] = useState(false);
@@ -165,23 +167,26 @@ const MainPage = () => {
         data?.character_status
       );
 
-      // 실서비스 긴급 디버깅 - 데이터를 alert으로 표시
-      if (!data?.nickname || data.nickname === "사용자") {
-        alert(
-          `🚨 긴급 디버깅\n닉네임: ${data?.nickname}\n캐릭터타입: ${
-            data?.characterType
-          }\n레벨: ${data?.level}\n전체데이터: ${JSON.stringify(
-            data,
-            null,
-            2
-          ).substring(0, 500)}`
-        );
+      // 디버그 모드일 때만 alert 표시
+      if (ENABLE_DEBUG) {
+        // 실서비스 긴급 디버깅 - 데이터를 alert으로 표시 (디버그 전용)
+        if (!data?.nickname || data.nickname === "사용자") {
+          alert(
+            `🚨 긴급 디버깅\n닉네임: ${data?.nickname}\n캐릭터타입: ${
+              data?.characterType
+            }\n레벨: ${data?.level}\n전체데이터: ${JSON.stringify(
+              data,
+              null,
+              2
+            ).substring(0, 500)}`
+          );
+        }
       }
 
       console.log("📝 [MAIN PAGE] setMainData 호출 전");
       setMainData(data);
-      // 디버깅용 전역 변수로 노출
-      window.__debugMainData = data;
+  // 디버깅용 전역 변수로 노출 (디버그 모드에서만)
+  if (ENABLE_DEBUG) window.__debugMainData = data;
       console.log("📝 [MAIN PAGE] setMainData 호출 후");
 
       console.log("📝 [MAIN PAGE] setError(null) 호출 전");
@@ -191,15 +196,17 @@ const MainPage = () => {
       console.error("❌ [MAIN PAGE] 메인 데이터 로드 실패:", err);
       console.error("❌ [MAIN PAGE] 에러 상세:", err.response || err);
 
-      // 실서비스 긴급 디버깅 - API 실패를 alert으로 표시
-      alert(
-        `🚨 API 실패 디버깅\n에러: ${err.message}\n상태: ${
-          err.response?.status
-        }\n응답: ${JSON.stringify(err.response?.data, null, 2)?.substring(
-          0,
-          300
-        )}`
-      );
+      // API 실패에 대한 alert은 디버그 모드에서만 표시
+      if (ENABLE_DEBUG) {
+        alert(
+          `🚨 API 실패 디버깅\n에러: ${err.message}\n상태: ${
+            err.response?.status
+          }\n응답: ${JSON.stringify(err.response?.data, null, 2)?.substring(
+            0,
+            300
+          )}`
+        );
+      }
 
       setError(err);
     } finally {
@@ -358,7 +365,7 @@ const MainPage = () => {
   return (
     <ElementEXP>
       <MainContent>
-        {process.env.NODE_ENV !== "production" && (
+        {process.env.NODE_ENV !== "production" && ENABLE_DEBUG && (
           <DebugOverlay>
             <strong>DEBUG</strong>
             <div>displayNickname: {displayNickname}</div>

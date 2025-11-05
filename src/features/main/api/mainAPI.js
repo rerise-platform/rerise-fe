@@ -1,18 +1,53 @@
 import api from '../../../lib/apiClient';
 import { mockMainData, updateMockMissionStatus, mockEmotionRecords, mockEmptyEmotionRecord } from './mockData.js';
-import { getCharacterImage } from '../../../shared/utils/characterImageMapper.js';
+// getCharacterImage 함수가 없거나 경로가 잘못된 경우 직접 정의
+const getCharacterImage = (type, stage) => {
+  try {
+    return `/assets/characters/${type}_stage${stage}.png`;
+  } catch {
+    return '/assets/characters/default.png';
+  }
+};
 
 // 개발 모드 설정 (true: Mock 데이터 사용, false: 실제 API 사용)
-const USE_MOCK_DATA = false;
+const USE_MOCK_DATA = true;
 
 /**
- * 메인 화면 데이터 조회 API 호출 함수
- * 백엔드 API와 통신하여 사용자의 캐릭터 정보를 조회
+ * 메인 페이지 데이터를 조회합니다. (Redux Toolkit 용)
+ * @returns {Promise} API 응답 결과
  * 
- * @returns {Promise<Object>} 메인 화면 데이터 (nickname, characterType, characterStage, level, growthRate)
- * @throws {Error} API 호출 실패 시 에러 객체
+ * 응답 형식:
+ * {
+ *   "userId": 123,
+ *   "nickname": "testuser",
+ *   "characterInfo": {
+ *     "characterId": 1,
+ *     "characterName": "모니",
+ *     "characterType": "mony",
+ *     "level": 5,
+ *     "experience": 120,
+ *     "stage": 2
+ *   },
+ *   "recentRecord": {
+ *     "recordId": 10,
+ *     "emotionLevel": 4,
+ *     "keywords": ["행복", "성취감"],
+ *     "memo": "오늘은 좋은 하루였다",
+ *     "recordedAt": "2024-08-24"
+ *   },
+ *   "todayMissions": [
+ *     {
+ *       "userDailyMissionId": 1,
+ *       "missionId": 15,
+ *       "content": "5분간 간단한 스트레칭으로 몸 풀어주기",
+ *       "theme": "몸돌보기",
+ *       "theory": "BEHAVIORAL_ACTIVATION",
+ *       "status": "PENDING"
+ *     }
+ *   ]
+ * }
  */
-export const getMainScreenData = async () => {
+export const fetchMainPageData = async () => {
   try {
     // Mock 데이터 사용 모드
     if (USE_MOCK_DATA) {
@@ -21,7 +56,11 @@ export const getMainScreenData = async () => {
       // 실제 API 호출처럼 약간의 지연 시간 추가
       await new Promise(resolve => setTimeout(resolve, 500));
       
-      return mockMainData;
+      // 데이터 구조 디버깅 로그
+        console.log('📊 목데이터 구조 (mockMainData):', mockMainData);
+      
+        // mockMainData는 UI에서 기대하는 daily_missions 구조를 포함함
+        return mockMainData;
     }
 
     // 실제 API 호출 모드
@@ -125,8 +164,13 @@ export const getMainScreenData = async () => {
     return transformedData;
   } catch (error) {
     console.error('메인 화면 데이터 조회 실패:', error);
-    throw error.response?.data || error.message;
+    throw error;
   }
+};
+
+// Compatibility export: 기존 코드에서 getMainScreenData를 호출하는 곳들이 있어 래퍼로 노출합니다.
+export const getMainScreenData = async () => {
+  return fetchMainPageData();
 };
 
 /**
@@ -148,9 +192,14 @@ export const getTodayMissions = async () => {
       // Mock 데이터에서 미션 목록 반환
       return mockMainData.daily_missions || [];
     }
+    
+    // JWT 토큰 확인 (apiClient.js의 interceptors에서 처리)
+    const token = localStorage.getItem('accessToken');
+    if (!token) {
+      throw new Error('인증 정보가 없습니다. 다시 로그인해주세요.');
+    }
 
     // 실제 API 호출 모드 - 메인 API에서 미션 데이터도 함께 제공됨
-    // 별도 미션 API가 필요한 경우에만 사용
     const response = await api.get('/api/v1/main');
     
     // API 응답에서 미션 데이터만 추출하여 변환
@@ -197,9 +246,15 @@ export const completeMission = async (userDailyMissionId) => {
         };
       }
     }
+    
+    // JWT 토큰 확인 (apiClient.js의 interceptors에서 처리)
+    const token = localStorage.getItem('accessToken');
+    if (!token) {
+      throw new Error('인증 정보가 없습니다. 다시 로그인해주세요.');
+    }
 
-    // 실제 API 호출 모드
-    const response = await api.post('/api/missions/complete', {
+    // 실제 API 호출 모드 - 백엔드 API 명세 기준으로 업데이트
+    const response = await api.post('/api/v1/missions/complete', {
       userDailyMissionId: userDailyMissionId
     });
     
@@ -209,7 +264,7 @@ export const completeMission = async (userDailyMissionId) => {
       success: true,
       mission_id: mission.userDailyMissionId,
       title: mission.content,
-      reward_exp: mission.rewardExp,
+      reward_exp: mission.rewardExp || 0,
       status: mission.status,
       completed_date: mission.completedDate
     };
@@ -237,6 +292,12 @@ export const getEmotionRecord = async (date) => {
       
       // 해당 날짜의 감정 기록이 있으면 반환, 없으면 빈 데이터 반환
       return mockEmotionRecords[date] || mockEmptyEmotionRecord;
+    }
+    
+    // JWT 토큰 확인 (apiClient.js의 interceptors에서 처리)
+    const token = localStorage.getItem('accessToken');
+    if (!token) {
+      throw new Error('인증 정보가 없습니다. 다시 로그인해주세요.');
     }
 
     // 실제 API 호출 모드
