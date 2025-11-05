@@ -484,58 +484,35 @@ const fadeInUp = keyframes`
 // 스타일 컴포넌트들
 const ElementEXP = styled.div`
   background-color: #fefff5;
-  display: grid;
-  justify-items: center;
+  display: flex;
+  justify-content: center;
   align-items: start;
-  width: 100vw;
+  width: 100%;
   min-height: 100vh;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 `;
 
 const MainContent = styled.div`
-  width: 100vw;
+  width: 100%;
+  max-width: 430px;
   min-height: 100vh;
   background-color: #fefff5;
   position: relative;
   overflow-x: hidden;
-  margin-top: 1.875vh; /* 15px / 800px * 100 */
-
-  /* 모든 화면에서 비율 유지 */
-  padding: 0 4.65vw; /* 20px / 430px * 100 */
-
-  @media (min-width: 768px) {
-    padding: 0 5.2vw; /* 40px / 768px * 100 */
-  }
-
-  @media (min-width: 1024px) {
-    max-width: 1200px;
-    margin: 1.875vh auto 0 auto;
-    padding: 0 5vw; /* 60px / 1200px * 100 */
-  }
+  margin-top: 15px;
+  padding: 0 20px;
 `;
 
 const Header = styled.header`
   position: relative;
   padding: 0;
-  height: 40.375vh; /* 323px / 800px * 100 */
+  height: 323px;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
   background-color: #fefff5;
-  max-width: 100%;
+  width: 100%;
   margin: 0 auto;
-
-  @media (min-width: 431px) {
-    max-width: 116.3vw; /* 500px / 430px * 100 */
-  }
-
-  @media (min-width: 768px) {
-    max-width: 78.1vw; /* 600px / 768px * 100 */
-  }
-
-  @media (min-width: 1024px) {
-    max-width: 50vw; /* 600px / 1200px * 100 */
-  }
 `;
 
 const Greeting = styled.div`
@@ -544,19 +521,11 @@ const Greeting = styled.div`
 `;
 
 const GreetingText = styled.h1`
-  font-size: 4.65vw; /* 20px / 430px * 100 */
+  font-size: 20px;
   font-weight: 400;
   color: #111111;
   line-height: 1.4;
   margin: 0;
-
-  @media (min-width: 768px) {
-    font-size: 2.6vw; /* 20px / 768px * 100 */
-  }
-
-  @media (min-width: 1024px) {
-    font-size: 1.67vw; /* 20px / 1200px * 100 */
-  }
 `;
 
 const Name = styled.span`
@@ -571,25 +540,15 @@ const Message = styled.span`
 
 const Character = styled.div`
   position: absolute;
-  top: 21.625vh; /* 173px / 800px * 100 */
-  right: 4.65vw; /* 20px / 430px * 100 */
+  top: 173px;
+  right: 20px;
   z-index: 100;
   cursor: pointer;
-  width: 43.95vw; /* 189px / 430px * 100 */
-  height: 21.34vh; /* 170.7px / 800px * 100 */
+  width: 189px;
+  height: 170px;
   display: flex;
   align-items: center;
   justify-content: center;
-
-  @media (min-width: 768px) {
-    right: 2.6vw; /* 20px / 768px * 100 */
-    width: 24.6vw; /* 189px / 768px * 100 */
-  }
-
-  @media (min-width: 1024px) {
-    right: 1.67vw; /* 20px / 1200px * 100 */
-    width: 15.75vw; /* 189px / 1200px * 100 */
-  }
 `;
 
 const CharacterCircle = styled.div`
@@ -616,62 +575,28 @@ const CharacterSvg = styled.img`
 
 const StatsContainer = styled.div`
   position: absolute;
-  top: 15.375vh; /* 123px / 800px * 100 */
-  left: 4.65vw; /* 20px / 430px * 100 */
-  right: 4.65vw; /* 20px / 430px * 100 */
+  top: 123px;
+  left: 20px;
+  right: 20px;
   display: flex;
   flex-direction: column;
-  gap: 4vh; /* 32px / 800px * 100 */
+  gap: 32px;
   z-index: 2;
-
-  /* 431px 이상에서는 중앙 정렬 */
-  @media (min-width: 431px) {
-    left: 50%;
-    right: auto;
-    transform: translateX(-50%);
-    width: 107vw; /* 460px / 430px * 100 */
-    gap: 5vh; /* 40px / 800px * 100 */
-  }
-
-  @media (min-width: 768px) {
-    width: 72.9vw; /* 560px / 768px * 100 */
-    gap: 5.5vh; /* 44px / 800px * 100 */
-  }
-
-  @media (min-width: 1024px) {
-    width: 46.7vw; /* 560px / 1200px * 100 */
-  }
 `;
 
 const StatsRow = styled.div`
   display: flex;
-  gap: 1.86vw; /* 8px / 430px * 100 */
+  gap: 8px;
   align-items: center;
   position: relative;
-
-  @media (min-width: 768px) {
-    gap: 1.04vw; /* 8px / 768px * 100 */
-  }
-
-  @media (min-width: 1024px) {
-    gap: 0.67vw; /* 8px / 1200px * 100 */
-  }
 `;
 
 const SecondRow = styled.div`
   display: flex;
-  gap: 1.86vw; /* 8px / 430px * 100 */
+  gap: 8px;
   align-items: flex-start;
   justify-content: flex-start;
   position: relative;
-
-  @media (min-width: 768px) {
-    gap: 1.04vw; /* 8px / 768px * 100 */
-  }
-
-  @media (min-width: 1024px) {
-    gap: 0.67vw; /* 8px / 1200px * 100 */
-  }
 `;
 
 const SpeechBubble = styled.div`
@@ -735,7 +660,7 @@ const StatItem = styled.div`
   }
 
   &.points {
-    width: 16.28vw; /* 70px / 430px * 100 */
+    width: 16.28vw; /* 75px / 430px * 100 */
   }
 
   &.level {
@@ -996,45 +921,20 @@ const PromptText = styled.span`
 
 const MissionSection = styled.section`
   padding: 0;
-  margin-top: 2.5vh; /* 20px / 800px * 100 */
+  margin-top: 40px;
   position: relative;
   z-index: 1;
-  max-width: 100%;
+  width: 100%;
   margin-left: auto;
   margin-right: auto;
-
-  /* 431px 이상에서는 중앙 정렬하고 최대 너비 제한 */
-  @media (min-width: 431px) {
-    margin-top: 3.125vh; /* 25px / 800px * 100 */
-    max-width: 116.3vw; /* 500px / 430px * 100 */
-  }
-
-  @media (min-width: 768px) {
-    margin-top: 3.75vh; /* 30px / 800px * 100 */
-    max-width: 78.1vw; /* 600px / 768px * 100 */
-  }
-
-  @media (min-width: 1024px) {
-    max-width: 50vw; /* 600px / 1200px * 100 */
-  }
 `;
 
 const SectionTitle = styled.h2`
-  font-size: 4.65vw; /* 20px / 430px * 100 */
+  font-size: 20px;
   font-weight: 600;
   color: #41604c;
-  margin-bottom: 3.72vw; /* 16px / 430px * 100 */
+  margin-bottom: 16px;
   text-align: left;
-
-  @media (min-width: 768px) {
-    font-size: 2.6vw; /* 20px / 768px * 100 */
-    margin-bottom: 2.08vw; /* 16px / 768px * 100 */
-  }
-
-  @media (min-width: 1024px) {
-    font-size: 1.67vw; /* 20px / 1200px * 100 */
-    margin-bottom: 1.33vw; /* 16px / 1200px * 100 */
-  }
 `;
 
 const MissionList = styled.div`
@@ -1114,28 +1014,13 @@ const MissionCheck = styled.div`
 
 const EmotionSection = styled.section`
   padding: 0;
-  margin-top: 2.5vh; /* 20px / 800px * 100 */
+  margin-top: 20px;
   margin-bottom: 100px;
   position: relative;
   z-index: 1;
-  max-width: 100%;
+  width: 100%;
   margin-left: auto;
   margin-right: auto;
-
-  /* 431px 이상에서는 중앙 정렬하고 최대 너비 제한 */
-  @media (min-width: 431px) {
-    margin-top: 3.125vh; /* 25px / 800px * 100 */
-    max-width: 116.3vw; /* 500px / 430px * 100 */
-  }
-
-  @media (min-width: 768px) {
-    margin-top: 3.75vh; /* 30px / 800px * 100 */
-    max-width: 78.1vw; /* 600px / 768px * 100 */
-  }
-
-  @media (min-width: 1024px) {
-    max-width: 50vw; /* 600px / 1200px * 100 */
-  }
 `;
 
 const EmotionContent = styled.div`

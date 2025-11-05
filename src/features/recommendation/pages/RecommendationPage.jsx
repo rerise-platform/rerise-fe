@@ -101,35 +101,15 @@ const RecommendationPage = () => {
 
 const Container = styled.div`
   width: 100%;
+  max-width: 430px;
   min-height: 100vh;
   background: #FEFFF5;
   position: relative;
   overflow-y: auto;
-  margin: 0;
+  margin: 0 auto;
   padding-top: 58px;
   padding-bottom: 90px;
   font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
-
-  @media (max-height: 800px) {
-    height: auto;
-    min-height: 100vh;
-  }
-
-  @media (max-width: 375px) {
-    padding-bottom: 80px;
-  }
-
-  @media (max-width: 320px) {
-    padding-bottom: 75px;
-  }
-
-  @media (min-width: 431px) {
-    padding-bottom: 95px;
-  }
-
-  @media (min-width: 768px) {
-    padding-bottom: 100px;
-  }
 `;
 
 const Header = styled.div`
@@ -148,13 +128,9 @@ const HeaderTitle = styled.h1`
 
 const ProgramsSection = styled.div`
   margin-top: 8px;
-  max-width: 680px;
+  width: 100%;
   margin-left: auto;
   margin-right: auto;
-
-  @media (max-width: 768px) {
-    margin: 8px 16px;
-  }
 `;
 
 const ProgramsHeader = styled.div`
@@ -171,10 +147,6 @@ const ProgramsTitle = styled.h2`
   letter-spacing: -0.4px;
   padding-left: 8px;
   margin: 0;
-
-  @media (min-width: 768px) {
-    font-size: 20px;
-  }
 `;
 
 const ProgramsRefresh = styled.div`
