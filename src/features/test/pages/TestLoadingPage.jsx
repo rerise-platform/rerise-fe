@@ -144,7 +144,10 @@ export default function TestLoadingPage() {
           >
             성향 파악중…
           </div>
-          <div className="loading-font" style={{ color: "#6b756e" }}>
+          <div
+            className="loading-font"
+            style={{ fontSize: 15, color: "#6b756e" }}
+          >
             잠시만 기다려주세요!
           </div>
         </div>

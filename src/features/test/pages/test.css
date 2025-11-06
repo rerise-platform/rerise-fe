@@ -1,6 +1,6 @@
 :root {
   /* 색상 */
-  --bg: #fbfdf5;
+  --bg: rgba(254, 255, 245, 1)
   --ink: #1a201c;
   --muted: #6b756e;
   --green: #40ea87;
@@ -40,8 +40,8 @@
   justify-content: center;
   align-items: center;
   background: var(--bg);
-  padding: clamp(12px, 3vw, 24px);
   box-sizing: border-box;
+  margin-top:0;
 }
 
 /* 컨텐츠 카드 */
@@ -64,7 +64,8 @@
 .page-title {
   font-weight: 600;
   font-size: var(--fs-title);
-  margin: 0 auto var(--space-topbar);
+  margin-top: clamp(14px, 5vh, 28px);
+  margin-bottom: 10px;
 }
 
 /* 인트로 */
@@ -82,7 +83,7 @@
   font-size: clamp(14px, 1.9vw, 18px);
   line-height: 1.5;
 }
-.test-intro-desc b {
+.test-intro-desc span {
   color: #1db672;
 }
 .hero-illust {
@@ -188,17 +189,41 @@
 
 .pillset {
   display: flex;
-  gap: 8px;
+  gap:clamp(8px, 2vw, 20px);
   flex-wrap: wrap;
-  margin: 4px 0 10px;
+  margin: clamp(4px, 2vw, 20px) 0 clamp(10px, 2vw, 20px);
 }
 .pill {
-  padding: 6px 10px;
+  padding:clamp(6px, 2vw, 12px) clamp(10px, 2vw, 17px);
   border-radius: 999px;
-  border: 1px solid var(--line);
-  background: #fff;
-  font-size: var(--fs-sm);
+  font-size: clamp(14px, 2vw, 17px);
+   background-color: transparent;
+    color:rgba(65, 96, 76, 1);
+    border: solid 1px rgba(64, 234, 135, 1);
 }
+
+/* 게이지 한 줄 배치 */
+.bar-row {
+  padding:0 10px;
+  display: flex;
+  align-items: center;
+  gap: clamp(8px, 2vw, 14px);
+}
+
+/* 라벨은 고정폭/줄바꿈 방지(라벨 길면 살짝 줄바꿈 허용하려면 white-space 해제) */
+.barName {
+
+  flex: 0 0 auto;
+  min-width: clamp(70px, 18vw, 50px);
+  white-space: nowrap;
+  color: #6b756e;
+}
+
+/* 게이지는 남는 공간 꽉 채움 */
+.bar-row .meter {
+  flex: 1 1 auto;
+}
+
 
 /* 5칸 게이지 */
 .meter {
@@ -230,15 +255,15 @@
 }
 
 .result-text {
-  font-size: clamp(14px, 2vw, 17px);
+  font-size: clamp(14px, 2vw, 20px);
   color: #2a3a33;
   line-height: 1.6;
   margin-top: 8px;
   margin-bottom: 0;
-  padding-bottom: 0;
+  padding: 5px 5px 0;
 }
 .barName {
-  font-size: 14px;
+  font-size: clamp(12px, 2vw, 20px);
 }
 
 /* =========================
@@ -374,15 +399,16 @@
 ========================= */
 @media (hover: hover) and (pointer: fine) {
   :root {
-    --pc-min-h: 680px;
+    --pc-min-h: 630px;
   }
 
   html,
   body {
     min-height: var(--pc-min-h);
+    margin-top:0;
   }
   .test-shell {
-    margin-top: 40px;
+    margin-top: 0px;
     display: flex !important;
     justify-content: center !important;
     align-items: center;
@@ -394,7 +420,6 @@
     width: 430px !important;
     max-width: 430px !important;
     min-width: 430px !important;
-    margin: 0 auto !important;
     padding-left: 16px !important;
     padding-right: 16px !important;
     flex: 0 0 430px !important; /* flex 늘어남 방지 */
@@ -447,7 +472,7 @@
     transform: none;
     width: 100% !important;
     max-width: 100% !important;
-    margin-top: 24px; /* 문항과 버튼 사이 여유 */
+    margin-top: 15px; /* 문항과 버튼 사이 여유 */
     padding-top: var(--space-sticky-top);
   }
   .sticky-bottom .primary-btn {
@@ -455,6 +480,7 @@
     font-size: 16px !important;
     padding: 14px 16px !important;
     border-radius: 12px !important;
+    margin-top:0px;
   }
 
   /* 이미지 모바일 크기 */
@@ -464,12 +490,13 @@
     display: block;
   }
   .hero-illust {
-    width: 260px !important;
+    width: 200px !important;
     margin: 8px auto 0 !important;
+    padding:0;
   }
   .result-avatar img {
-    width: 140px !important;
-    margin: 0 auto !important;
+    width: 500px !important;
+ 
     transform: none !important;
   }
   .heart {
@@ -480,28 +507,46 @@
   /* 텍스트/카드 모바일 스케일 */
   .page-title {
     font-size: 24px !important;
+    margin-bottom: 10px;
   }
+ 
   .test-intro-sub {
-    font-size: 16px !important;
+    font-size: 14px !important;
+    
   }
   .test-intro-desc {
-    font-size: 14px !important;
+    font-size: 15px !important;
     line-height: 1.6 !important;
+    margin-bottom: 15px;
   }
   .q-title {
-    font-size: 18px !important;
+    font-size: 16px !important;
     line-height: 1.4 !important;
+    text-align: center;
   }
   .progress {
-    margin: 20px 0px;
+    margin: 15px 0px;
     font-size: 18px;
   }
+
+  .test-topbar{
+    margin-top: 30px;
+  }
+
+.result-intro
+{font-size:clamp(16px, 1.9vw, 18px);}
+
+.result-title{
+  font-size: clamp(25px, 1.9vw, 28px);
+  margin-top:15px;
+}
   .loading-font,
   .result-text {
     font-size: 14px !important;
   }
   .result-text {
     line-height: 1.7 !important;
+  
   }
   .opt {
     font-size: 16px !important;
@@ -509,28 +554,34 @@
     border-radius: 14px !important;
   }
   .pill {
-    font-size: 12px !important;
+    font-size: 13px !important;
     padding: 6px 10px !important;
     border-radius: 999px !important;
+    background-color: transparent;
+    color:rgba(65, 96, 76, 1);
+    border: solid 1px rgba(64, 234, 135, 1);
   }
   .pillset {
     gap: 6px !important;
+    margin-top: 0;
+    margin-bottom: 10px;
+   
   }
   .barName {
-    font-size: 12px !important;
+    font-size: 14px !important;
   }
   .meter {
-    height: 10px !important;
+    height: 14px !important;
   }
   .meter .segments i {
-    width: 1px !important;
+    width:1px !important;
   }
 
   /* === PC(마우스/hover 가능)에서만: Intro/Test 버튼 살짝 위로, 문항 카드 간격 업 === */
   @media (hover: hover) and (pointer: fine) {
     /* Test 페이지 문항 카드 간격만 조금 더 넓게 */
     .test-wrap:has(.progress) .opt {
-      margin: 20px 0 0 !important; /* ← 기존 15px → 20px */
+      margin: 22px 0 0 !important; /* ← 기존 15px → 20px */
     }
   }
 }
@@ -554,13 +605,14 @@
   --space-sticky-top: clamp(10px, 3svh, 16px);
 
   /* 캐릭터 아바타 살짝 축소 */
-  --avatar: clamp(96px, 20vw, 128px);
+  --avatar: clamp(100px, 20vw, 150px);
 }
 
 /* 결과 타이틀(상단 "테스트 결과") */
 .test-wrap:has(.result-avatar) .page-title {
   font-size: var(--fs-title);
-  margin: 0 auto var(--space-topbar);
+  margin: 10 0 20px;
+  text-align: center;
 }
 
 /* 결과 캐릭터 이름(h2)도 테스트 q-title 수준으로 */
@@ -571,16 +623,10 @@
 
 /* 막대 이름, 본문 텍스트 축소 */
 .test-wrap:has(.result-avatar) .barName {
-  font-size: 12px;
+  font-size: clamp(15px, 2.2vw, 18px);
 }
 .test-wrap:has(.result-avatar) .result-text {
   font-size: clamp(13px, 2.2vw, 15px);
   line-height: 1.55;
 }
 
-/* 버튼을 '본문 바로 아래'에 배치: margin-top:auto 무력화 */
-.test-wrap:has(.result-avatar) .sticky-bottom {
-  margin-top: 16px; /* ✅ auto가 아니라 고정 여백 */
-  padding-top: var(--space-sticky-top);
-  position: static; /* 혹시 fixed가 남아 있더라도 무력화 */
-}
