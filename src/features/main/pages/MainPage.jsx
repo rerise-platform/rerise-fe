@@ -358,13 +358,6 @@ const MainPage = () => {
   return (
     <ElementEXP>
       <MainContent>
-        {process.env.NODE_ENV !== "production" && (
-          <DebugOverlay>
-            <strong>DEBUG</strong>
-            <div>displayNickname: {displayNickname}</div>
-            <pre>{JSON.stringify(mainData, null, 2)}</pre>
-          </DebugOverlay>
-        )}
         <Header>
           <Greeting>
             <GreetingText>
@@ -499,7 +492,7 @@ const MainContent = styled.div`
   background-color: #fefff5;
   position: relative;
   overflow-x: hidden;
-  margin-top: 15px;
+  margin-top: 0px;
   padding: 0 20px;
 `;
 
@@ -513,6 +506,7 @@ const Header = styled.header`
   background-color: #fefff5;
   width: 100%;
   margin: 0 auto;
+  padding: 0;
 `;
 
 const Greeting = styled.div`
@@ -601,10 +595,9 @@ const SecondRow = styled.div`
 
 const SpeechBubble = styled.div`
   position: absolute;
-  top: -4px;
-  left: -2px;
-  width: 220px;
-  height: 70px;
+
+  width: clamp(220px, 2vw, 400px);
+  height: clamp(70px, 2vw, 90px);
   pointer-events: none;
   z-index: 10;
 
@@ -626,16 +619,17 @@ const BubbleText = styled.div`
   align-items: center;
   justify-content: center;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  font-size: 12px;
-  font-weight: 600;
+  font-size: clamp(12px, 2vw, 13px);
+  font-weight: 400;
   color: #1a2e1f;
   text-align: center;
   z-index: 2;
   padding: 10px 15px;
+
   overflow: hidden;
   word-wrap: break-word;
   word-break: keep-all;
-  line-height: 1.3;
+  line-height: 1.2;
 `;
 
 const StatItem = styled.div`
@@ -1065,7 +1059,7 @@ const EmotionChart = styled.div`
   align-items: center;
   justify-content: center;
 `;
-
+/*
 const DebugOverlay = styled.div`
   position: fixed;
   top: 10px;
@@ -1080,5 +1074,6 @@ const DebugOverlay = styled.div`
   overflow: auto;
   font-size: 12px;
 `;
+*/
 
 export default MainPage;
