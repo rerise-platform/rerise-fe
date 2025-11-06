@@ -782,8 +782,8 @@ const ProgressFill = styled.div`
 `;
 
 const DayCard = styled.div`
-  width: 27.91vw; /* 120px / 430px * 100 */
-  height: 27.91vw; /* 정사각형 유지 */
+  width: 24.91vw; /* 120px / 430px * 100 */
+  height: 27vw; /* 정사각형 유지 */
   background: white;
   border-radius: 3.49vw; /* 15px / 430px * 100 */
   display: flex;
@@ -795,7 +795,7 @@ const DayCard = styled.div`
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   cursor: pointer;
   transition: transform 0.2s ease;
-
+  margin-bottom: 10px;
   &:hover {
     transform: translateY(-2px);
   }
@@ -808,10 +808,11 @@ const DayCard = styled.div`
   }
 
   @media (min-width: 1024px) {
-    width: 10vw; /* 120px / 1200px * 100 */
-    height: 10vw; /* 정사각형 유지 */
+    width: 9vw; /* 120px / 1200px * 100 */
+    height: 9vw; /* 정사각형 유지 */
     border-radius: 1.25vw; /* 15px / 1200px * 100 */
     padding: 1.25vw 1vw; /* 15px 12px을 vw로 통일 */
+    margin-bottom: 10px;
   }
 `;
 

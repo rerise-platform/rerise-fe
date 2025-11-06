@@ -145,7 +145,7 @@ const RecommendationCard = ({ onRefresh }) => {
       <MainText>
         오늘의 감정 상태를 반영한
         <br />
-        <LocationHighlight>서초구 추천장소</LocationHighlight>입니다!
+        <LocationHighlight>기흥구 추천장소</LocationHighlight>입니다!
       </MainText>
 
       <Description>
@@ -269,6 +269,7 @@ const Description = styled.div`
 
   @media (min-width: 768px) {
     font-size: 12px;
+    max-width: 390px;
   }
 
   @media (max-width: 360px) {
