@@ -17,8 +17,10 @@ export default function TestIntroPage() {
             당신의 은둔 성향은 어떤 유형일까요?
           </div>
           <div className="test-intro-desc">
-            은둔 성향을 이해하고,<br></br> <b>나에게 맞는 성장 방법</b>을
-            찾아보세요.
+            <b>
+              은둔 성향을 이해하고,<br></br> <span>나에게 맞는 성장 방법</span>
+              을 찾아보세요.
+            </b>
           </div>
           <img
             className="hero-illust"

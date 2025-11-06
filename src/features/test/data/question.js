@@ -32,13 +32,6 @@ export const KEY_BY_NAME = {
   코코: "KOKO",
 };
 
-/**
- * QUESTIONS
- * - answerValue = 1|2|3|4 고정 매핑
- *   -> 1=모니(MONY), 2=토리(TORY), 3=포리(PORY), 4=코코(KOKO)
- * - gauge: 선택이 게이지(energylevel/adaptability/resilience)에 주는 영향 합산값
- * - affinity는 사용하지 않음
- */
 const QUESTIONS = [
   // 1
   {
@@ -47,22 +40,22 @@ const QUESTIONS = [
     options: [
       {
         answerValue: 1, // MONY
-        label: "막 땅에서 돋아난 작은 새싹 같아요.",
+        label: "조금 지쳤지만 금방 회복할 수 있어요.",
         gauge: { energylevel: -1, adaptability: 0, resilience: 2 },
       },
       {
         answerValue: 2, // TORY
-        label: "충전이 필요한 방전 직전의 배터리 같아요.",
+        label: "기운이 안 나고, 쉬고 싶어요.",
         gauge: { energylevel: -2, adaptability: 0, resilience: 2 },
       },
       {
         answerValue: 3, // PORY
-        label: "알록달록, 어떤 색이 될지 모르는 물감 팔레트 같아요.",
+        label: "보통이에요. 상황에 따라 달라요.",
         gauge: { energylevel: 0, adaptability: 2, resilience: 0 },
       },
       {
         answerValue: 4, // KOKO
-        label: "목표를 향해 나아갈 준비가 된 가만히 놓인 나침반 같아요.",
+        label: "에너지가 충분하고, 바로 시작할 준비가 됐어요.",
         gauge: { energylevel: 2, adaptability: 1, resilience: 0 },
       },
     ],
@@ -71,7 +64,7 @@ const QUESTIONS = [
   // 2
   {
     id: 2,
-    title: "아무 방해 없는 하루가 주어진다면, 어떻게 에너지를 채우고 싶나요?",
+    title: "방해 없는 하루를 보낸다면, 어떻게 에너지를 채우고 싶나요?",
     options: [
       {
         answerValue: 1, // MONY
@@ -80,7 +73,7 @@ const QUESTIONS = [
       },
       {
         answerValue: 2, // TORY
-        label: "몸과 마음을 쉬게 하는 루틴(가벼운 산책, 낮잠, 명상 등)을 한다.",
+        label: "가벼운 산책, 낮잠, 명상 등으로 몸과 마음을 힐링한다.",
         gauge: { energylevel: 0, adaptability: 1, resilience: 2 },
       },
       {
@@ -131,22 +124,22 @@ const QUESTIONS = [
     options: [
       {
         answerValue: 1, // MONY
-        label: "“괜찮아, 너의 속도대로 나아가면 돼.”",
+        label: "“너의 꾸준함이 빛났어. 차분히 잘했다!”",
         gauge: { energylevel: 0, adaptability: 0, resilience: 2 },
       },
       {
         answerValue: 2, // TORY
-        label: "“오늘 페이스 조절 잘했어! 충분히 쉬어가도 좋아.”",
+        label: "“오늘 페이스 조절 좋았어!”",
         gauge: { energylevel: 0, adaptability: 1, resilience: 1 },
       },
       {
         answerValue: 3, // PORY
-        label: "“네가 즐거웠다니 나도 기뻐!”",
+        label: "“즐기면서 한 게 느껴져. 멋졌어!”",
         gauge: { energylevel: 1, adaptability: 1, resilience: 0 },
       },
       {
         answerValue: 4, // KOKO
-        label: "“정말 대단하다! 다음 목표는 뭐야?”",
+        label: "“목표를 향한 실행력이 대단하다!”",
         gauge: { energylevel: 2, adaptability: 1, resilience: 0 },
       },
     ],
@@ -215,17 +208,17 @@ const QUESTIONS = [
     options: [
       {
         answerValue: 1, // MONY
-        label: "집 현관문 열고 1분간 바깥 공기 쐬기",
+        label: "익숙한 동네 한 바퀴 산책하기",
         gauge: { energylevel: -1, adaptability: 0, resilience: 2 },
       },
       {
         answerValue: 2, // TORY
-        label: "익숙한 동네 한 바퀴 산책하기",
+        label: "집 현관문 열고 1분간 바깥 공기 쐬기",
         gauge: { energylevel: 1, adaptability: 1, resilience: 1 },
       },
       {
         answerValue: 3, // PORY
-        label: "친한 사람을 만나 30분 정도 대화 나누기",
+        label: "친한 사람을 만나 대화 나누기",
         gauge: { energylevel: 1, adaptability: 1, resilience: 0 },
       },
       {
@@ -243,22 +236,22 @@ const QUESTIONS = [
     options: [
       {
         answerValue: 1, // MONY
-        label: "작심삼일: 꾸준히 못 이어갈까 봐",
+        label: "꾸준히 이어가지 못할까 봐",
         gauge: { energylevel: -1, adaptability: 0, resilience: 1 },
       },
       {
         answerValue: 2, // TORY
-        label: "금방 지쳐서 페이스를 못 지킬까 봐",
+        label: "금방 지쳐서 포기할까 봐",
         gauge: { energylevel: -1, adaptability: 0, resilience: 0 },
       },
       {
         answerValue: 3, // PORY
-        label: "타인 의식: 다른 사람들의 시선이 신경 쓰여서",
+        label: "다른 사람들의 시선이 신경 쓰여서",
         gauge: { energylevel: -1, adaptability: 0, resilience: 0 },
       },
       {
         answerValue: 4, // KOKO
-        label: "방향성 부재: 무엇을 해야 할지 몰라 막막해서",
+        label: "무엇을 해야 할지 몰라 막막해서",
         gauge: { energylevel: 0, adaptability: -1, resilience: 0 },
       },
     ],
