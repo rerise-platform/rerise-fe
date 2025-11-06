@@ -70,6 +70,7 @@ body {
   color: rgba(168, 177, 170, 1);
   margin: 0;
   padding: 2px;
+  font-size: clamp(18px, 2vw, 20px);
 }
 /* 잠금 해제(완료 반영) 상태일 때 p를 연두색으로 */
 .reward.unlocked p {
@@ -102,14 +103,14 @@ body {
   margin-top: 15px;
 }
 .mission-card p {
-  margin-bottom: 15px;
-  font-size: 14px;
+  margin: 0 0 15px 0;
+  font-size: clamp(14px, 2vw, 15px);
   color: #333;
 }
 .mission-card button {
   width: 100%;
   padding: 5px;
-
+  height: clamp(25px, 2vw, 30px);
   align-items: center;
   background: rgba(64, 234, 135, 1);
   border: none;
@@ -381,9 +382,10 @@ body {
 .modal-header {
   position: relative;
   padding: 14px 18px;
-  font-weight: 800;
+  font-weight: 500;
   color: #2f3a34;
   border-bottom: 1px solid #f0f5f2;
+  font-size: clamp(14px, 10vw, 17px);
 }
 
 .modal-close {
@@ -406,13 +408,14 @@ body {
 .modal-body {
   padding: 18px;
   color: #2f3a34;
-  font-size: 14px;
+  font-size: clamp(16px, 2vw, 18px);
   line-height: 1.6;
 }
 
 .modal-title {
   font-weight: 700;
   color: rgba(65, 96, 76, 1);
+  font-size: clamp(12px, 10vw, 20px);
 }
 
 .modal-actions {
