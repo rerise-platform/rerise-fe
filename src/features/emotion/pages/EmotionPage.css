@@ -27,7 +27,7 @@
 .back-button {
   width: 32px;
   height: 24px;
-  background: transparent;
+
   border-radius: 12px;
   display: flex;
   align-items: center;
@@ -552,4 +552,21 @@
     margin-left: auto;
     margin-right: auto;
   }
+}
+
+/* EmotionPage: 전역 back-button 규칙 무력화 */
+.emotion-header .back-button {
+  position: static !important;
+  top: auto !important;
+  left: auto !important;
+  transform: none !important;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 8px;
+  vertical-align: top;
+}
+.greeting-text {
+  display: inline-block; /* 텍스트 바로 왼쪽 붙이기 */
 }
