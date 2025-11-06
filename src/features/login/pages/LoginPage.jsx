@@ -1,75 +1,139 @@
-import React, { useEffect } from 'react';
-import styled from 'styled-components';
-import LoginForm from '../components/LoginForm';
+import React, { useLayoutEffect, useRef, useState } from "react";
+import styled, { createGlobalStyle } from "styled-components";
+import LoginForm from "../components/LoginForm";
 
-// ===== Styled Components =====
-// 전체 화면을 감싸는 컨테이너
+/* 전역: 배경 고정 + 기본 여백 제거 */
+const GlobalStyle = createGlobalStyle`
+  html, body, #root { min-height: 100%; }
+  body { margin: 0; background: rgba(254, 255, 245, 1); }
+`;
+
+/* 진짜 정중앙 */
 const AppWrapper = styled.div`
-  width: 100%;
-  height: 100%;
   min-height: 100vh;
-  display: flex;
-  justify-content: center;
+  display: grid;
+  place-items: center;
+  background: rgba(254, 255, 245, 1);
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
 `;
 
-// 모바일 앱 컨테이너
-const MobileContainer = styled.div`
+/* 스케일된 실제 크기로 레이아웃 차지 → 항상 중앙에서 균등 여백 */
+const Sizer = styled.div`
+  overflow: hidden; /* 모바일/태블릿: 스크롤 제거 */
+  border-radius: 12px; /* 선택 */
+  background: rgba(254, 255, 245, 1);
+`;
+
+/* 원본(430px) 프레임: 좌상단 기준으로 스케일 */
+const Frame = styled.div`
   width: 430px;
-  max-width: 430px;
-  min-height: 100vh;
-  background-color: #FEFFF5;
-  position: relative;
-  overflow-x: hidden;
-  box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
-
-  @media (max-width: 430px) {
-    width: 100%;
-    box-shadow: none;
-  }
+  transform-origin: top left;
 `;
 
-// 로그인 페이지의 메인 컨테이너
-const LoginContainer = styled.div`
-  width: 100%;
+const Content = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 200px 20px 40px;
+  /* vh 의존을 줄이고, 디바이스 폭에 유연하게 */
+  padding: clamp(24px, 5vw, 48px) 20px 40px;
   box-sizing: border-box;
-  
-  @media (max-width: 430px) {
-    padding: 180px 15px 40px;
-  }
 `;
 
 /**
- * 로그인 페이지 컴포넌트
- * 이미지와 동일한 깔끔한 UI 구현
+ * useAutoScaleWithBox
+ * - 모바일/태블릿: 화면에 '여백을 두고' 확대/축소 (스크롤 없음)
+ * - PC(>= 1280px): 업스케일 금지 + 항상 살짝 축소(덜 답답)
+ * - 스케일된 실제 width/height를 함께 반환해 Sizer에 적용
  */
-const LoginPage = () => {
-  // 컴포넌트 마운트 시 body 배경색을 제거하고, 언마운트 시 원래대로 복원
-  useEffect(() => {
-    // 원래의 배경색 저장
-    const originalBackground = document.body.style.backgroundColor;
-    
-    // body 배경색 제거
-    document.body.style.backgroundColor = 'transparent';
-    
-    // 언마운트 시 원래 배경색 복원
+function useAutoScaleWithBox(
+  contentRef,
+  {
+    designWidth = 430,
+    desktopBreakpoint = 1280, // iPad Pro(1024)는 태블릿으로 취급 → 확대 허용
+    marginFactor = 0.92, // 상하좌우 여백 비율(= 8% 여백)
+    pcShrink = 0.95, // PC에서 항상 살짝 줄이기
+    globalShrink = 0.96, // ✅ PC/모바일 공통으로 "조금만" 더 줄이기
+  } = {}
+) {
+  const [scale, setScale] = useState(1);
+  const [boxSize, setBoxSize] = useState({ w: designWidth, h: 0 });
+
+  useLayoutEffect(() => {
+    function calc() {
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+      const isDesktop = vw >= desktopBreakpoint;
+
+      if (!contentRef.current) {
+        setScale(1);
+        setBoxSize({ w: designWidth, h: 0 });
+        document.body.style.overflow = "";
+        return;
+      }
+
+      // transform 영향을 받지 않는 내부 원본 높이
+      const rawWidth = designWidth;
+      const rawHeight = contentRef.current.scrollHeight;
+
+      // 화면에 여백을 두고 맞춤
+      const targetW = vw * marginFactor;
+      const targetH = vh * marginFactor;
+
+      let s = Math.min(targetW / rawWidth, targetH / rawHeight);
+
+      if (isDesktop) {
+        // 데스크톱: 확대 금지, 기본 축소 + 전역 축소
+        s = Math.min(1, s) * pcShrink * globalShrink;
+        document.body.style.overflow = ""; // PC는 스크롤 허용(필요 시)
+      } else {
+        // 모바일/태블릿: 전역 축소만 얹어주고 페이지 스크롤 제거
+        s = s * globalShrink;
+        document.body.style.overflow = "hidden";
+      }
+
+      setScale(s);
+      setBoxSize({ w: rawWidth * s, h: rawHeight * s });
+    }
+
+    calc();
+    window.addEventListener("resize", calc);
+    window.addEventListener("orientationchange", calc);
     return () => {
-      document.body.style.backgroundColor = originalBackground;
+      window.removeEventListener("resize", calc);
+      window.removeEventListener("orientationchange", calc);
+      document.body.style.overflow = "";
     };
-  }, []);
+  }, [
+    contentRef,
+    designWidth,
+    desktopBreakpoint,
+    marginFactor,
+    pcShrink,
+    globalShrink,
+  ]);
+
+  return { scale, boxSize };
+}
+
+const LoginPage = () => {
+  const contentRef = useRef(null);
+  const { scale, boxSize } = useAutoScaleWithBox(contentRef);
 
   return (
-    <AppWrapper>
-      <MobileContainer>
-        <LoginContainer>
-          {/* 로그인 폼 컴포넌트 (모든 UI 요소 포함) */}
-          <LoginForm />
-        </LoginContainer>
-      </MobileContainer>
-    </AppWrapper>
+    <>
+      <GlobalStyle />
+      <AppWrapper>
+        {/* 스케일된 실제 크기로 중앙 배치 → 위/아래 여백이 항상 균등 */}
+        <Sizer style={{ width: `${boxSize.w}px`, height: `${boxSize.h}px` }}>
+          <Frame style={{ transform: `scale(${scale})` }}>
+            <Content ref={contentRef}>
+              <LoginForm />
+            </Content>
+          </Frame>
+        </Sizer>
+      </AppWrapper>
+    </>
   );
 };
 
