@@ -54,6 +54,9 @@ const MissionMainPage = () => {
     return "/images/missionUnchecked.png";
   };
 
+  // ===== 업로드 개수 제한 상수 =====
+  const MAX_PHOTOS = 3;
+
   // ===== 최초 로드: 주간(로드맵) + 오늘의 데일리 =====
   useEffect(() => {
     (async () => {
@@ -95,6 +98,7 @@ const MissionMainPage = () => {
     setFeedbackById((prev) => ({ ...prev, [id]: value }));
   };
 
+  // ✅ 업로드 처리(최대 3장 유지)
   const handlePhotoChange = (id, e) => {
     const files = Array.from(e.target.files || []);
     if (files.length === 0) return;
@@ -102,16 +106,33 @@ const MissionMainPage = () => {
     const prevFiles = photoById[id] || [];
     const prevUrls = photoPreviewById[id] || [];
 
+    const remaining = MAX_PHOTOS - prevFiles.length;
+    if (remaining <= 0) {
+      alert(`사진은 최대 ${MAX_PHOTOS}장까지 업로드할 수 있어요.`);
+      e.target.value = "";
+      return;
+    }
+
+    // 남은 칸만큼만 받기
+    const incoming = files.slice(0, remaining);
+
     const nextFiles = [...prevFiles];
     const nextUrls = [...prevUrls];
 
-    files.forEach((f) => {
+    incoming.forEach((f) => {
       nextFiles.push(f);
       nextUrls.push(URL.createObjectURL(f));
     });
 
     setPhotoById((prev) => ({ ...prev, [id]: nextFiles }));
     setPhotoPreviewById((prev) => ({ ...prev, [id]: nextUrls }));
+
+    // 남는 파일이 있었으면 안내
+    if (files.length > remaining) {
+      alert(
+        `사진은 최대 ${MAX_PHOTOS}장까지 업로드할 수 있어요. (초과분은 제외됐어요)`
+      );
+    }
     e.target.value = "";
   };
 
@@ -333,7 +354,7 @@ const MissionMainPage = () => {
                       <textarea
                         className="feedback-textarea"
                         rows={5}
-                        placeholder="간단한 후기(5자 이상)와 사진을 업로드해주세요!"
+                        placeholder="간단한 후기(5자 이상)와 사진(1~3장)을 업로드해주세요!"
                         value={feedbackById[m.id] || ""}
                         onChange={(e) => handleTextChange(m.id, e.target.value)}
                       />
@@ -348,13 +369,27 @@ const MissionMainPage = () => {
                             style={{ display: "none" }}
                             onChange={(e) => handlePhotoChange(m.id, e)}
                           />
+                          {/* ✅ 라벨 기본 동작만 사용 + onMouseDown으로 사전 검사/차단 */}
                           <label
                             htmlFor={`file-${m.id}`}
                             className="upload-btn"
                             title="사진 업로드"
+                            onMouseDown={(e) => {
+                              const count = photoById[m.id]?.length || 0;
+                              if (count >= MAX_PHOTOS) {
+                                e.preventDefault(); // 파일창 열림 자체를 막음
+                                alert(
+                                  `사진은 최대 ${MAX_PHOTOS}장까지 업로드할 수 있어요. 기존 사진을 삭제해 주세요.`
+                                );
+                              }
+                            }}
                           >
                             <img src="/images/imageUpload.png" alt="upload" />
                           </label>
+
+                          <span className="upload-counter">
+                            {photoById[m.id]?.length || 0} / {MAX_PHOTOS}
+                          </span>
 
                           <div className="preview-list">
                             {previews.map((url, idx) => (
@@ -445,6 +480,8 @@ const MissionMainPage = () => {
               <div>
                 <span className="modal-title">“{roadmapToConfirm.title}”</span>
                 <br /> 후기 작성을 완료하셨나요?
+                <br />
+                추후 관리자 승인을 통해 포인트가 지급됩니다.
               </div>
             </div>
             <div className="modal-actions">

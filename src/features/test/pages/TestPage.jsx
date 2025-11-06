@@ -19,9 +19,11 @@ export default function TestPage() {
     [answers, total]
   );
 
-  const canProceed = isLast ? allAnswered : selected != null;
+  // 큰 버튼 제어: 마지막이면 "결과 보기" 활성 조건, 아니면 "이전" 버튼(첫 문항만 비활성)
+  const canPrev = index > 0;
+  const canFinish = isLast && allAnswered;
 
-  // ▶ 옵션 클릭 시, 바로 저장(answers) + 현재 선택 상태(selected) 동기화
+  // ▶ 옵션 클릭 시: 저장 + (마지막이 아니면) 자동으로 다음 문항으로 이동
   const choose = (val) => {
     setSelected(val);
     setAnswers((prev) => {
@@ -29,37 +31,32 @@ export default function TestPage() {
       copy[index] = val;
       return copy;
     });
+
+    if (!isLast) {
+      // 살짝의 딜레이로 선택 하이라이트가 보이게
+      setTimeout(() => {
+        setIndex((i) => Math.min(total - 1, i + 1));
+      }, 120);
+    }
   };
 
   // ▶ index가 바뀔 때, 해당 문항의 기존 답 복원
   useEffect(() => {
     setSelected(answers[index] ?? null);
-  }, [index, answers]); // answers가 아주 자주 바뀌면 [index, answers]로 둬도 OK
 
-  // ▶ 화살표 전/후: 선택 여부와 무관하게 이동
+    // answers가 아주 자주 바뀌면 [index, answers]로 둬도 OK
+  }, [index, answers]);
+
+  // ▶ 상단 화살표
   const goPrev = () => setIndex((i) => Math.max(0, i - 1));
   const goNext = () => setIndex((i) => Math.min(total - 1, i + 1));
 
-  // ▶ 큰 “다음/결과 보기” 버튼: 이전 로직 유지(현재 문항 선택 필요)
-  const next = () => {
-    // 마지막이 아니면 현재 선택이 있어야 넘어감
-    if (!isLast && selected == null) return;
-
-    // 마지막이면 모든 문항이 답변되어야 종료 가능
-    if (isLast && !allAnswered) return;
-
-    const newAnswers = [...answers];
-    if (selected != null) newAnswers[index] = selected;
-
-    if (!isLast) {
-      setAnswers(newAnswers);
-      setIndex((v) => v + 1);
-    } else {
-      nav("/test/loading", { state: { answers: newAnswers }, replace: true });
-    }
+  // ▶ 마지막 페이지: "결과 보기"
+  const finish = () => {
+    if (!canFinish) return;
+    nav("/test/loading", { state: { answers }, replace: true });
   };
 
-  // (안전) 질문이 없을 때 가드
   if (!q) return null;
 
   return (
@@ -68,9 +65,13 @@ export default function TestPage() {
         <div className="test-topbar">
           <div
             className="page-title"
-            style={{ fontSize: 20, color: "#1db672" }}
+            style={{
+              textAlign: "center",
+              marginTop: "10px",
+              marginBottom: "45px",
+            }}
           >
-            은둔 성향 테스트
+            <b>은둔 성향 테스트</b>
           </div>
         </div>
 
@@ -110,14 +111,30 @@ export default function TestPage() {
           </div>
         ))}
 
-        <div className="sticky-bottom">
-          <button
-            className={`primary-btn ${!canProceed ? "is-disabled" : ""}`}
-            onClick={next}
-            disabled={!canProceed}
-          >
-            {isLast ? "결과 보기" : "다음"}
-          </button>
+        <div
+          className="sticky-bottom"
+          style={{
+            marginTop: "20px",
+          }}
+        >
+          {/* 마지막이면 결과 보기, 아니면 '이전' */}
+          {isLast ? (
+            <button
+              className={`primary-btn ${!canFinish ? "is-disabled" : ""}`}
+              onClick={finish}
+              disabled={!canFinish}
+            >
+              결과 보기
+            </button>
+          ) : (
+            <button
+              className={`primary-btn ${!canPrev ? "is-disabled" : ""}`}
+              onClick={goPrev}
+              disabled={!canPrev}
+            >
+              이전
+            </button>
+          )}
         </div>
       </main>
     </div>
