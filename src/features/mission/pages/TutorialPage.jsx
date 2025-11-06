@@ -93,43 +93,23 @@ function TutorialPage() {
           <h2 className="title ">캐릭터 진화</h2>
           {/* 캐릭터만 전체 폭 사용 */}
           <div className="image-wrap">
-            <div className="char-marquee-viewport">
-              <div className="char-marquee-track" draggable={false}>
-                <img src="/images/char1.png" alt="char1" className="char-img" />
-                <img src="/images/char2.png" alt="char2" className="char-img" />
-                <img src="/images/char3.png" alt="char3" className="char-img" />
-                {/* 루프용 복제 세트 */}
-                <img
-                  src="/images/char1.png"
-                  alt="char1 dup"
-                  className="char-img"
-                />
-                <img
-                  src="/images/char2.png"
-                  alt="char2 dup"
-                  className="char-img"
-                />
-                <img
-                  src="/images/char3.png"
-                  alt="char3 dup"
-                  className="char-img"
-                />
-                <img
-                  src="/images/char1.png"
-                  alt="char1 dup"
-                  className="char-img"
-                />
-                <img
-                  src="/images/char2.png"
-                  alt="char2 dup"
-                  className="char-img"
-                />
-                <img
-                  src="/images/char3.png"
-                  alt="char3 dup"
-                  className="char-img"
-                />
-              </div>
+            <div className="char-row">
+              <img
+                src="/images/char1.png"
+                alt="char1"
+                className="char-img bob"
+              />
+              <img
+                src="/images/char2.png"
+                alt="char2"
+                className="char-img bob"
+              />
+              <img
+                src="/images/char.3.png"
+                alt="char3"
+                className="char-img bob"
+                style={{ width: "clamp(120px, 1vw, 500px)" }}
+              />
             </div>
           </div>
           <p className="desc">
