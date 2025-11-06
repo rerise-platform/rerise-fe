@@ -1,8 +1,11 @@
 import React, { useState, useRef } from "react";
 import { signupAPI } from "../api/signupAPI";
+import { useNavigate } from "react-router-dom";
 import "./SignupForm.css";
 
 export default function SignupForm() {
+  const navigate = useNavigate(); //
+
   const [email, setEmail] = useState("");
   const [emailError, setEmailError] = useState("");
 
@@ -59,31 +62,31 @@ export default function SignupForm() {
 
   const handleSubmitClick = async (e) => {
     if (e && e.preventDefault) e.preventDefault();
-    console.log('🎯 [SIGNUP FORM] 회원가입 버튼 클릭됨');
-    
+    console.log("🎯 [SIGNUP FORM] 회원가입 버튼 클릭됨");
+
     if (!isFormValid) {
-      console.log('❌ [SIGNUP FORM] 폼 유효성 검사 실패');
-      console.log('📋 [SIGNUP FORM] 현재 폼 상태:', {
-        email: email || '비어있음',
-        password: password ? '입력됨' : '비어있음',
-        confirmPassword: confirmPassword ? '입력됨' : '비어있음',
-        nickname: nickname || '비어있음',
-        birth: birth || '비어있음',
+      console.log("❌ [SIGNUP FORM] 폼 유효성 검사 실패");
+      console.log("📋 [SIGNUP FORM] 현재 폼 상태:", {
+        email: email || "비어있음",
+        password: password ? "입력됨" : "비어있음",
+        confirmPassword: confirmPassword ? "입력됨" : "비어있음",
+        nickname: nickname || "비어있음",
+        birth: birth || "비어있음",
         emailError,
         passwordError,
         birthError,
         passwordMatch: password === confirmPassword,
-        terms
+        terms,
       });
       return;
     }
 
     try {
-      console.log('✅ [SIGNUP FORM] 폼 유효성 검사 통과');
-      
+      console.log("✅ [SIGNUP FORM] 폼 유효성 검사 통과");
+
       // 생년월일 형식 변환 (YYYYMMDD → YYYY-MM-DD)
       const formattedBirth = birth.replace(/(\d{4})(\d{2})(\d{2})/, "$1-$2-$3");
-      
+
       const requestData = {
         email,
         password,
@@ -95,8 +98,8 @@ export default function SignupForm() {
       console.log("🚀 [SIGNUP FORM] 회원가입 API 호출 시작");
       console.log("📝 [SIGNUP FORM] 요청 데이터:", {
         ...requestData,
-        password: '***',
-        passwordCheck: '***'
+        password: "***",
+        passwordCheck: "***",
       });
 
       // 회원가입 API 호출
@@ -123,26 +126,33 @@ export default function SignupForm() {
         stack: error.stack,
         response: error.response,
         request: error.request,
-        config: error.config
+        config: error.config,
       });
-      
+
       // 오류 타입에 따른 메시지 분기
       let errorMessage = "회원가입 실패!\n다시 시도해주세요.";
-      
-      if (error.code === 'ERR_CONNECTION_REFUSED' || error.message === 'Network Error') {
+
+      if (
+        error.code === "ERR_CONNECTION_REFUSED" ||
+        error.message === "Network Error"
+      ) {
         console.error("🌐 [SIGNUP FORM] 네트워크 연결 오류");
-        errorMessage = "서버에 연결할 수 없습니다.\n백엔드 서버가 실행 중인지 확인해주세요.";
+        errorMessage =
+          "서버에 연결할 수 없습니다.\n백엔드 서버가 실행 중인지 확인해주세요.";
       } else if (error.response?.status === 400) {
         console.error("📝 [SIGNUP FORM] 잘못된 요청 (400)");
-        errorMessage = `회원가입 실패!\n${error.response.data || "입력 정보를 확인해주세요."}`;
+        errorMessage = `회원가입 실패!\n${
+          error.response.data || "입력 정보를 확인해주세요."
+        }`;
       } else if (error.response?.status === 409) {
         console.error("🔄 [SIGNUP FORM] 중복 데이터 (409)");
-        errorMessage = "이미 존재하는 이메일입니다.\n다른 이메일을 사용해주세요.";
+        errorMessage =
+          "이미 존재하는 이메일입니다.\n다른 이메일을 사용해주세요.";
       } else if (error.response?.data) {
         console.error("📄 [SIGNUP FORM] 서버 에러 응답:", error.response.data);
         errorMessage = `회원가입 실패!\n${error.response.data}`;
       }
-      
+
       alert(errorMessage);
     }
   };
@@ -174,8 +184,33 @@ export default function SignupForm() {
 
   return (
     <form className="sg-form" onSubmit={handleSubmitClick}>
-      <h2 className="sg-title">회원가입</h2>
+      <div className="sg-header">
+        <button
+          type="button"
+          className="back-button"
+          aria-label="로그인으로 돌아가기"
+          onClick={() => navigate("/login")}
+        >
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            aria-hidden="true"
+          >
+            <path
+              d="M15 18L9 12L15 6"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </button>
+        <h2 className="sg-title">회원가입</h2>
 
+        {/* 타이틀을 정확히 중앙 정렬하기 위한 더미 공간 */}
+        <div className="sg-header-spacer" />
+      </div>
       <label className="sg-label">아이디(이메일)</label>
       <input
         className="sg-input"
@@ -184,8 +219,9 @@ export default function SignupForm() {
         value={email}
         onChange={(e) => handleEmailChange(e.target.value)}
       />
-      {emailError && <p style={{ color: "#e54848" }}>{emailError}</p>}
-
+      {emailError && (
+        <p style={{ color: "#e54848", padding: "5px" }}>{emailError}</p>
+      )}
       <label className="sg-label">비밀번호</label>
       <div style={{ position: "relative" }}>
         <input
@@ -209,8 +245,9 @@ export default function SignupForm() {
           }}
         ></label>
       </div>
-      {passwordError && <p style={{ color: "#e54848" }}>{passwordError}</p>}
-
+      {passwordError && (
+        <p style={{ color: "#e54848", padding: "5px" }}>{passwordError}</p>
+      )}
       <label className="sg-label">비밀번호 확인</label>
       <input
         className="sg-input"
@@ -223,6 +260,7 @@ export default function SignupForm() {
         <p
           style={{
             color: password === confirmPassword ? "#28d742" : "#e54848",
+            padding: "5px",
           }}
         >
           {password === confirmPassword
@@ -230,7 +268,6 @@ export default function SignupForm() {
             : "비밀번호가 동일하지 않습니다."}
         </p>
       )}
-
       <label className="sg-label">닉네임</label>
       <input
         className="sg-input"
@@ -239,7 +276,6 @@ export default function SignupForm() {
         value={nickname}
         onChange={(e) => setNickname(e.target.value)}
       />
-
       <label className="sg-label">생년월일</label>
       <input
         className="sg-input"
@@ -248,8 +284,9 @@ export default function SignupForm() {
         value={birth}
         onChange={(e) => handleBirthChange(e.target.value)}
       />
-      {birthError && <p style={{ color: "#e54848" }}>{birthError}</p>}
-
+      {birthError && (
+        <p style={{ color: "#e54848", padding: "5px" }}>{birthError}</p>
+      )}
       <div className="sg-checkbox-area">
         <label
           className="sg-checkbox-item sg-checkbox-all"
@@ -292,7 +329,6 @@ export default function SignupForm() {
           마케팅 정보 수신 동의 (선택)
         </label>
       </div>
-
       <button
         className="sg-submit"
         type="submit"
