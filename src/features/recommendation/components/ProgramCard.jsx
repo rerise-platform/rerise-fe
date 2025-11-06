@@ -1,9 +1,9 @@
-import styled from 'styled-components';
+import styled from "styled-components";
 
 const ProgramCard = ({ program, onVisit }) => {
   const handleVisit = () => {
     if (program.url && onVisit) {
-      window.open(program.url, '_blank');
+      window.open(program.url, "_blank");
     } else if (onVisit) {
       onVisit(program);
     }
@@ -15,8 +15,14 @@ const ProgramCard = ({ program, onVisit }) => {
       <ProgramTitle>{program.programName || program.title}</ProgramTitle>
       <ProgramTarget>대상: {program.target}</ProgramTarget>
       <ProgramDetails>
-        {program.category && <ProgramCategory>분류: {program.category}</ProgramCategory>}
-        {program.recruitmentPeriod && <RecruitmentPeriod>모집기간: {program.recruitmentPeriod}</RecruitmentPeriod>}
+        {program.category && (
+          <ProgramCategory>분류: {program.category}</ProgramCategory>
+        )}
+        {program.recruitmentPeriod && (
+          <RecruitmentPeriod>
+            모집기간: {program.recruitmentPeriod}
+          </RecruitmentPeriod>
+        )}
         {program.location && <Location>장소: {program.location}</Location>}
       </ProgramDetails>
       {program.content && (
@@ -34,8 +40,8 @@ const ProgramCard = ({ program, onVisit }) => {
 };
 
 const CardContainer = styled.div`
-  background: #FFFFFF5C;
-  border: 1px solid #40EA87;
+  background: #ffffff5c;
+  border: 1px solid #40ea87;
   border-radius: 20px;
   padding: 20px;
   margin-bottom: 16px;
@@ -50,7 +56,7 @@ const VisitButton = styled.button`
   position: absolute;
   top: 18px;
   right: 18px;
-  background-color: #34C759;
+  background-color: #34c759;
   border: none;
   border-radius: 10px;
   padding: 6px 12px;
@@ -140,7 +146,7 @@ const ProgramDetails = styled.div`
 
 const ProgramCategory = styled.div`
   font-size: 10px;
-  color: #34C759;
+  color: #34c759;
   margin-bottom: 4px;
   font-weight: 500;
   letter-spacing: -0.1px;

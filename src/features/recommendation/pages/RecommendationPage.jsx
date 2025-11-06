@@ -1,13 +1,13 @@
-import { useState, useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import styled from 'styled-components';
-import RecommendationCard from '../components/RecommendationCard';
-import ProgramCard from '../components/ProgramCard';
-import { fetchPrograms, selectPrograms } from '../recommendationSlice';
+import { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import styled from "styled-components";
+import RecommendationCard from "../components/RecommendationCard";
+import ProgramCard from "../components/ProgramCard";
+import { fetchPrograms, selectPrograms } from "../recommendationSlice";
 
 const RecommendationPage = () => {
   const dispatch = useDispatch();
-  const { loading } = useSelector(state => state.recommendation);
+  const { loading } = useSelector((state) => state.recommendation);
   const programs = useSelector(selectPrograms);
   const [refreshKey, setRefreshKey] = useState(0);
   const [currentProgramIndex, setCurrentProgramIndex] = useState(0);
@@ -17,7 +17,7 @@ const RecommendationPage = () => {
   }, [dispatch, refreshKey]);
 
   const handleRefresh = () => {
-    setRefreshKey(prev => prev + 1);
+    setRefreshKey((prev) => prev + 1);
   };
 
   const handleProgramRefresh = () => {
@@ -34,7 +34,7 @@ const RecommendationPage = () => {
   // 현재 표시할 프로그램들 가져오기 (2개씩)
   const getCurrentPrograms = () => {
     if (!programs || programs.length === 0) return [];
-    
+
     const displayPrograms = [];
     for (let i = 0; i < 2; i++) {
       const index = (currentProgramIndex + i) % programs.length;
@@ -46,9 +46,9 @@ const RecommendationPage = () => {
   };
 
   const handleProgramVisit = (program) => {
-    console.log('Visiting program:', program);
+    console.log("Visiting program:", program);
     if (program.url) {
-      window.open(program.url, '_blank');
+      window.open(program.url, "_blank");
     }
   };
 
@@ -73,7 +73,12 @@ const RecommendationPage = () => {
           <ProgramsTitle>추천 프로그램</ProgramsTitle>
           <ProgramsRefresh onClick={handleProgramRefresh}>
             <span>다시 추천받기</span>
-            <RefreshIcon viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+            <RefreshIcon
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+            >
               <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" />
               <path d="M21 3v5h-5" />
               <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" />
@@ -81,12 +86,13 @@ const RecommendationPage = () => {
             </RefreshIcon>
           </ProgramsRefresh>
         </ProgramsHeader>
-        
-        
+
         {getCurrentPrograms().length > 0 ? (
           getCurrentPrograms().map((program, index) => (
             <ProgramCard
-              key={`${program.programName || program.title || 'program'}-${currentProgramIndex}-${index}`}
+              key={`${
+                program.programName || program.title || "program"
+              }-${currentProgramIndex}-${index}`}
               program={program}
               onVisit={handleProgramVisit}
             />
@@ -103,24 +109,25 @@ const Container = styled.div`
   width: 100%;
   max-width: 430px;
   min-height: 100vh;
-  background: #FEFFF5;
+  background: #fefff5;
   position: relative;
   overflow-y: auto;
   margin: 0 auto;
-  padding-top: 58px;
+  padding-top: 40px;
   padding-bottom: 90px;
-  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family: "Pretendard", -apple-system, BlinkMacSystemFont, sans-serif;
 `;
 
 const Header = styled.div`
   text-align: center;
-  margin-bottom: 20px;
-  padding-top: 20px;
+  margin-bottom: 30px;
+
+  padding-top: 0px;
 `;
 
 const HeaderTitle = styled.h1`
-  font-size: 18px;
-  font-weight: 600;
+  font-size: 20px;
+  font-weight: 700;
   color: #1a1a1a;
   letter-spacing: -0.5px;
   margin: 0;
@@ -154,7 +161,7 @@ const ProgramsRefresh = styled.div`
   align-items: center;
   gap: 6px;
   font-size: 11px;
-  color: #34C759;
+  color: #34c759;
   cursor: pointer;
   font-weight: 500;
   letter-spacing: -0.2px;
@@ -164,7 +171,7 @@ const ProgramsRefresh = styled.div`
 const RefreshIcon = styled.svg`
   width: 13px;
   height: 13px;
-  color: #34C759;
+  color: #34c759;
 `;
 
 const LoadingMessage = styled.div`
@@ -175,7 +182,6 @@ const LoadingMessage = styled.div`
   font-size: 16px;
   color: #666;
 `;
-
 
 const EmptyMessage = styled.div`
   display: flex;
