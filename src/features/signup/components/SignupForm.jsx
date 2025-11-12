@@ -113,8 +113,10 @@ export default function SignupForm() {
         value={email}
         onChange={(e) => handleEmailChange(e.target.value)}
       />
-      {emailError && <p style={{ color: "#e54848" }}>{emailError}</p>}
 
+      {emailError && (
+        <p style={{ color: "#e54848", padding: "10px" }}>{emailError}</p>
+      )}
       <label className="sg-label">비밀번호</label>
       <div style={{ position: "relative" }}>
         <input
@@ -138,7 +140,10 @@ export default function SignupForm() {
           }}
         ></label>
       </div>
-      {passwordError && <p style={{ color: "#e54848" }}>{passwordError}</p>}
+
+      {passwordError && (
+        <p style={{ color: "#e54848", padding: "10px" }}>{passwordError}</p>
+      )}
 
       <label className="sg-label">비밀번호 확인</label>
       <input
@@ -152,6 +157,8 @@ export default function SignupForm() {
         <p
           style={{
             color: password === confirmPassword ? "#28d742" : "#e54848",
+
+            padding: "10px",
           }}
         >
           {password === confirmPassword
@@ -177,7 +184,9 @@ export default function SignupForm() {
         value={birth}
         onChange={(e) => handleBirthChange(e.target.value)}
       />
-      {birthError && <p style={{ color: "#e54848" }}>{birthError}</p>}
+      {birthError && (
+        <p style={{ color: "#e54848", padding: "10px" }}>{birthError}</p>
+      )}
 
       <div className="sg-checkbox-area">
         <label
