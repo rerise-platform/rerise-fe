@@ -26,7 +26,11 @@ export default function SignupForm() {
     marketing: false,
   });
 
-  const [isShowPwChecked, setShowPwChecked] = useState(false);
+  const [showPw, setShowPw] = useState(false);
+  const [showPw2, setShowPw2] = useState(false);
+  // 버튼 누르면 true/false 반대로 바꾸기
+  const togglePw = () => setShowPw((v) => !v); // 비밀번호용
+  const togglePw2 = () => setShowPw2((v) => !v); // 비밀번호 확인용
 
   const isFormValid =
     email &&
@@ -51,13 +55,6 @@ export default function SignupForm() {
     const updated = { ...terms, [name]: !terms[name] };
     setTerms(updated);
     setAllChecked(Object.values(updated).every(Boolean));
-  };
-
-  const handleShowPwChecked = () => {
-    const password = passwordRef.current;
-    if (!password) return;
-    setShowPwChecked(!isShowPwChecked);
-    password.type = isShowPwChecked ? "password" : "text";
   };
 
   const handleSubmitClick = async (e) => {
@@ -228,12 +225,29 @@ export default function SignupForm() {
         <input
           ref={passwordRef}
           className="sg-input"
-          type="password"
+          type={showPw ? "text" : "password"}
           placeholder="비밀번호"
           value={password}
           onChange={(e) => handlePasswordChange(e.target.value)}
           style={{ width: "100%" }}
         />
+        <button
+          type="button"
+          onClick={togglePw} // ← 여기서 함수를 '사용'하므로 빨간줄 사라짐
+          style={{
+            position: "absolute",
+            right: 8,
+            top: "50%",
+            transform: "translateY(-50%)",
+            fontSize: "clamp(12px,2vw,24px)",
+            background: "transparent",
+            border: "none",
+            cursor: "pointer",
+          }}
+          aria-label={showPw ? "비밀번호 숨기기" : "비밀번호 보기"}
+        >
+          {showPw ? "숨기기" : "보기"}{" "}
+        </button>
         <label
           style={{
             position: "absolute",
@@ -252,13 +266,45 @@ export default function SignupForm() {
       )}
 
       <label className="sg-label">비밀번호 확인</label>
-      <input
-        className="sg-input"
-        type="password"
-        placeholder="비밀번호 확인"
-        value={confirmPassword}
-        onChange={(e) => setConfirmPassword(e.target.value)}
-      />
+      <div style={{ position: "relative" }}>
+        <input
+          className="sg-input"
+          type={showPw2 ? "text" : "password"}
+          placeholder="비밀번호 확인"
+          value={confirmPassword}
+          onChange={(e) => setConfirmPassword(e.target.value)}
+          style={{ width: "100%" }}
+        />
+        <button
+          type="button"
+          onClick={togglePw2} // ← 이 버튼은 확인 인풋만 토글!
+          style={{
+            position: "absolute",
+            right: 8,
+            top: "50%",
+            transform: "translateY(-50%)",
+            fontSize: "clamp(12px,2vw,24px)",
+            background: "transparent",
+            border: "none",
+            cursor: "pointer",
+          }}
+          aria-label={showPw2 ? "비밀번호 숨기기" : "비밀번호 보기"}
+        >
+          {showPw2 ? "숨기기" : "보기"}
+        </button>
+        <label
+          style={{
+            position: "absolute",
+            right: 0,
+            top: "50%",
+            transform: "translateY(-50%)",
+            fontSize: "12px",
+            display: "flex",
+            alignItems: "center",
+          }}
+        ></label>
+      </div>
+
       {confirmPassword.length > 0 && (
         <p
           style={{
