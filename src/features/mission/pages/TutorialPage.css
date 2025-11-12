@@ -2,15 +2,21 @@
 .tutorial-page {
   position: relative;
   width: 100%;
-  min-height: 100vh;
+  min-height: 600px;
   background: rgba(254, 255, 245, 1);
   overflow: hidden;
   font-family: "Noto Sans KR", system-ui, -apple-system, Segoe UI, Roboto,
     sans-serif;
   touch-action: pan-y;
+  padding-bottom: max(12px, var(--safe-bottom));
 
   /* 글씨 크기: 화면 폭에 맞게 비율 조정 (모바일 ~ 데스크탑) */
   font-size: clamp(14px, 2.5vw, 22px);
+  cursor: default;
+  user-select: none; /* ← 글자 드래그 방지 */
+  -webkit-user-select: none; /* 사파리/모바일 */
+  -ms-user-select: none; /* 구 IE 엣지 */
+  -webkit-touch-callout: none; /* iOS 길게눌러 복사 메뉴 금지 */
 }
 
 /* 가로 슬라이더 */
@@ -22,20 +28,31 @@
 .slide {
   position: relative; /* ★ 각 슬라이드 기준 */
   flex: 0 0 100%;
-  min-height: 100vh;
+  min-height: 100svh;
   padding: 0;
   box-sizing: border-box;
   display: block;
+  margin-top: 15px;
+}
+
+@supports (min-height: 100vh) {
+  .tutorial-page,
+  .slide {
+    min-height: 100vh;
+  }
 }
 
 /* === 공통 위치 변수 (요소 '중심'이 해당 퍼센트에 오도록) === */
 :root {
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-top: env(safe-area-inset-top, 0px);
+  --top-gutter: 15px; /* ← 위 여백 크기(원하면 6~16px로 조절) */
+  --top-offset: max(var(--safe-top), var(--top-gutter));
   --pos-title: 12vh;
   --pos-image: 40vh;
-  --pos-desc: 68vh;
-  --pos-dots: 82vh;
-  --pos-footer: 90vh;
-
+  --pos-desc: 65vh;
+  --pos-dots: 78svh;
+  --pos-footer: 85svh;
   /* iPad Pro 가로 기준 최대 폭 */
   --stage-max: 1366px;
 
@@ -91,7 +108,8 @@
 }
 
 .hero-img {
-  width: auto;
+  pointer-events: none;
+  width: clamp(230px, 80vw, 350px);
   max-width: 100%;
   max-height: 100%;
   display: block;
@@ -103,44 +121,11 @@
 .roadmap-img {
   transform: scale(0.85);
   transform-origin: center;
-}
-
-/* ===== 캐릭터 무한 루프 (3세트, iPad 등 넓은 폭에서도 이음새 없음) ===== */
-.char-marquee-viewport {
-  width: 100%;
-  height: calc(8.5em * var(--charScale3) + 2em);
-  overflow: hidden;
-  position: relative;
-
-  /* 가장자리 페이드(이음새 완전 숨김) */
-  -webkit-mask-image: linear-gradient(
-    to right,
-    transparent 0,
-    #000 3%,
-    #000 97%,
-    transparent 100%
-  );
-  mask-image: linear-gradient(
-    to right,
-    transparent 0,
-    #000 3%,
-    #000 97%,
-    transparent 100%
-  );
-}
-
-.char-marquee-track {
-  display: flex;
-  align-items: center;
-  gap: 1.25em; /* 간격은 gap만 사용 (패딩/마진 X) */
-  width: max-content;
-  padding: 0;
-  margin: 0;
-  animation: char-loop-3 9s linear infinite; /* 3세트 기준 */
-  will-change: transform;
+  width: clamp(230px, 80vw, 400px);
 }
 
 .char-img {
+  pointer-events: none;
   width: 8.5em;
   height: auto;
   flex: 0 0 auto;
@@ -148,31 +133,10 @@
   filter: drop-shadow(0 0.875em 1em rgba(0, 0, 0, 0.12));
 }
 
-/* 3개 주기 크기 차등 (복제 세트에도 동일 적용) */
-.char-marquee-track img:nth-child(3n + 1) {
-  width: calc(8.5em * var(--charScale1));
-}
-.char-marquee-track img:nth-child(3n + 2) {
-  width: calc(8.5em * var(--charScale2));
-}
-.char-marquee-track img:nth-child(3n) {
-  width: calc(8.5em * var(--charScale3));
-}
-
-/* 트랙 길이의 정확히 1/3만 이동 → 어떤 화면폭에서도 끊김 없음 */
-@keyframes char-loop-3 {
-  0% {
-    transform: translate3d(0, 0, 0);
-  }
-  100% {
-    transform: translate3d(calc(var(--loop-step) * -1), 0, 0);
-  } /* = -33.333…% */
-}
-
 /* 인디케이터 */
 .dots {
   position: absolute;
-  top: var(--pos-dots);
+  top: calc(var(--pos-dots) - var(--safe-bottom));
   left: 50%;
   transform: translate(-50%, -50%);
   display: flex;
@@ -193,7 +157,7 @@
 /* 하단 CTA */
 .footer {
   position: absolute;
-  top: var(--pos-footer);
+  top: calc(var(--pos-footer) - var(--safe-bottom));
   left: 50%;
   transform: translate(-50%, -50%);
 }
@@ -205,6 +169,7 @@
   border-radius: 0.875em;
   font-weight: 700;
   font-size: 1em;
+  cursor: pointer;
 }
 .start-btn.disabled {
   background: #e9efe9;
@@ -212,5 +177,180 @@
 }
 .start-btn.enabled {
   background: #40ea87;
-  color: #0f2a1b;
+  color: rgba(65, 96, 76, 1);
+}
+/* 컴팩트 1: 보통 소형 화면(≤780px 높이)에서 세로 간격 살짝 축소 */
+@media (max-height: 915px) {
+  :root {
+    --pos-title: 9svh;
+    --pos-image: 34svh;
+    --pos-desc: 59svh;
+    --pos-dots: 73svh;
+    --pos-footer: 83svh;
+  }
+  .image-wrap {
+    height: 32vh;
+  }
+  .title {
+    font-size: 1.3em;
+  }
+  .desc {
+    font-size: 0.85em;
+    line-height: 1.5;
+  }
+  .start-btn {
+    width: min(78vw, 420px);
+    height: 2.5em;
+  }
+}
+
+/* 컴팩트 2: 아주 낮은 화면(≤667px)에서 더 타이트하게 */
+@media (max-height: 667px) {
+  :root {
+    --pos-title: 8svh;
+    --pos-image: 31svh;
+    --pos-desc: 56svh;
+    --pos-dots: 70svh;
+    --pos-footer: 80svh;
+  }
+  .image-wrap {
+    height: 29vh;
+    min-height: 10.5em;
+  }
+  .char-marquee-viewport {
+    height: calc(7.5em * var(--charScale3) + 1.6em);
+  }
+  .dots {
+    gap: 0.4em;
+  }
+}
+
+/* 데스크탑(마우스/넓은 화면)에서 CTA 버튼 얇게 */
+@media (hover: hover) and (min-width: 1024px) {
+  .start-btn {
+    /* 데스크탑에서 너무 두꺼워지는 em 스케일을 제한 */
+    height: 3em; /* 기존 3.375em → 2.6em(약 22px 글꼴 기준 ~57px) */
+    font-size: 0.95em; /* 살짝 줄여 균형 잡기 */
+    border-radius: 0.75em; /* 곡률도 살짝 덜 둥글게 */
+  }
+}
+
+/* 더 넓은 화면(≥1440px)에서는 한 번 더 얇게 */
+@media (hover: hover) and (min-width: 1440px) {
+  .start-btn {
+    height: 2.9em;
+    font-size: 0.8em;
+  }
+}
+/* PC(데스크탑)에서만 전체 내용물 430px 고정 */
+@media (hover: hover) and (min-width: 1024px) {
+  :root {
+    --stage-max: 430px;
+  }
+
+  .slide {
+    flex: 0 0 100% !important;
+    width: 100% !important;
+    max-width: none !important;
+  }
+
+  /* 제목/설명/이미지/푸터만 고정폭 중앙 */
+  .title,
+  .desc,
+  .image-wrap,
+  .footer {
+    width: var(--stage-max);
+    left: 50%;
+    transform: translate(-50%, -50%);
+    max-width: none;
+  }
+
+  /* 캐릭터 줄은 image-wrap 안에서 이미 중앙이므로 추가 설정 불필요 */
+
+  /* dots는 ‘자기 컨텐츠 폭’으로 중앙 정렬(위 공통 목록에서 제외!) */
+  .dots {
+    width: auto !important;
+    left: 50%;
+    transform: translate(-50%, -50%) !important;
+  }
+
+  .title {
+    font-size: clamp(20px, 5vw, 24px) !important;
+  }
+  .decs {
+    font-size: clamp(12px, 2vw, 15px) !important;
+  }
+
+  .roadmap-img {
+    width: clamp(230px, 80vw, 300px) !important;
+  }
+}
+
+/* ===== 캐릭터 가로 정렬 + 둥둥(순차) 모션 ===== */
+.char-row {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: clamp(0.8em, 3vw, 1.2em); /* 반응형 간격 */
+  width: 100%;
+  flex-wrap: nowrap; /* 가로 한 줄 고정 */
+}
+
+.char-img {
+  pointer-events: none;
+  height: auto;
+  display: block;
+  filter: drop-shadow(0 0.875em 1em rgba(0, 0, 0, 0.12));
+}
+
+/* PC/모바일 별 크기 조절 */
+@media (hover: hover) and (min-width: 1024px) {
+  /* 430px 스테이지에 3장 들어가도록 적당한 폭 */
+  .char-img {
+    width: clamp(90px, 28%, 120px);
+  }
+  .char3 {
+    width: clamp(120px, 28%, 150px) !important;
+  }
+}
+@media (max-width: 1024px) {
+  /* 모바일은 조금 더 크게 보이게 */
+  .char-img {
+    width: clamp(72px, 24vw, 110px);
+  }
+}
+
+/* 둥둥 모션: 위아래 */
+@keyframes bob {
+  0% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8%);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+.bob {
+  animation: bob 2.1s ease-in-out infinite;
+  will-change: transform;
+}
+
+/* 왼→가운데→오른쪽 순서로 지연(두·두·둥) */
+.char-row .bob:nth-child(1) {
+  animation-delay: 0s;
+}
+.char-row .bob:nth-child(2) {
+  animation-delay: 0.16s;
+}
+.char-row .bob:nth-child(3) {
+  animation-delay: 0.32s;
+}
+
+/* dots를 정확히 중앙에 */
+.dots {
+  width: auto !important; /* 콘텐츠 폭만큼만 */
+  left: 50%;
+  transform: translate(-50%, -50%) !important;
 }

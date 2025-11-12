@@ -1,8 +1,11 @@
 import React, { useState, useRef } from "react";
 import { signupAPI } from "../api/signupAPI";
+import { useNavigate } from "react-router-dom";
 import "./SignupForm.css";
 
 export default function SignupForm() {
+  const navigate = useNavigate(); //
+
   const [email, setEmail] = useState("");
   const [emailError, setEmailError] = useState("");
 
@@ -22,6 +25,8 @@ export default function SignupForm() {
     terms2: false,
     marketing: false,
   });
+
+  const [isShowPwChecked, setShowPwChecked] = useState(false);
 
   const isFormValid =
     email &&
@@ -48,31 +53,107 @@ export default function SignupForm() {
     setAllChecked(Object.values(updated).every(Boolean));
   };
 
-  const handleSubmitClick = async () => {
-    if (!isFormValid) return;
+  const handleShowPwChecked = () => {
+    const password = passwordRef.current;
+    if (!password) return;
+    setShowPwChecked(!isShowPwChecked);
+    password.type = isShowPwChecked ? "password" : "text";
+  };
+
+  const handleSubmitClick = async (e) => {
+    if (e && e.preventDefault) e.preventDefault();
+    console.log("🎯 [SIGNUP FORM] 회원가입 버튼 클릭됨");
+
+    if (!isFormValid) {
+      console.log("❌ [SIGNUP FORM] 폼 유효성 검사 실패");
+      console.log("📋 [SIGNUP FORM] 현재 폼 상태:", {
+        email: email || "비어있음",
+        password: password ? "입력됨" : "비어있음",
+        confirmPassword: confirmPassword ? "입력됨" : "비어있음",
+        nickname: nickname || "비어있음",
+        birth: birth || "비어있음",
+        emailError,
+        passwordError,
+        birthError,
+        passwordMatch: password === confirmPassword,
+        terms,
+      });
+      return;
+    }
 
     try {
+      console.log("✅ [SIGNUP FORM] 폼 유효성 검사 통과");
+
       // 생년월일 형식 변환 (YYYYMMDD → YYYY-MM-DD)
       const formattedBirth = birth.replace(/(\d{4})(\d{2})(\d{2})/, "$1-$2-$3");
 
-      // 회원가입 API 호출
-      const res = await signupAPI({
+      const requestData = {
         email,
         password,
         passwordCheck: confirmPassword,
         nickname,
         birth: formattedBirth,
+      };
+
+      console.log("🚀 [SIGNUP FORM] 회원가입 API 호출 시작");
+      console.log("📝 [SIGNUP FORM] 요청 데이터:", {
+        ...requestData,
+        password: "***",
+        passwordCheck: "***",
       });
 
+      // 회원가입 API 호출
+      const res = await signupAPI(requestData);
+
+      console.log("🎉 [SIGNUP FORM] API 호출 완료!");
+      console.log("📄 [SIGNUP FORM] 응답 데이터:", res);
+      console.log("🔍 [SIGNUP FORM] 응답 타입:", typeof res);
+      console.log("📏 [SIGNUP FORM] 응답 길이:", res?.length);
+
       if (res === "회원가입 성공") {
+        console.log("✅ [SIGNUP FORM] 회원가입 성공 - 로그인 페이지로 이동");
         alert("회원가입 성공!\n로그인 페이지로 이동합니다.");
         window.location.href = "/login";
       } else {
-        alert("회원가입 실패!\n다시 시도해주세요.");
+        console.log("⚠️ [SIGNUP FORM] 예상과 다른 응답:", res);
+        alert(`회원가입 실패!\n${res || "다시 시도해주세요."}`);
       }
     } catch (error) {
-      console.error("회원가입 실패:", error);
-      alert("회원가입 실패!\n다시 시도해주세요.");
+      console.error("💥 [SIGNUP FORM] 회원가입 에러 발생!");
+      console.error("🔍 [SIGNUP FORM] 에러 상세 정보:", {
+        name: error.name,
+        message: error.message,
+        stack: error.stack,
+        response: error.response,
+        request: error.request,
+        config: error.config,
+      });
+
+      // 오류 타입에 따른 메시지 분기
+      let errorMessage = "회원가입 실패!\n다시 시도해주세요.";
+
+      if (
+        error.code === "ERR_CONNECTION_REFUSED" ||
+        error.message === "Network Error"
+      ) {
+        console.error("🌐 [SIGNUP FORM] 네트워크 연결 오류");
+        errorMessage =
+          "서버에 연결할 수 없습니다.\n백엔드 서버가 실행 중인지 확인해주세요.";
+      } else if (error.response?.status === 400) {
+        console.error("📝 [SIGNUP FORM] 잘못된 요청 (400)");
+        errorMessage = `회원가입 실패!\n${
+          error.response.data || "입력 정보를 확인해주세요."
+        }`;
+      } else if (error.response?.status === 409) {
+        console.error("🔄 [SIGNUP FORM] 중복 데이터 (409)");
+        errorMessage =
+          "이미 존재하는 이메일입니다.\n다른 이메일을 사용해주세요.";
+      } else if (error.response?.data) {
+        console.error("📄 [SIGNUP FORM] 서버 에러 응답:", error.response.data);
+        errorMessage = `회원가입 실패!\n${error.response.data}`;
+      }
+
+      alert(errorMessage);
     }
   };
 
@@ -102,9 +183,34 @@ export default function SignupForm() {
   };
 
   return (
-    <div className="sg-form">
-      <h2 className="sg-title">회원가입</h2>
+    <form className="sg-form" onSubmit={handleSubmitClick}>
+      <div className="sg-header">
+        <button
+          type="button"
+          className="back-button"
+          aria-label="로그인으로 돌아가기"
+          onClick={() => navigate("/login")}
+        >
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            aria-hidden="true"
+          >
+            <path
+              d="M15 18L9 12L15 6"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </button>
+        <h2 className="sg-title">회원가입</h2>
 
+        {/* 타이틀을 정확히 중앙 정렬하기 위한 더미 공간 */}
+        <div className="sg-header-spacer" />
+      </div>
       <label className="sg-label">아이디(이메일)</label>
       <input
         className="sg-input"
@@ -166,7 +272,6 @@ export default function SignupForm() {
             : "비밀번호가 동일하지 않습니다."}
         </p>
       )}
-
       <label className="sg-label">닉네임</label>
       <input
         className="sg-input"
@@ -175,7 +280,6 @@ export default function SignupForm() {
         value={nickname}
         onChange={(e) => setNickname(e.target.value)}
       />
-
       <label className="sg-label">생년월일</label>
       <input
         className="sg-input"
@@ -230,10 +334,9 @@ export default function SignupForm() {
           마케팅 정보 수신 동의 (선택)
         </label>
       </div>
-
       <button
         className="sg-submit"
-        onClick={handleSubmitClick}
+        type="submit"
         disabled={!isFormValid}
         style={{
           opacity: isFormValid ? 1 : 0.9,
@@ -242,6 +345,6 @@ export default function SignupForm() {
       >
         Rerise 시작하기
       </button>
-    </div>
+    </form>
   );
 }

@@ -1,2 +1,7 @@
-body { margin : 0 }
-div { box-sizing : border-box }
+body {
+  margin: 0;
+  background-color: rgba(254, 255, 245, 1);
+}
+div {
+  box-sizing: border-box;
+}

@@ -1,4 +1,4 @@
-import axios from 'axios';
+import api from '../../../lib/apiClient';
 
 const USE_MOCK_DATA = false;
 
@@ -48,10 +48,7 @@ export const getSeochoPlaceRecommendations = async () => {
       return mockPlacesResponse;
     }
 
-    const token = localStorage.getItem('token');
-    const response = await axios.get('/api/v1/place/recommend/seocho', {
-      headers: { 'Authorization': `Bearer ${token}` }
-    });
+    const response = await api.get('/api/v1/recommendation/places/seocho');
     return response.data;
   } catch (error) {
     console.error('Failed to load Seocho places:', error);
@@ -67,10 +64,7 @@ export const getUserProgramRecommendations = async () => {
       return mockProgramsResponse;
     }
 
-    const token = localStorage.getItem('token');
-    const response = await axios.get('/api/v1/recommendation/programs', {
-      headers: { 'Authorization': `Bearer ${token}` }
-    });
+    const response = await api.get('/api/v1/recommendation/programs');
     return response.data;
   } catch (error) {
     console.error('Failed to load user programs:', error);

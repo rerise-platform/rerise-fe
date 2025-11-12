@@ -1,24 +1,34 @@
-import React, { useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { Link } from 'react-router-dom';
-import styled from 'styled-components';
-import { loginThunk } from '../loginSlice';
+import React, { useState, useCallback, memo } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { Link } from "react-router-dom";
+import styled from "styled-components";
+import { loginThunk } from "../loginSlice";
+import mainLogo from "../../../shared/assets/images/mainlogo.svg";
 
-// ===== Styled Components =====
-// 입력 박스 스타일
+/* 입력 박스 */
 const InputBox = styled.div`
-  width: 296px;
+  width: 100%;
+  max-width: 350px;
   height: 58px;
-  border: 1px solid #40EA87;
-  background-color: rgba(255,255,255,0.2);
+  border: 1px solid #40ea87;
+  background-color: rgba(255, 255, 255, 0.2);
   border-radius: 28px;
-  margin-bottom: 20px;
+  margin: 10px 0 20px 0;
   position: relative;
-  backdrop-filter: ${props => props.isPassword ? 'blur(7.5px)' : 'blur(12px)'};
-  -webkit-backdrop-filter: ${props => props.isPassword ? 'blur(7.5px)' : 'blur(12px)'};
+
+  /* 모바일/태블릿에서 blur 성능 이슈 완화 */
+  backdrop-filter: ${(p) => (p.$isPassword ? "blur(7.5px)" : "blur(12px)")};
+  -webkit-backdrop-filter: ${(p) =>
+    p.$isPassword ? "blur(7.5px)" : "blur(12px)"};
+
+  @media (max-width: 1024px) {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background-color: rgba(255, 255, 255, 0.7);
+  }
 `;
 
-// 입력 필드 스타일
+/* 입력 필드 */
 const Input = styled.input`
   width: 100%;
   height: 100%;
@@ -26,7 +36,7 @@ const Input = styled.input`
   background: transparent;
   padding: 19px 20px;
   font-size: 15px;
-  color: #3F3F3F;
+  color: #3f3f3f;
   outline: none;
   box-sizing: border-box;
   font-family: "Pretendard-Regular", Helvetica;
@@ -35,23 +45,24 @@ const Input = styled.input`
   line-height: 20px;
 
   &::placeholder {
-    color: #3F3F3F;
+    color: #3f3f3f;
   }
 `;
 
-// 로그인 버튼
+/* 버튼 */
 const LoginButton = styled.button`
-  width: 304px;
+  width: 100%;
+  max-width: 350px;
   height: 68px;
-  background: #40EA87;
+  background: #40ea87;
   border: none;
   border-radius: 28px;
   font-family: "Pretendard-SemiBold", Helvetica;
   font-size: 16px;
-  color: #41604C;
+  color: #41604c;
   font-weight: 600;
   cursor: pointer;
-  margin: 20px 0;
+  margin: 25px 0;
 
   &:disabled {
     background: #cccccc;
@@ -59,34 +70,32 @@ const LoginButton = styled.button`
   }
 `;
 
-// 회원가입 안내 섹션
+/* 회원가입 안내 */
 const SignupPrompt = styled.div`
   display: flex;
   justify-content: center;
   align-items: center;
   gap: 6px;
   margin-top: 20px;
-  
+
   span {
     font-size: 14px;
     line-height: 22px;
     letter-spacing: 0.07px;
     white-space: nowrap;
   }
-  
   .ask {
-    color: #9EA3B2;
+    color: #9ea3b2;
     font-weight: 400;
   }
-  
   a {
-    color: #31B066;
+    color: #31b066;
     font-weight: 600;
     text-decoration: none;
   }
 `;
 
-// 에러 메시지 스타일
+/* 에러 메시지 */
 const ErrorMessage = styled.div`
   color: #ff4444;
   font-size: 14px;
@@ -95,86 +104,116 @@ const ErrorMessage = styled.div`
   margin: 10px 0;
 `;
 
-/**
- * 로그인 폼 컴포넌트
- * 사용자 인증 정보를 입력받고 Redux를 통해 로그인 처리를 담당
- */
+/* 로고 (초기 레이아웃 안정 위해 치수 명시) */
+const LogoContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  margin-bottom: 30px;
+`;
+const Logo = styled.img.attrs(() => ({
+  width: 160,
+  height: 160,
+}))`
+  width: 160px;
+  height: auto;
+`;
+
+/* 폼 전체 */
+const FormContainer = styled.form`
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 0;
+`;
+
+const OptimizedInput = memo(
+  ({ type, name, placeholder, value, onChange, required }) => {
+    const handleInputChange = useCallback(
+      (e) => {
+        onChange?.(e);
+      },
+      [onChange]
+    );
+
+    if (!name || !onChange) return null;
+
+    return (
+      <InputBox $isPassword={type === "password"}>
+        <Input
+          type={type}
+          name={name}
+          placeholder={placeholder}
+          value={value}
+          onChange={handleInputChange}
+          required={required}
+          autoComplete={type === "password" ? "current-password" : "username"}
+        />
+      </InputBox>
+    );
+  }
+);
+
 const LoginForm = () => {
-  // Redux hooks
-  const dispatch = useDispatch(); // 액션을 dispatch하기 위한 함수
-  const { loading, error } = useSelector(state => state.auth); // Redux store에서 상태 가져오기
-  
-  // 폼 데이터 상태 관리
-  const [formData, setFormData] = useState({
-    email: '',         // 사용자 이메일
-    password: ''       // 사용자 비밀번호
+  const dispatch = useDispatch();
+  const { loading, error } = useSelector((state) => {
+    if (!state || !state.auth) return { loading: false, error: null };
+    return state.auth;
   });
 
-  /**
-   * 입력 필드 값 변경 핸들러
-   * @param {Event} e - 이벤트 객체
-   */
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
+  const [formData, setFormData] = useState({ email: "", password: "" });
 
-  /**
-   * 폼 제출 핸들러
-   * @param {Event} e - 이벤트 객체
-   */
-  const handleSubmit = (e) => {
-    e.preventDefault(); // 기본 폼 제출 동작 방지
-    
-    // Redux thunk를 통해 로그인 액션 dispatch
-    dispatch(loginThunk({
-      email: formData.email,
-      password: formData.password
-    }));
-  };
+  const handleChange = useCallback((e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  }, []);
+
+  const handleSubmit = useCallback(
+    (e) => {
+      e.preventDefault();
+      if (!formData.email || !formData.password) return;
+      dispatch(
+        loginThunk({ email: formData.email, password: formData.password })
+      );
+    },
+    [dispatch, formData.email, formData.password]
+  );
 
   return (
-    <form onSubmit={handleSubmit}>
-      {/* 입력 필드들 */}
-      <InputBox>
-        <Input
-          type="email"
-          name="email"
-          placeholder="이메일"
-          value={formData.email}
-          onChange={handleChange}
-          required
-        />
-      </InputBox>
-      
-      <InputBox isPassword>
-        <Input
-          type="password"
-          name="password"
-          placeholder="비밀번호"
-          value={formData.password}
-          onChange={handleChange}
-          required
-        />
-      </InputBox>
+    <FormContainer onSubmit={handleSubmit}>
+      <LogoContainer>
+        <Logo src={mainLogo} alt="ReRise Logo" />
+      </LogoContainer>
 
-      {/* 에러 메시지 표시 */}
+      <OptimizedInput
+        type="email"
+        name="email"
+        placeholder="이메일"
+        value={formData.email}
+        onChange={handleChange}
+        required
+      />
+      <OptimizedInput
+        type="password"
+        name="password"
+        placeholder="비밀번호"
+        value={formData.password}
+        onChange={handleChange}
+        required
+      />
+
       {error && <ErrorMessage>{error}</ErrorMessage>}
 
-      {/* 로그인 버튼 */}
       <LoginButton type="submit" disabled={loading}>
-        {loading ? '로그인 중...' : '로그인'}
+        {loading ? "로그인 중..." : "로그인"}
       </LoginButton>
 
-      {/* 회원가입 안내 */}
       <SignupPrompt>
         <span className="ask">아직 회원이 아니신가요?</span>
         <Link to="/signup">회원가입</Link>
       </SignupPrompt>
-    </form>
+    </FormContainer>
   );
 };
 

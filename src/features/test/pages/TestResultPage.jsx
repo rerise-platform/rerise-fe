@@ -7,6 +7,7 @@ import {
   CHARACTER_KEYWORDS,
 } from "../data/question";
 import { getCharacterById } from "../api/testAPI";
+import { getMainScreenData } from "../../main/api/mainAPI"; // ✅ 감정페이지와 동일 경로 (필요시 경로만 맞춰줘)
 import "./test.css";
 
 const CHAR_IMG = {
@@ -24,6 +25,29 @@ export default function TestResultPage() {
   const nav = useNavigate();
   const { state } = useLocation();
   const initial = state?.result;
+
+  // ✅ 감정페이지와 동일: 닉네임 로드 (없으면 "사용자")
+  const [nickname, setNickname] = useState("사용자");
+
+  useEffect(() => {
+    const cached = localStorage.getItem("nickname");
+    if (cached) {
+      setNickname(cached);
+      return;
+    }
+    (async () => {
+      try {
+        const data = await getMainScreenData();
+        const name =
+          data?.nickname || data?.character_status?.nickname || "사용자";
+        setNickname(name);
+        localStorage.setItem("nickname", name);
+      } catch (e) {
+        console.error("닉네임 로드 실패:", e);
+        setNickname("사용자"); // 실패 시 기본값 유지
+      }
+    })();
+  }, []);
 
   const [result, setResult] = useState(initial);
   const [loading, setLoading] = useState(!initial);
@@ -78,7 +102,7 @@ export default function TestResultPage() {
 
         setResult(normalized);
       } catch {
-        // 실패 시 테스트로 이동
+        // 실패 시 테스트로 이동 고려 가능
         // nav("/test", { replace: true });
       } finally {
         setLoading(false);
@@ -121,7 +145,27 @@ export default function TestResultPage() {
     <div className="test-shell">
       <main className="test-wrap">
         <div className="test-topbar">
-          <div className="page-title">테스트 결과</div>
+          <div
+            className="result-intro"
+            style={{
+              color: "rgba(90, 96, 91, 1)",
+              textAlign: "center",
+            }}
+          >
+            {/* ✅ 문구 변경: "{닉네임}님과 함께할 캐릭터" (없으면 "사용자"로 이미 세팅됨) */}
+            {`${nickname}님과 함께할 캐릭터`}
+          </div>
+
+          <h2
+            className="result-title"
+            style={{
+              textAlign: "center",
+              color: "rgba(65, 96, 76, 1)",
+              marginTop: "15px",
+            }}
+          >
+            {character?.name || "성향 캐릭터"}
+          </h2>
         </div>
 
         <div className="result-avatar">
@@ -131,10 +175,6 @@ export default function TestResultPage() {
           />
         </div>
 
-        <h2 className="q-title" style={{ textAlign: "center" }}>
-          {character?.name || "성향 캐릭터"}
-        </h2>
-
         <div className="pillset">
           {(tags || []).slice(0, 3).map((p, i) => (
             <span className="pill" key={i}>
@@ -143,15 +183,14 @@ export default function TestResultPage() {
           ))}
         </div>
 
-        <div style={{ marginTop: "clamp(6px 1vw 20px)" }}>
+        <div style={{ marginTop: "clamp(6px, 1vw, 20px)" }}>
           {gaugeOrder.map((axis) => (
             <div
               key={axis}
+              className="bar-row"
               style={{ marginTop: axis === "energylevel" ? 0 : 8 }}
             >
-              <div className="barName" style={{ color: "#6b756e" }}>
-                {GAUGE_LABELS[axis]}
-              </div>
+              <div className="barName">{GAUGE_LABELS[axis]}</div>
               <div className="meter">
                 <div
                   className="fill"
@@ -167,7 +206,12 @@ export default function TestResultPage() {
           ))}
         </div>
 
-        <div className="result-text">
+        <div
+          className="result-text"
+          style={{
+            marginTop: "10px",
+          }}
+        >
           {blurb && (
             <>
               <b>당신은 👋</b>
@@ -178,7 +222,21 @@ export default function TestResultPage() {
         </div>
 
         <div className="sticky-bottom" style={{ marginTop: 0 }}>
-          <button className="primary-btn" onClick={() => nav("/main")}>
+          <button
+            className="primary-btn"
+            style={{
+              marginTop: "12px",
+            }}
+            onClick={() => {
+              // 테스트 완료 상태 저장
+              localStorage.setItem("testCompleted", "true");
+              // 메인 페이지로 이동
+              nav("/tutorial", {
+                replace: true,
+                state: { from: "testResult" },
+              });
+            }}
+          >
             다음
           </button>
         </div>

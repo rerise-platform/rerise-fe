@@ -8,6 +8,14 @@ import {
   completeDailyMission,
 } from "../api/missionAPI";
 
+// ✅ 캐릭터 이미지 매핑 추가
+const CHAR_IMG = {
+  모니: "/images/char1.png",
+  토리: "/images/tory.png",
+  포리: "/images/pory.png",
+  코코: "/images/koko.png",
+};
+
 const MissionMainPage = () => {
   // ===== 주간(로드맵) =====
   const [roadmapMissions, setRoadmapMissions] = useState([]);
@@ -19,7 +27,12 @@ const MissionMainPage = () => {
 
   // 추가: 주간 요약 말풍선용 상태
   const [weeklySummary, setWeeklySummary] = useState("");
-  const [summaryOpenId, setSummaryOpenId] = useState(null);
+
+  // ✅ 캐릭터 이름: 로컬에서 바로 읽기(경고/에러 방지)
+  const characterName =
+    typeof window !== "undefined"
+      ? localStorage.getItem("characterName")
+      : null;
 
   // ===== 데일리 =====
   const [dailyMissions, setDailyMissions] = useState([]);
@@ -40,6 +53,9 @@ const MissionMainPage = () => {
     if (status === "rejected") return "/images/rejectedX.svg";
     return "/images/missionUnchecked.png";
   };
+
+  // ===== 업로드 개수 제한 상수 =====
+  const MAX_PHOTOS = 3;
 
   // ===== 최초 로드: 주간(로드맵) + 오늘의 데일리 =====
   useEffect(() => {
@@ -69,12 +85,8 @@ const MissionMainPage = () => {
     })();
   }, []);
 
-  // ===== 로드맵: 헤더 클릭 (말풍선 토글 + 작성 영역 토글) =====
+  // ===== 로드맵: 헤더 클릭 (후기 입력 영역 토글만 유지) =====
   const handleClickMission = (id) => {
-    // 말풍선은 상태와 무관하게 토글
-    setSummaryOpenId((prev) => (prev === id ? null : id));
-
-    // 후기 입력 영역은 'none' 상태에서만 토글
     const m = roadmapMissions.find((x) => x.id === id);
     if (!m) return;
     if (m.status !== "none") return;
@@ -86,6 +98,7 @@ const MissionMainPage = () => {
     setFeedbackById((prev) => ({ ...prev, [id]: value }));
   };
 
+  // ✅ 업로드 처리(최대 3장 유지)
   const handlePhotoChange = (id, e) => {
     const files = Array.from(e.target.files || []);
     if (files.length === 0) return;
@@ -93,16 +106,33 @@ const MissionMainPage = () => {
     const prevFiles = photoById[id] || [];
     const prevUrls = photoPreviewById[id] || [];
 
+    const remaining = MAX_PHOTOS - prevFiles.length;
+    if (remaining <= 0) {
+      alert(`사진은 최대 ${MAX_PHOTOS}장까지 업로드할 수 있어요.`);
+      e.target.value = "";
+      return;
+    }
+
+    // 남은 칸만큼만 받기
+    const incoming = files.slice(0, remaining);
+
     const nextFiles = [...prevFiles];
     const nextUrls = [...prevUrls];
 
-    files.forEach((f) => {
+    incoming.forEach((f) => {
       nextFiles.push(f);
       nextUrls.push(URL.createObjectURL(f));
     });
 
     setPhotoById((prev) => ({ ...prev, [id]: nextFiles }));
     setPhotoPreviewById((prev) => ({ ...prev, [id]: nextUrls }));
+
+    // 남는 파일이 있었으면 안내
+    if (files.length > remaining) {
+      alert(
+        `사진은 최대 ${MAX_PHOTOS}장까지 업로드할 수 있어요. (초과분은 제외됐어요)`
+      );
+    }
     e.target.value = "";
   };
 
@@ -177,7 +207,6 @@ const MissionMainPage = () => {
       if (e.key === "Escape") {
         setConfirmId(null);
         setConfirmRoadmapId(null);
-        setSummaryOpenId(null);
       }
     };
     window.addEventListener("keydown", onKey);
@@ -262,10 +291,25 @@ const MissionMainPage = () => {
           </div>
         </h3>
 
+        {/* ✅ 요약 말풍선: 항상 표시 (캐릭터 이미지 + 왼쪽 꼬리 말풍선) */}
+        {!!weeklySummary && (
+          <div className="summary-row">
+            {characterName && (
+              <img
+                className="summary-char"
+                src={CHAR_IMG[characterName] || "/images/char1.png"}
+                alt={characterName}
+              />
+            )}
+            <div className="summary-bubble" role="status" aria-live="polite">
+              {weeklySummary}
+            </div>
+          </div>
+        )}
+
         <ul className="roadmap-list">
           {roadmapMissions.map((m) => {
             const isActive = activeFeedbackId === m.id && m.status === "none";
-            const showSummary = !!weeklySummary && summaryOpenId === m.id;
             const previews = photoPreviewById[m.id] || [];
 
             return (
@@ -277,17 +321,6 @@ const MissionMainPage = () => {
                     isActive ? "active" : "",
                   ].join(" ")}
                 >
-                  {/* 요약 말풍선: 헤더 바로 위에 표시 */}
-                  {showSummary && (
-                    <div
-                      className="summary-bubble"
-                      role="status"
-                      aria-live="polite"
-                    >
-                      {weeklySummary}
-                    </div>
-                  )}
-
                   <button
                     type="button"
                     className="roadmap-head"
@@ -321,7 +354,7 @@ const MissionMainPage = () => {
                       <textarea
                         className="feedback-textarea"
                         rows={5}
-                        placeholder="간단한 후기(5자 이상)와 사진을 업로드해주세요!"
+                        placeholder="간단한 후기(5자 이상)와 사진(1~3장)을 업로드해주세요!"
                         value={feedbackById[m.id] || ""}
                         onChange={(e) => handleTextChange(m.id, e.target.value)}
                       />
@@ -336,13 +369,27 @@ const MissionMainPage = () => {
                             style={{ display: "none" }}
                             onChange={(e) => handlePhotoChange(m.id, e)}
                           />
+                          {/* ✅ 라벨 기본 동작만 사용 + onMouseDown으로 사전 검사/차단 */}
                           <label
                             htmlFor={`file-${m.id}`}
                             className="upload-btn"
                             title="사진 업로드"
+                            onMouseDown={(e) => {
+                              const count = photoById[m.id]?.length || 0;
+                              if (count >= MAX_PHOTOS) {
+                                e.preventDefault(); // 파일창 열림 자체를 막음
+                                alert(
+                                  `사진은 최대 ${MAX_PHOTOS}장까지 업로드할 수 있어요. 기존 사진을 삭제해 주세요.`
+                                );
+                              }
+                            }}
                           >
                             <img src="/images/imageUpload.png" alt="upload" />
                           </label>
+
+                          <span className="upload-counter">
+                            {photoById[m.id]?.length || 0} / {MAX_PHOTOS}
+                          </span>
 
                           <div className="preview-list">
                             {previews.map((url, idx) => (
@@ -433,6 +480,8 @@ const MissionMainPage = () => {
               <div>
                 <span className="modal-title">“{roadmapToConfirm.title}”</span>
                 <br /> 후기 작성을 완료하셨나요?
+                <br />
+                추후 관리자 승인을 통해 포인트가 지급됩니다.
               </div>
             </div>
             <div className="modal-actions">

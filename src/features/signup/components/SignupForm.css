@@ -3,6 +3,107 @@ body {
   margin: 0;
   overflow-x: hidden;
 }
+/* 상단 헤더: 타이틀은 정확히 중앙, 뒤로가기 버튼은 왼쪽 고정 */
+.sg-header {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center; /* 타이틀 중앙 정렬 */
+  height: 44px; /* 헤더 높이(아이콘 24px + 여유) */
+  margin-bottom: 16px;
+}
+
+/* 기본 버튼 스타일 리셋 + 포커스 */
+.back-button {
+  position: absolute;
+  left: 0; /* 왼쪽 고정 */
+  top: 50%;
+  transform: translateY(-50%);
+  appearance: none;
+  background: transparent;
+  border: none;
+  width: 44px;
+  height: 44px;
+  padding: 0 8px; /* 터치 여백 */
+  line-height: 0;
+  cursor: pointer;
+  color: #1a201c; /* 아이콘 색 */
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.back-button svg {
+  width: 100%;
+  height: 100%;
+}
+
+.back-button:hover {
+  opacity: 0.8;
+}
+.back-button:focus {
+  outline: 2px solid #40ea87;
+  outline-offset: 2px;
+}
+
+/* iPad 전용(세로/가로 모두): 버튼/아이콘 확대 + 헤더 높이 맞춤 */
+@media (min-width: 768px) and (max-width: 1024px) {
+  .back-button {
+    width: 56px;
+    height: 56px;
+  }
+  .back-button svg {
+    width: 28px;
+    height: 28px;
+  }
+  .sg-header {
+    min-height: 56px;
+  }
+}
+
+/* 데스크톱(마우스)에서는 적당한 크기 유지 */
+@media (min-width: 1025px) and (hover: hover) and (pointer: fine) {
+  .back-button {
+    width: 44px;
+    height: 44px;
+  }
+  .back-button svg {
+    width: 24px;
+    height: 24px;
+  }
+}
+
+/* ✅ iPad 계열(세로/가로, Air/Pro 포함) + 터치 디바이스에서만 크게 */
+@media (min-width: 768px) and (max-width: 1366px) and (hover: none) and (pointer: coarse) {
+  .back-button {
+    width: 56px;
+    height: 56px;
+  }
+  .sg-header {
+    min-height: 56px;
+  }
+}
+@media (min-width: 768px) and (max-width: 1366px) and (hover: none) and (pointer: coarse) {
+  .sg-header .back-button {
+    width: 56px !important;
+    height: 56px !important;
+  }
+  .sg-header .back-button svg {
+    width: 100% !important;
+    height: 100% !important;
+  }
+}
+
+/* 타이틀은 헤더에서 margin 제거 (세로로 밀리지 않게) */
+.sg-title {
+  margin: 0; /* ✅ 중요: 기존 margin-bottom 제거 */
+  font-size: 24px;
+  font-weight: bold;
+  color: #111;
+  text-align: center;
+}
 
 /* 상단 헤더: 타이틀은 정확히 중앙, 뒤로가기 버튼은 왼쪽 고정 */
 .sg-header {
@@ -119,7 +220,7 @@ body {
   text-align: center;
   font-size: 24px;
   font-weight: bold;
-  margin-bottom: 24px;
+
   color: #111;
 }
 
@@ -220,6 +321,9 @@ p {
     max-width: 480px;
     width: 90%;
   }
+  p {
+    font-size: clamp(14px, 3.5vw, 20px);
+  }
 }
 
 @media (min-width: 768px) {
@@ -236,7 +340,7 @@ p {
   .sg-label,
   .sg-checkbox-item,
   .sg-checkbox-all {
-    font-size: clamp(16px, 3.5vw, 26px);
+    font-size: clamp(16px, 3.5vw, 30px);
     padding: clamp(5px, 2vw, 26px);
   }
 
@@ -269,6 +373,36 @@ p {
     padding: 20px;
     max-width: 900px;
     width: 90%;
+  }
+
+  .back-button {
+    width: 50px;
+    height: 50px;
+  }
+}
+
+@media (min-width: 769px) and (pointer: coarse) {
+  .back-button {
+    width: 56px;
+    height: 56px;
+    font-size: 50px;
+  }
+}
+
+/* 데스크탑(마우스)는 터치 타깃 유지, 원하면 살짝 키우기만 */
+@media (min-width: 1025px) and (hover: hover) and (pointer: fine) {
+  .back-button {
+    font-size: 26px;
+  }
+  .sg-form p {
+    font-size: 14px; /* 필요하면 15~16px로 조절 */
+    line-height: 1.45;
+    padding-left: 0;
+    margin-left: 0;
+  }
+  .sg-input {
+    margin-left: 0;
+    padding-left: 0;
   }
 }
 
